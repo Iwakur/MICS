@@ -1,0 +1,197 @@
+// MICS v1 schema
+// PostgreSQL target
+
+Enum user_role {
+  admin
+  teacher
+}
+
+Enum student_status {
+  active
+  paused
+  archived
+}
+
+Enum student_billing_type {
+  per_lesson
+  plan_based
+}
+
+Table staff {
+  id bigserial [pk]
+  staff_role_id bigint [not null]
+  first_name varchar(100) [not null]
+  family_name varchar(100)
+  father_name varchar(100)
+  email varchar(255)
+  phone varchar(32)
+  birthday date
+  city varchar(100)
+  payout_card_number varchar(64)
+  salary_amount numeric(10,2)
+  is_active boolean [not null, default: true]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table staff_roles {
+  id bigserial [pk]
+  name varchar(100) [not null, unique]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table users {
+  id bigserial [pk]
+  staff_id bigint [not null, unique]
+  username varchar(100) [not null, unique]
+  password_hash varchar(255) [not null]
+  role user_role [not null]
+  last_login_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table lesson_types {
+  id bigserial [pk]
+  name varchar(100) [not null, unique]
+  duration_minutes integer [not null]
+  lesson_price numeric(10,2) [not null]
+  is_assignable boolean [not null, default: true]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table plans {
+  id bigserial [pk]
+  name varchar(100) [not null, unique]
+  duration_minutes integer [not null]
+  lesson_count integer [not null]
+  lesson_price numeric(10,2) [not null]
+  plan_price numeric(10,2) [not null]
+  is_assignable boolean [not null, default: true]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: 'lesson_count and lesson_price are metadata. plan_price is the value used for billing.'
+}
+
+Table students {
+  id bigserial [pk]
+  staff_id bigint [not null]
+  first_name varchar(100) [not null]
+  family_name varchar(100)
+  father_name varchar(100)
+  email varchar(255)
+  phone varchar(32)
+  birthday date
+  city varchar(100)
+  joined_at date [not null]
+  status student_status [not null, default: 'active']
+  billing_type student_billing_type [not null]
+  lesson_type_id bigint
+  lesson_amount integer
+  plan_id bigint
+  plan_start_at date
+  discount_amount numeric(10,2) [not null, default: 0]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: 'Do not store current debt here. Debt should be derived from student_months and payments.'
+}
+
+Table student_months {
+  id bigserial [pk]
+  student_id bigint [not null]
+  month_date date [not null]
+  opening_balance numeric(10,2) [not null, default: 0]
+  charge_amount numeric(10,2) [not null, default: 0]
+  manual_adjustment numeric(10,2) [not null, default: 0]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (student_id, month_date) [unique]
+  }
+
+  Note: 'One row per student per month. Closing debt is calculated as opening_balance + charge_amount + manual_adjustment - payments_for_that_month.'
+}
+
+Enum payment_status {
+  draft
+  validated
+}
+
+Table payments {
+  id bigserial [pk]
+  student_month_id bigint [not null]
+  paid_at timestamptz [not null]
+  amount numeric(10,2) [not null]
+  payment_method varchar(50) [not null]
+  status payment_status [not null, default: 'draft']
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: 'Payments belong to a specific student month. Use draft for proposed or not-yet-reviewed rows. Only validated payments should affect real totals.'
+}
+
+Enum expense_status {
+  draft
+  validated
+}
+
+Table expense_categories {
+  id bigserial [pk]
+  name varchar(100) [not null, unique]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table expenses {
+  id bigserial [pk]
+  staff_id bigint
+  expense_category_id bigint [not null]
+  month_date date
+  amount numeric(10,2) [not null]
+  status expense_status [not null, default: 'draft']
+  is_auto_generated boolean [not null, default: false]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: 'Use draft for system-created or not-yet-reviewed rows. Use validated after review.'
+}
+
+Table bank_months {
+  id bigserial [pk]
+  month_date date [not null, unique]
+  opening_balance numeric(10,2) [not null, default: 0]
+  closing_balance numeric(10,2) [not null, default: 0]
+  note text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: 'Simple monthly bank closing snapshot. This is not full accounting.'
+}
+
+Ref: users.staff_id > staff.id
+Ref: staff.staff_role_id > staff_roles.id
+
+Ref: students.staff_id > staff.id
+Ref: students.lesson_type_id > lesson_types.id
+Ref: students.plan_id > plans.id
+
+Ref: student_months.student_id > students.id
+
+Ref: payments.student_month_id > student_months.id
+
+Ref: expenses.staff_id > staff.id
+Ref: expenses.expense_category_id > expense_categories.id
