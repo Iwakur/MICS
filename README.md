@@ -56,3 +56,71 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+# MICS Project
+
+## Current Status
+
+MICS is a school and academy operations system being rebuilt cleanly on Laravel 13, PHP 8.4, PostgreSQL 17, Tailwind CSS 4, and Vite. The repository currently contains the Laravel foundation and default authentication-ready user model; the MICS business modules and database schema have not yet been implemented as Laravel migrations.
+
+The previous project and its database designs are retained locally under `legacy(self-created)/` as product research. They describe intended behavior, but they are not code to port directly and are not the source of truth for the running Laravel application.
+
+## Product Direction
+
+MICS should support straightforward school operations without becoming a full accounting platform. Its planned areas are:
+
+- staff, teacher, user, and access management
+- student records and teacher assignment
+- lesson types and student plans
+- monthly student charges and balance tracking
+- payment and expense review
+- simple monthly bank closing
+- separate admin and teacher workflows
+
+The rebuild should favor Laravel conventions, direct CRUD workflows, explicit business services, and testable behavior. Avoid reproducing the legacy application's custom framework, automatic bootstrap provisioning, SQL console, deep repository layering, or debit/credit journal unless a later requirement explicitly calls for them.
+
+## Planned Data Model
+
+The simplified legacy DBML is the starting design reference, not an applied schema. Its principal entities are:
+
+- `staff` and `staff_roles` for business identities and responsibilities
+- `users` for login accounts and system access roles
+- `students` for identity, assignment, status, and billing configuration
+- `lesson_types` and `plans` for billable offerings
+- `student_months` for one balance record per student per month
+- `payments` linked to a specific student month
+- `expenses` and `expense_categories` for reviewed outgoings
+- `bank_months` for simple monthly opening and closing snapshots
+
+Access role and business role are separate concepts: a user's role controls authorization, while a staff role describes their function in the organization. Student debt must not be stored as a mutable total on `students`; it is derived from monthly history.
+
+The intended monthly calculation is:
+
+```text
+closing_balance = opening_balance + charge_amount + manual_adjustment - validated_payments
+```
+
+Only validated payments and expenses count as real financial activity. Draft records remain reviewable without affecting totals. A month's closing student balance becomes the next month's opening balance.
+
+## Implementation Source of Truth
+
+During development, use this order of authority:
+
+1. Current Laravel migrations, models, tests, and application code describe what exists.
+2. This README describes the agreed product direction.
+3. `legacy(self-created)/database/schema.dbml` supplies the initial database proposal.
+4. `legacy(self-created)/MICS_legacy/` is historical evidence only.
+
+Before implementing a legacy idea, translate it into Laravel terminology, confirm its business rule, and cover it with migrations and feature tests. Do not assume that historical tables, statuses, or workflows are final requirements.
+
+## Local Development
+
+```bash
+ddev start
+ddev composer setup
+ddev composer dev
+```
+
+Run the test suite with `ddev composer test`, format PHP with `ddev exec ./vendor/bin/pint`, and build production assets with `ddev npm run build`.
