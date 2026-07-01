@@ -79,6 +79,8 @@ MICS should support straightforward school operations without becoming a full ac
 - simple monthly bank closing
 - separate admin and teacher workflows
 
+Students are tracked business records and do not receive login accounts. Every administrator is also a teacher: administrators receive the full operational dashboard, while standard teachers use a separate dashboard where they can maintain their own profile and manage only their assigned students. Non-teaching staff and balances owed to or by them are part of the longer-term product scope, but their workflows are deferred from the first release.
+
 The rebuild should favor Laravel conventions, direct CRUD workflows, explicit business services, and testable behavior. Avoid reproducing the legacy application's custom framework, automatic bootstrap provisioning, SQL console, deep repository layering, or debit/credit journal unless a later requirement explicitly calls for them.
 
 ## Planned Data Model
