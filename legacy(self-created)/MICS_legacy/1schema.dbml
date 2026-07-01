@@ -1,0 +1,340 @@
+// MICS PHP starter schema (PostgreSQL)
+// DBML docs: https://dbml.dbdiagram.io/docs
+// DBML visualisation: https://dbdiagram.io/d/69fe4fdf7a923b94725e997a
+
+Enum user_role {
+  admin
+  teacher
+}
+
+Enum student_status {
+  active
+  paused
+  archived
+}
+
+Enum staff_status {
+  active
+  archived
+}
+
+Enum document_status {
+  draft
+  posted
+  void
+}
+
+Enum payment_status {
+  pending
+  confirmed
+  void
+}
+
+Enum account_type {
+  asset
+  liability
+  equity
+  revenue
+  expense
+}
+
+Enum journal_entry_status {
+  draft
+  posted
+  void
+}
+
+Enum journal_source_type {
+  student_charge
+  payment
+  expense
+  staff_payout
+  opening_balance
+  manual_entry
+  reversal
+}
+
+Enum statement_row_status {
+  new
+  draft_created
+  unmatched
+  ignored
+  deleted
+}
+
+Table accounts {
+  id bigserial [primary key]
+  code varchar(32) [not null, unique]
+  name varchar(150) [not null]
+  type account_type [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+}
+
+Table staff {
+  id bigserial [primary key]
+  role varchar(100) [not null]
+  first_name varchar(100) [not null]
+  family_name varchar(100)
+  father_name varchar(100)
+  status staff_status [not null, default: 'active']
+  payout_card_number varchar(64)
+  fixed_salary_amount numeric(10,2)
+  profile_image_path varchar(255)
+  phone varchar(32)
+  email varchar(255)
+  comments text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table users {
+  id bigserial [primary key]
+  staff_id bigint [not null]
+  username varchar(100) [not null, unique]
+  password_hash varchar(255) [not null]
+  profile_image_path varchar(255)
+  role user_role [not null]
+  is_active boolean [not null, default: true]
+  last_login_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table plans {
+  id bigserial [primary key]
+  name varchar(100) [not null, unique]
+  lesson_count numeric(5,2) [not null]
+  lesson_price numeric(10,2) [not null]
+  teacher_share_per_lesson numeric(10,2) [not null]
+  is_assignable boolean [not null, default: true]
+  comments text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table students {
+  id bigserial [primary key]
+  first_name varchar(100) [not null]
+  family_name varchar(100)
+  father_name varchar(100)
+  profile_image_path varchar(255)
+  phone varchar(32)
+  email varchar(255)
+  status student_status [not null, default: 'active']
+  plan_id bigint [not null]
+  staff_id bigint [not null]
+  discount_amount numeric(10,2) [not null, default: 0]
+  joined_at timestamptz [not null]
+  comments text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table student_charges {
+  id bigserial [primary key]
+  student_id bigint [not null]
+  charge_month date [not null]
+  plan_id bigint [not null]
+  staff_id bigint [not null]
+  amount numeric(10,2) [not null]
+  status document_status [not null, default: 'draft']
+  created_at timestamptz [not null]
+  posted_at timestamptz
+  comment text
+
+  indexes {
+    (student_id, charge_month) [unique]
+    (staff_id, charge_month)
+  }
+}
+
+Table payments {
+  id bigserial [primary key]
+  student_id bigint [not null]
+  payment_date timestamptz [not null]
+  amount numeric(10,2) [not null]
+  method varchar(50) [not null]
+  source varchar(50) [not null]
+  external_reference varchar(255)
+  status payment_status [not null, default: 'pending']
+  covered_month date
+  import_row_id bigint
+  created_at timestamptz [not null]
+  confirmed_at timestamptz
+  comment text
+
+  indexes {
+    (student_id, payment_date)
+    (import_row_id) [unique]
+  }
+}
+
+Table statement_import_batches {
+  id bigserial [primary key]
+  original_filename varchar(255) [not null]
+  stored_filename varchar(255) [not null]
+  file_hash char(64) [not null, unique]
+  account_number varchar(64)
+  currency varchar(16)
+  imported_by_user_id bigint [not null]
+  total_rows integer [not null, default: 0]
+  new_rows integer [not null, default: 0]
+  duplicate_rows integer [not null, default: 0]
+  created_at timestamptz [not null]
+}
+
+Table statement_import_rows {
+  id bigserial [primary key]
+  batch_id bigint [not null]
+  row_number integer [not null]
+  row_hash char(64) [not null, unique]
+  owner_edrpou varchar(32)
+  owner_mfo varchar(32)
+  account_number varchar(64)
+  currency varchar(16)
+  document_number varchar(64)
+  operation_date date [not null]
+  bank_mfo varchar(32)
+  bank_name varchar(255)
+  correspondent_account varchar(64)
+  correspondent_edrpou varchar(32)
+  correspondent_name varchar(255)
+  amount numeric(10,2) [not null]
+  payment_purpose text
+  direction varchar(16) [not null]
+  status statement_row_status [not null, default: 'new']
+  raw_payload jsonb [not null]
+  suggested_student_ids jsonb [not null]
+  matched_student_id bigint
+  payment_id bigint
+  expense_id bigint
+  payout_id bigint
+  created_document_type varchar(20)
+  review_note text
+  reviewed_at timestamptz
+  reviewed_by_user_id bigint
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (batch_id, status)
+    (operation_date)
+    (matched_student_id)
+    (created_document_type)
+  }
+}
+
+Table expense_categories {
+  id bigserial [primary key]
+  code varchar(32) [not null, unique]
+  name varchar(100) [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+}
+
+Table expenses {
+  id bigserial [primary key]
+  expense_date timestamptz [not null]
+  category_id bigint [not null]
+  amount numeric(10,2) [not null]
+  paid_from_account_id bigint [not null]
+  staff_id bigint
+  status document_status [not null, default: 'draft']
+  description text
+  reason varchar(100)
+  import_row_id bigint
+  created_at timestamptz [not null]
+  posted_at timestamptz
+
+  indexes {
+    (import_row_id) [unique]
+  }
+}
+
+Table staff_payouts {
+  id bigserial [primary key]
+  staff_id bigint [not null]
+  payout_date timestamptz [not null]
+  amount numeric(10,2) [not null]
+  status document_status [not null, default: 'draft']
+  import_row_id bigint
+  created_at timestamptz [not null]
+  posted_at timestamptz
+  comment text
+
+  indexes {
+    (staff_id, payout_date)
+    (import_row_id) [unique]
+  }
+}
+
+Table journal_entries {
+  id bigserial [primary key]
+  entry_date timestamptz [not null]
+  reference varchar(255)
+  description text
+  source_type journal_source_type [not null]
+  source_id bigint
+  reversal_of_journal_entry_id bigint
+  status journal_entry_status [not null, default: 'draft']
+  created_at timestamptz [not null]
+
+  indexes {
+    (source_type, source_id) [unique]
+    (entry_date)
+    (reversal_of_journal_entry_id)
+  }
+}
+
+Table journal_entry_lines {
+  id bigserial [primary key]
+  journal_entry_id bigint [not null]
+  account_id bigint [not null]
+  debit_amount numeric(10,2) [not null, default: 0]
+  credit_amount numeric(10,2) [not null, default: 0]
+  student_id bigint
+  staff_id bigint
+  note text
+
+  indexes {
+    (journal_entry_id)
+    (account_id)
+    (student_id)
+    (staff_id)
+  }
+}
+
+Ref: users.staff_id > staff.id
+
+Ref: students.plan_id > plans.id
+Ref: students.staff_id > staff.id
+
+Ref: student_charges.student_id > students.id
+Ref: student_charges.plan_id > plans.id
+Ref: student_charges.staff_id > staff.id
+
+Ref: payments.student_id > students.id
+Ref: payments.import_row_id > statement_import_rows.id
+
+Ref: statement_import_batches.imported_by_user_id > users.id
+Ref: statement_import_rows.batch_id > statement_import_batches.id
+Ref: statement_import_rows.matched_student_id > students.id
+Ref: statement_import_rows.payment_id > payments.id
+Ref: statement_import_rows.expense_id > expenses.id
+Ref: statement_import_rows.payout_id > staff_payouts.id
+Ref: statement_import_rows.reviewed_by_user_id > users.id
+
+Ref: expenses.category_id > expense_categories.id
+Ref: expenses.paid_from_account_id > accounts.id
+Ref: expenses.staff_id > staff.id
+Ref: expenses.import_row_id > statement_import_rows.id
+
+Ref: staff_payouts.staff_id > staff.id
+Ref: staff_payouts.import_row_id > statement_import_rows.id
+
+Ref: journal_entries.reversal_of_journal_entry_id > journal_entries.id
+Ref: journal_entry_lines.journal_entry_id > journal_entries.id
+Ref: journal_entry_lines.account_id > accounts.id
+Ref: journal_entry_lines.student_id > students.id
+Ref: journal_entry_lines.staff_id > staff.id
