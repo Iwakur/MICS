@@ -29,6 +29,10 @@ PHPUnit 12 is configured in `phpunit.xml` with an in-memory SQLite database. Tes
 
 Recent history uses short, imperative summaries such as `Initialize Laravel project with DDEV and PostgreSQL`. Keep commits focused and explain the outcome, not the editing process. Pull requests should include a concise purpose, implementation notes, test results, and linked issues. Include screenshots for visible UI changes and call out migrations, environment changes, or deployment steps explicitly. Never commit `.env`, secrets, generated dependencies, or runtime files.
 
+## Collaboration & Learning
+
+The project owner wants to understand and write the application, not receive unexplained finished code. Default to guidance before implementation: explain the Laravel concept, recommend an approach with reasons, identify tradeoffs, and provide small ordered instructions in `PLAN.md`. Challenge uncertain or risky ideas constructively and suggest a more maintainable Laravel-native alternative. Do not implement application code unless the owner explicitly asks after reviewing the proposed steps. When a guided step is completed, inspect it, explain any issues, and update the plan with the next step.
+
 ## MICS Domain & Legacy Reference
 
 MICS is a clean Laravel rebuild of a school operations system. The current Laravel code, migrations, and tests are always the implementation source of truth. Product intent and a proposed simplified schema are documented in `legacy(self-created)/README.md` and `legacy(self-created)/database/schema.dbml`. The older plain-PHP application under `legacy(self-created)/MICS_legacy/` is historical reference only.

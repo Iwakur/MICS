@@ -33,7 +33,7 @@ This is the living roadmap for rebuilding MICS while learning Laravel deliberate
 
 - Define the smallest usable release and clarify ambiguous business rules.
 - Configure application identity, locale, timezone, and PostgreSQL environments.
-- Add authentication and a minimal application layout.
+- Add username/password authentication and a minimal application layout.
 - Establish admin and teacher authorization with policies or gates.
 - Document deployment targets, backups, secrets, and production requirements.
 
@@ -84,26 +84,67 @@ This is the living roadmap for rebuilding MICS while learning Laravel deliberate
 
 ## Immediate Next Step
 
-Do not create all database tables at once. Start with a short requirements session for the first vertical slice: **staff roles, staff, users, login, and authorization**.
+Build the first vertical slice: **authentication, role-based dashboard routing, and a minimal login page**. Authentication answers “who is signed in”; authorization answers “what may they access.” Implement and test them separately.
 
-The first release assumes:
+### Recommended User Design
 
-- students never authenticate;
-- a user account belongs to one staff record;
-- administrators are teachers with elevated access;
-- standard teachers manage their own profile and assigned students only; and
-- non-teaching personnel and amounts owed to or by them are deferred.
+Adapt Laravel's existing `users` migration and model instead of copying the legacy authentication code.
 
-Before implementation, confirm whether staff can hold multiple business roles, whether every teacher requires a login, how inactive staff access should behave, and which staff fields are required at creation time.
+| Field | Purpose |
+| --- | --- |
+| `id` | Primary key |
+| `username` | Unique login identifier and temporary display name until staff profiles exist |
+| `email` | Unique contact/recovery address |
+| `password` | Laravel-hashed password; do not call it `password_hash` |
+| `role` | Dashboard access: `admin` or `teacher` |
+| `is_active` | Disables access without deleting history |
+| `last_login_at` | Nullable audit timestamp |
+| `remember_token` | Laravel's remember-me support |
+| timestamps | Creation and update history |
 
-After those answers, implement this slice in order:
+Do not add `staff_id` yet. Add it with a foreign key when the `staff` table is introduced; this avoids a nullable circular first step. At that point, every real teacher account should link to exactly one staff record. Represent `role` with a PHP backed enum and a database string so authorization remains readable and portable.
 
-1. Write acceptance criteria in this file.
-2. Design and review the migrations.
-3. Generate models, factories, policies, requests, controllers, and PHPUnit feature tests.
-4. Build the smallest functional Blade UI.
-5. Run focused tests, format code, and manually verify the workflow.
-6. Update this plan with results, unresolved questions, and the next slice.
+### Step 1 Review
+
+The first migration draft correctly added a unique username and retained Laravel's password, session, and password-reset structure. Before Step 1 is complete:
+
+- replace `isAdmin` with a `role` string defaulting to `teacher`;
+- rename `isActive` to `is_active` to follow Laravel database naming;
+- add nullable `last_login_at`;
+- remove `email_verified_at` because email verification is not part of the first release; and
+- keep email required and unique for future account recovery.
+
+After these corrections, rebuild the disposable local database and inspect the resulting `users` table. Step 2 begins only after the schema matches this plan.
+
+### Acceptance Criteria
+
+- A guest sees a minimal username/password login form.
+- Correct active credentials create an authenticated session.
+- Invalid credentials show a generic error without revealing which field was wrong.
+- Inactive users cannot sign in.
+- Login attempts are rate-limited and the session ID is regenerated after success.
+- Admin users reach the full dashboard placeholder.
+- Teacher users reach the teacher dashboard placeholder.
+- Authenticated users cannot reopen the login page and can log out safely.
+- Tests cover successful login, failure, inactive users, role redirects, guest protection, and logout.
+
+### Guided Implementation Steps
+
+Complete one step, inspect and understand it, then continue. Do not generate the whole feature in one pass.
+
+1. **Schema:** update the not-yet-deployed default users migration with the agreed fields. Learn why unique constraints, nullability, defaults, and indexes belong in the database.
+2. **Domain types:** create the access-role enum and update `User` fillable, hidden, and cast definitions. Keep Laravel's `hashed` password cast.
+3. **Test data:** update `UserFactory` with valid defaults plus named admin, teacher, and inactive states.
+4. **Routes and controller:** define guest login routes and an authenticated logout route. Use a dedicated login request/controller rather than placing logic in route closures.
+5. **Authentication behavior:** validate credentials, apply throttling, regenerate the session after login, and invalidate/regenerate the CSRF token on logout.
+6. **Authorization:** redirect by access role and protect each dashboard route. Do not confuse the `admin` permission with the teacher business role.
+7. **Blade UI:** create one minimal layout and login view with labels, validation errors, CSRF protection, and accessible focus states.
+8. **Tests:** write focused PHPUnit feature tests before styling beyond the minimum.
+9. **Verification:** run the focused tests, Pint, then manually test both roles in the browser.
+
+### CSS Decision
+
+Use the existing `resources/css/app.css` as the single CSS entrypoint. Prefer Tailwind utility classes in Blade and small reusable Blade components. Do not create page-specific stylesheets yet; split CSS only when repeated custom styles become difficult to manage. This keeps Vite configuration and the initial UI simple without preventing later organization.
 
 ## Working Method
 
@@ -123,6 +164,9 @@ Record durable decisions here with the date, decision, reason, and consequences.
 | 2026-07-01 | Separate teaching role from administrator access | Every administrator teaches, while standard teachers receive restricted access. |
 | 2026-07-01 | Treat students as non-authenticated records | Student accounts are operational records to track, not application logins. |
 | 2026-07-01 | Defer non-teaching staff workflows | Preserve them in the future model without expanding the first release. |
+| 2026-07-01 | Guide before implementing application code | The owner is learning Laravel and should understand each design and implementation step. |
+| 2026-07-01 | Start with username/password authentication | The first UI slice establishes sessions and role-specific dashboard access. |
+| 2026-07-01 | Keep one CSS entrypoint initially | Tailwind and a shared layout are sufficient until repeated custom styling justifies a split. |
 
 ## Progress Log
 
@@ -130,5 +174,6 @@ Record durable decisions here with the date, decision, reason, and consequences.
 - [x] Install Laravel-aware agent tooling.
 - [x] Document repository and legacy context.
 - [x] Create the development roadmap.
-- [ ] Confirm Phase 1 staff/access requirements.
-- [ ] Implement and verify the first vertical slice.
+- [x] Define the initial authentication scope and acceptance criteria.
+- [ ] Complete guided Step 1 corrections and verify the users schema.
+- [ ] Implement and verify the authentication vertical slice.
