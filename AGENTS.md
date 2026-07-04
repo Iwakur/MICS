@@ -71,6 +71,7 @@ Use the documentation with these roles:
 - `README.md` is the durable project truth for agreed product direction and major decisions.
 - `PLAN.md` tracks the latest active work, current blockers, and the next controlled steps.
 - Do not use temporary handoff documents such as `hash.md`; fold anything still relevant into `PLAN.md` or `README.md`.
+- Do not add fallback or rescue styling for cases where Vite, npm, or the asset pipeline is down. If frontend assets are unavailable, the UI may render raw; fix the asset pipeline instead of covering the failure in Blade views.
 
 ## MICS Domain & Legacy Reference
 
@@ -100,3 +101,4 @@ Follow the Laravel Boost guidance already installed for this repository.
 - Use `php artisan make:` commands for new Laravel classes when possible.
 - Run Pint on changed PHP files before finalizing PHP edits.
 - Use PHPUnit classes, not Pest.
+

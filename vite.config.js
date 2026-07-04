@@ -21,9 +21,10 @@ export default defineConfig({
         port: 5173,
         strictPort: true,
         cors: true,
+        origin: 'https://mics.ddev.site:5173',
         hmr: {
             host: 'mics.ddev.site',
-            protocol: 'ws',
+            protocol: 'wss',
         },
         watch: {
             ignored: ['**/storage/framework/views/**'],

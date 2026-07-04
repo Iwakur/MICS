@@ -12,39 +12,44 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Repair the authentication foundation so the auth layer is internally consistent before building login routes and views.
+Replace the temporary dashboard with a real authenticated shell and add the first safe admin CRUD screen for user management.
 
-### Current Known Blockers
+### Current Known Facts
 
-- `app/Models/User.php` and `database/factories/UserFactory.php` must match the current `users` migration exactly.
-- We still need runtime verification from DDEV after each PHP step because this Codex shell cannot run `ddev` directly.
+- Login and logout already work with `username` and `password`.
+- Users already have the core fields needed for administration:
+  - `username`
+  - `email`
+  - `password`
+  - `role`
+  - `is_active`
+- The first admin management screen should respect database uniqueness rules and the role model.
+- The system must never lose its last active administrator.
 
 ### Current Runtime Assessment
 
-Laravel already boots correctly in DDEV. The current issue is not framework bootstrap. The current issue is auth foundation consistency.
+Laravel boots correctly in DDEV. The active work is now application structure and admin-safe user management, not auth bootstrap.
 
-## Current Auth Schema Reality
+## Current UI Direction
 
-The current `users` migration already defines:
+The new authenticated area now moves toward a reusable app shell:
 
-- `username` as unique
-- `email` as unique
-- `email_verified_at` as nullable
-- `password`
-- `role` defaulting to `teacher`
-- `is_active` defaulting to `true`
-- `remember_token`
-- timestamps
+- shared header
+- shared left sidebar
+- separate admin and teacher dashboards
+- first admin CRUD screen for users
+- role-aware route flow from the generic `/dashboard`
 
-So the current problem is not the migration first. The current problem is consistency between migration, model, enum, and factory.
+This makes the application shape understandable before deeper school-domain screens are added.
 
 ## Next Controlled Steps
 
-1. Create `app/Enums/UserRole.php` with the real backed enum used by the model.
-2. Update `app/Models/User.php` so fillable fields and casts match the current schema.
-3. Update `database/factories/UserFactory.php` so generated test data matches the same schema.
-4. Run DDEV verification for the auth foundation.
-5. Only after that should we continue to login routes, controllers, and views.
+1. Add a shared authenticated layout for staff pages.
+2. Redirect `/dashboard` to the correct role-specific dashboard.
+3. Add an admin-only user-management screen.
+4. Enforce safe rules when changing or deleting admin accounts.
+5. Add feature tests for role routing and admin CRUD safety.
+6. Verify the new screens in DDEV and then choose the next MICS domain screen.
 
 ## Step Review Template
 

@@ -117,6 +117,18 @@ During development, use this order of authority:
 
 Before implementing a legacy idea, translate it into Laravel terminology, confirm its business rule, and cover it with migrations and feature tests. Do not assume that historical tables, statuses, or workflows are final requirements.
 
+## Frontend UI Direction
+
+The UI direction for MICS should stay intentionally restrained:
+
+- modern minimal layout
+- dark-blue primary visual direction
+- low-noise surfaces and simple hierarchy
+- consistency across admin and teacher areas
+- no decorative fallback styling when Vite or npm assets are unavailable
+
+If the frontend asset pipeline is down, the interface may render raw or partially unstyled. Treat that as a real asset-pipeline problem to fix, not a case for extra Blade-level rescue CSS.
+
 ## Local Development
 
 ```bash
@@ -126,3 +138,4 @@ ddev composer dev
 ```
 
 Run the test suite with `ddev composer test`, format PHP with `ddev exec ./vendor/bin/pint`, and build production assets with `ddev npm run build`.
+

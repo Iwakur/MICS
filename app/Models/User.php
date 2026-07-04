@@ -41,4 +41,14 @@ class User extends Authenticatable
         'role' => UserRole::Teacher->value,
         'is_active' => true,
     ];
+
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin;
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->role === UserRole::Teacher;
+    }
 }
