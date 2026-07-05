@@ -96,7 +96,7 @@ final class Auth
             return;
         }
 
-        redirect(self::isAdmin() ? 'admin/dashboard.php' : 'teacher/dashboard.php');  
+        redirect(self::isAdmin() ? 'admin/dashboard.php' : 'teacher/dashboard.php');
     }
 
     public static function isAdmin(): bool

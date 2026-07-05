@@ -1,12 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\PlanRepository;
+use App\Services\PlanFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\PlanRepository();
+$repository = new PlanRepository;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -18,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $assignableState = trim((string) ($_POST['assignable_state'] ?? ''));
     $plan = $repository->findById($planId);
 
-    if ($plan === null || ! in_array($assignableState, \App\Services\PlanFormService::ASSIGNABLE_OPTIONS, true)) {
+    if ($plan === null || ! in_array($assignableState, PlanFormService::ASSIGNABLE_OPTIONS, true)) {
         flash('error', 'Unable to update that plan status.');
         redirect('admin/plans.php');
     }
@@ -45,5 +48,5 @@ render('admin/plans', [
     'plans' => $plans,
     'search' => $search,
     'assignable' => $assignable,
-    'assignableOptions' => \App\Services\PlanFormService::ASSIGNABLE_OPTIONS,
+    'assignableOptions' => PlanFormService::ASSIGNABLE_OPTIONS,
 ], 'admin');

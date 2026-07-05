@@ -152,6 +152,10 @@ The simplified legacy DBML has been translated into Laravel migrations, Eloquent
 
 Access role and business role are separate concepts: a user's role controls authorization, while a staff role describes their function in the organization. Student debt must not be stored as a mutable total on `students`; it is derived from monthly history.
 
+Staff compensation is explicit: fixed staff use a configured salary amount, while dynamic staff later receive a monthly calculation from their assigned students. Lesson types store both the student's per-lesson price and the teacher's per-lesson earning. Plans store the student's recurring monthly price and the teacher's recurring monthly earning. Administrators maintain both catalogs through archive-safe CRUD screens; rate changes are intended for future month closing and must not rewrite historical snapshots.
+
+Student profiles use one billing mode at a time. Administrators may assign, edit, pause, reactivate, or archive any student. Teachers may create and edit only students assigned to their linked active staff profile and cannot reassign or archive them. Per-lesson counts are not stored on the student profile because they belong to a specific billing month.
+
 The current user-management screen predates staff management, so `users.staff_id` is temporarily nullable. When present it is unique, preserving a one-to-one staff/login relationship. It should become required only after account creation can select or create the corresponding staff record.
 
 The intended monthly calculation is:

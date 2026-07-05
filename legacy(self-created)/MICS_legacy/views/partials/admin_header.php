@@ -1,5 +1,8 @@
-<?php declare(strict_types=1); ?>
-<?php $authUser = \App\Auth::user(); ?>
+<?php declare(strict_types=1);
+use App\Auth;
+
+ ?>
+<?php $authUser = Auth::user(); ?>
 <?php $currentDateTime = current_app_datetime(); ?>
 <?php $nowIso = $currentDateTime->format(DateTimeInterface::ATOM); ?>
 <header class="topbar topbar-admin">

@@ -51,7 +51,7 @@
             </div>
             <div class="profile-field">
                 <span>Collection Rate</span>
-                <strong><?= e($summary['collection_rate'] !== null ? number_format((float) $summary['collection_rate'], 1) . '%' : 'N/A') ?></strong>
+                <strong><?= e($summary['collection_rate'] !== null ? number_format((float) $summary['collection_rate'], 1).'%' : 'N/A') ?></strong>
             </div>
             <div class="profile-field">
                 <span>Joined This Month</span>
@@ -109,9 +109,9 @@
 <section class="panel-grid">
     <article class="panel">
         <h2>Top Contributing Students</h2>
-        <?php if ($summary['top_contributors'] === []): ?>
+        <?php if ($summary['top_contributors'] === []) { ?>
             <p>No active students are contributing to this month’s suggested payout.</p>
-        <?php else: ?>
+        <?php } else { ?>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -122,25 +122,25 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($summary['top_contributors'] as $student): ?>
+                    <?php foreach ($summary['top_contributors'] as $student) { ?>
                         <?php $studentName = person_name_from_row($student); ?>
                         <tr>
                             <td><strong><?= e($studentName) ?></strong></td>
                             <td><?= e($student['plan_name']) ?></td>
                             <td><?= e(number_format((float) $student['monthly_teacher_share'], 2)) ?></td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php } ?>
                     </tbody>
                 </table>
             </div>
-        <?php endif; ?>
+        <?php } ?>
     </article>
 
     <article class="panel">
         <h2>Recent Student Activity</h2>
-        <?php if ($summary['recent_students'] === []): ?>
+        <?php if ($summary['recent_students'] === []) { ?>
             <p>No student history is available yet.</p>
-        <?php else: ?>
+        <?php } else { ?>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -152,7 +152,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($summary['recent_students'] as $student): ?>
+                    <?php foreach ($summary['recent_students'] as $student) { ?>
                         <?php $studentName = person_name_from_row($student); ?>
                         <tr>
                             <td><strong><?= e($studentName) ?></strong></td>
@@ -160,19 +160,19 @@
                             <td><?= e($student['plan_name']) ?></td>
                             <td><?= e(date('d/m/Y - H:i:s', strtotime((string) $student['joined_at']))) ?></td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php } ?>
                     </tbody>
                 </table>
             </div>
-        <?php endif; ?>
+        <?php } ?>
     </article>
 </section>
 
 <section class="panel">
     <h2>Recent Payout History</h2>
-    <?php if ($summary['recent_payouts'] === []): ?>
+    <?php if ($summary['recent_payouts'] === []) { ?>
         <p>No payout records have been saved yet.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -184,16 +184,16 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($summary['recent_payouts'] as $payout): ?>
+                <?php foreach ($summary['recent_payouts'] as $payout) { ?>
                     <tr>
                         <td><?= e(date('d/m/Y - H:i:s', strtotime((string) $payout['payout_date']))) ?></td>
                         <td><?= e(number_format((float) $payout['amount'], 2)) ?></td>
                         <td><span class="status-pill status-<?= e($payout['status']) ?>"><?= e(ucfirst($payout['status'])) ?></span></td>
                         <td><?= e($payout['posted_at'] !== null ? date('d/m/Y - H:i:s', strtotime((string) $payout['posted_at'])) : 'Not posted') ?></td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

@@ -1,10 +1,15 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\LessonTypeController;
+use App\Http\Controllers\Admin\PlanController;
+use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
+use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
@@ -61,12 +66,29 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/dashboard', AdminDashboardController::class)
             ->name('dashboard');
 
+        Route::resource('staff', StaffController::class)
+            ->except('show');
+
+        Route::resource('lesson-types', LessonTypeController::class)
+            ->except('show');
+
+        Route::resource('plans', PlanController::class)
+            ->except('show');
+
+        Route::resource('students', AdminStudentController::class)
+            ->except('show');
+
         Route::resource('users', UserController::class)
             ->except('show');
     });
 
     Route::get('/teacher/dashboard', TeacherDashboardController::class)
         ->name('teacher.dashboard');
+
+    Route::prefix('teacher')->name('teacher.')->group(function (): void {
+        Route::resource('students', TeacherStudentController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update']);
+    });
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

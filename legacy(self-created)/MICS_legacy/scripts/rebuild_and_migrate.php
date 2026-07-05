@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/app/init.php';
+require dirname(__DIR__).'/app/init.php';
 
 use App\Database;
 use App\DatabaseProvisioner;
@@ -12,7 +12,7 @@ $payloadPath = $argv[1] ?? base_path('outputs/migration_workbook/migration_paylo
 $payloadJson = is_file($payloadPath) ? file_get_contents($payloadPath) : false;
 
 if ($payloadJson === false) {
-    throw new RuntimeException('Migration payload file not found: ' . $payloadPath);
+    throw new RuntimeException('Migration payload file not found: '.$payloadPath);
 }
 
 $payload = json_decode($payloadJson, true, 512, JSON_THROW_ON_ERROR);
@@ -97,7 +97,7 @@ try {
     foreach ($payload['staff'] as $staff) {
         $comments = trim(implode(' | ', array_filter([
             $staff['comments'] ?? null,
-            ! empty($staff['aliases']) ? 'Aliases: ' . implode(', ', $staff['aliases']) : null,
+            ! empty($staff['aliases']) ? 'Aliases: '.implode(', ', $staff['aliases']) : null,
         ], static fn ($value): bool => is_string($value) && $value !== '')));
 
         $insertStaff->execute([
@@ -187,11 +187,11 @@ try {
         $planId = $planIdByName[(string) $student['plan_name']] ?? null;
 
         if ($staffId === null) {
-            throw new RuntimeException('Missing staff mapping for student row: ' . (string) ($student['raw_name'] ?? 'unknown'));
+            throw new RuntimeException('Missing staff mapping for student row: '.(string) ($student['raw_name'] ?? 'unknown'));
         }
 
         if ($planId === null) {
-            throw new RuntimeException('Missing plan mapping for student row: ' . (string) ($student['raw_name'] ?? 'unknown'));
+            throw new RuntimeException('Missing plan mapping for student row: '.(string) ($student['raw_name'] ?? 'unknown'));
         }
 
         $insertStudent->execute([
@@ -252,15 +252,15 @@ try {
     throw $throwable;
 }
 
-(new RecurringFinanceService())->ensureCurrentMonthDocuments();
+(new RecurringFinanceService)->ensureCurrentMonthDocuments();
 
 $counts = [];
 foreach (['staff', 'plans', 'students', 'student_charges', 'staff_payouts', 'payments', 'expenses'] as $table) {
-    $counts[$table] = (int) $pdo->query('SELECT COUNT(*) FROM ' . $table)->fetchColumn();
+    $counts[$table] = (int) $pdo->query('SELECT COUNT(*) FROM '.$table)->fetchColumn();
 }
 
 echo "Rebuild and migration complete.\n";
-echo 'Payload: ' . $payloadPath . "\n";
+echo 'Payload: '.$payloadPath."\n";
 foreach ($counts as $table => $count) {
-    echo strtoupper($table) . ': ' . $count . "\n";
+    echo strtoupper($table).': '.$count."\n";
 }

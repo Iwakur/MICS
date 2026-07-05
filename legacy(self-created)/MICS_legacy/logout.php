@@ -1,9 +1,10 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
 
-require __DIR__ . '/app/bootstrap.php';
+require __DIR__.'/app/bootstrap.php';
 
-\App\Auth::logout();
+Auth::logout();
 flash('error', 'You have been logged out.');
 redirect('login.php');

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\StaffCompensationMode;
 use App\Models\Staff;
 use App\Models\StaffRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -28,7 +29,8 @@ class StaffFactory extends Factory
             'birthday' => fake()->optional()->dateTimeBetween('-65 years', '-20 years'),
             'city' => fake()->city(),
             'payout_card_number' => fake()->optional()->numerify('################'),
-            'salary_amount' => fake()->optional()->randomFloat(2, 500, 5000),
+            'compensation_mode' => StaffCompensationMode::Fixed,
+            'salary_amount' => fake()->randomFloat(2, 500, 5000),
             'is_active' => true,
             'note' => fake()->optional()->sentence(),
         ];

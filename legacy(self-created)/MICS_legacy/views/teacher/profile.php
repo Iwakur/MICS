@@ -17,11 +17,11 @@ $errors = form_errors();
     <section class="panel profile-card">
         <div class="profile-hero">
             <div class="profile-avatar-wrap">
-                <?php if ($profileImage !== null): ?>
+                <?php if ($profileImage !== null) { ?>
                     <img class="profile-avatar" src="<?= e($profileImage) ?>" alt="<?= e($displayName !== '' ? $displayName : $profile['username']) ?>">
-                <?php else: ?>
+                <?php } else { ?>
                     <div class="profile-avatar profile-avatar-fallback"><?= e($avatarFallback) ?></div>
-                <?php endif; ?>
+                <?php } ?>
             </div>
             <div class="profile-identity">
                 <h2><?= e($displayName !== '' ? $displayName : $profile['username']) ?></h2>
@@ -87,19 +87,19 @@ $errors = form_errors();
             <label class="field">
                 <span>Current Password</span>
                 <input type="password" name="current_password" autocomplete="current-password" required>
-                <?php if (isset($errors['current_password'])): ?><small class="field-error"><?= e($errors['current_password']) ?></small><?php endif; ?>
+                <?php if (isset($errors['current_password'])) { ?><small class="field-error"><?= e($errors['current_password']) ?></small><?php } ?>
             </label>
 
             <label class="field">
                 <span>New Password</span>
                 <input type="password" name="new_password" autocomplete="new-password" required>
-                <?php if (isset($errors['new_password'])): ?><small class="field-error"><?= e($errors['new_password']) ?></small><?php endif; ?>
+                <?php if (isset($errors['new_password'])) { ?><small class="field-error"><?= e($errors['new_password']) ?></small><?php } ?>
             </label>
 
             <label class="field">
                 <span>Confirm New Password</span>
                 <input type="password" name="confirm_password" autocomplete="new-password" required>
-                <?php if (isset($errors['confirm_password'])): ?><small class="field-error"><?= e($errors['confirm_password']) ?></small><?php endif; ?>
+                <?php if (isset($errors['confirm_password'])) { ?><small class="field-error"><?= e($errors['confirm_password']) ?></small><?php } ?>
             </label>
 
             <div class="form-actions">

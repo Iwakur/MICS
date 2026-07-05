@@ -11,18 +11,18 @@
     <form method="get" class="filter-bar">
         <select name="status">
             <option value="">All statuses</option>
-            <?php foreach ($statuses as $paymentStatus): ?>
+            <?php foreach ($statuses as $paymentStatus) { ?>
                 <option value="<?= e($paymentStatus) ?>"<?= $status === $paymentStatus ? ' selected' : '' ?>><?= e(ucfirst($paymentStatus)) ?></option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <select name="student_id">
             <option value="">All students</option>
-            <?php foreach ($students as $student): ?>
+            <?php foreach ($students as $student) { ?>
                 <?php $studentName = person_name_from_row($student); ?>
                 <option value="<?= e((string) $student['id']) ?>"<?= $studentId === (string) $student['id'] ? ' selected' : '' ?>>
-                    <?= e($studentName !== '' ? $studentName : ('Student #' . $student['id'])) ?>
+                    <?= e($studentName !== '' ? $studentName : ('Student #'.$student['id'])) ?>
                 </option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <button type="submit" class="button button-ghost">Apply</button>
         <a class="button button-ghost" href="<?= e(app_url('admin/payments.php')) ?>">Reset</a>
@@ -30,9 +30,9 @@
 </section>
 
 <section class="panel">
-    <?php if ($payments === []): ?>
+    <?php if ($payments === []) { ?>
         <p>No payment records match the current filters.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -48,7 +48,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($payments as $payment): ?>
+                <?php foreach ($payments as $payment) { ?>
                     <?php $studentName = person_name_from_row($payment); ?>
                     <tr>
                         <td>
@@ -63,32 +63,32 @@
                         </td>
                         <td><span class="status-pill status-<?= e($payment['status']) ?>"><?= e(ucfirst($payment['status'])) ?></span></td>
                         <td><?= e($payment['covered_month'] !== null ? date('Y-m', strtotime((string) $payment['covered_month'])) : 'Not set') ?></td>
-                        <td><?= e($payment['import_row_id'] !== null ? ('Import row #' . $payment['import_row_id']) : 'Manual') ?></td>
+                        <td><?= e($payment['import_row_id'] !== null ? ('Import row #'.$payment['import_row_id']) : 'Manual') ?></td>
                         <td>
                             <div class="row-actions">
-                                <a class="button button-ghost" href="<?= e(app_url('admin/payment-edit.php?id=' . (int) $payment['id'])) ?>">Edit</a>
-                                <?php if ($payment['status'] === 'pending'): ?>
+                                <a class="button button-ghost" href="<?= e(app_url('admin/payment-edit.php?id='.(int) $payment['id'])) ?>">Edit</a>
+                                <?php if ($payment['status'] === 'pending') { ?>
                                     <form method="post">
                                         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                         <input type="hidden" name="action" value="confirm_payment">
                                         <input type="hidden" name="payment_id" value="<?= e((string) $payment['id']) ?>">
                                         <button type="submit" class="button button-ghost">Confirm</button>
                                     </form>
-                                <?php endif; ?>
-                                <?php if ($payment['status'] !== 'void'): ?>
+                                <?php } ?>
+                                <?php if ($payment['status'] !== 'void') { ?>
                                     <form method="post">
                                         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                         <input type="hidden" name="action" value="void_payment">
                                         <input type="hidden" name="payment_id" value="<?= e((string) $payment['id']) ?>">
                                         <button type="submit" class="button button-ghost">Void</button>
                                     </form>
-                                <?php endif; ?>
+                                <?php } ?>
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\StaffRepository;
+use App\Services\StaffFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
 $staffId = (int) ($_GET['id'] ?? 0);
-$repository = new \App\Repositories\StaffRepository();
+$repository = new StaffRepository;
 $staff = $repository->findById($staffId);
 
 if ($staff === null) {
@@ -15,12 +18,12 @@ if ($staff === null) {
     redirect('admin/staff.php');
 }
 
-$formService = new \App\Services\StaffFormService();
+$formService = new StaffFormService;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
         flash('error', 'Invalid form token.');
-        redirect('admin/staff-edit.php?id=' . $staffId);
+        redirect('admin/staff-edit.php?id='.$staffId);
     }
 
     $result = $formService->validate($_POST);
@@ -29,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('_old_input', $_POST);
         flash('_form_errors', $result['errors']);
         flash('error', 'Please correct the staff form.');
-        redirect('admin/staff-edit.php?id=' . $staffId);
+        redirect('admin/staff-edit.php?id='.$staffId);
     }
 
     $repository->update($staffId, $result['data']);
@@ -40,9 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 render('admin/staff_form', [
     'title' => 'Edit Staff',
     'pageTitle' => 'Edit Staff',
-    'formAction' => app_url('admin/staff-edit.php?id=' . $staffId),
+    'formAction' => app_url('admin/staff-edit.php?id='.$staffId),
     'submitLabel' => 'Save Staff',
     'staffBackLink' => app_url('admin/staff.php'),
     'values' => $formService->defaults($staff),
-    'statuses' => \App\Services\StaffFormService::STATUSES,
+    'statuses' => StaffFormService::STATUSES,
 ], 'admin');

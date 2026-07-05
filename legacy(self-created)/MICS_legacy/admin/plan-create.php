@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\PlanRepository;
+use App\Services\PlanFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\PlanRepository();
-$formService = new \App\Services\PlanFormService();
+$repository = new PlanRepository;
+$formService = new PlanFormService;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -36,5 +39,5 @@ render('admin/plan_form', [
     'submitLabel' => 'Create Plan',
     'plansBackLink' => app_url('admin/plans.php'),
     'values' => $formService->defaults(),
-    'assignableOptions' => \App\Services\PlanFormService::ASSIGNABLE_OPTIONS,
+    'assignableOptions' => PlanFormService::ASSIGNABLE_OPTIONS,
 ], 'admin');

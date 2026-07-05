@@ -1,17 +1,20 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\TeacherProfileRepository;
+use App\Services\TeacherPasswordService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
-\App\Auth::requireTeacher();
+require dirname(__DIR__).'/app/bootstrap.php';
+Auth::requireTeacher();
 
-$userId = (int) (\App\Auth::user()['id'] ?? 0);
-$repository = new \App\Repositories\TeacherProfileRepository();
-$passwordService = new \App\Services\TeacherPasswordService();
+$userId = (int) (Auth::user()['id'] ?? 0);
+$repository = new TeacherProfileRepository;
+$passwordService = new TeacherPasswordService;
 $profile = $repository->findByUserId($userId);
 
 if ($profile === null) {
-    \App\Auth::logout();
+    Auth::logout();
     flash('error', 'Teacher profile could not be loaded.');
     redirect('login.php');
 }

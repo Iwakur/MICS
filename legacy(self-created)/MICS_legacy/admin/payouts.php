@@ -1,12 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\PayoutRepository;
+use App\Services\PayoutService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
-\App\Auth::requireAdmin();
+require dirname(__DIR__).'/app/bootstrap.php';
+Auth::requireAdmin();
 
-$service = new \App\Services\PayoutService();
-$repository = new \App\Repositories\PayoutRepository();
+$service = new PayoutService;
+$repository = new PayoutRepository;
 $period = $service->currentMonthPeriod();
 $monthStart = $service->asSqlTimestamp($period['month_start']);
 $nextMonthStart = $service->asSqlTimestamp($period['next_month_start']);
@@ -46,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (float) $staffSuggestion['suggested_amount'],
             $service->asSqlTimestamp(current_app_datetime()),
             strtolower((string) ($staffSuggestion['role'] ?? '')) === 'teacher'
-                ? 'Calculated from active students and plan teacher shares for ' . $period['label'] . '.'
-                : 'Fixed salary draft for ' . $period['label'] . '.'
+                ? 'Calculated from active students and plan teacher shares for '.$period['label'].'.'
+                : 'Fixed salary draft for '.$period['label'].'.'
         );
 
         flash('success', 'Draft payout created.');

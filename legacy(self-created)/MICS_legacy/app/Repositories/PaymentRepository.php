@@ -47,7 +47,7 @@ final class PaymentRepository
         }
 
         if ($conditions !== []) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' WHERE '.implode(' AND ', $conditions);
         }
 
         $sql .= ' ORDER BY p.payment_date DESC, p.id DESC';
@@ -161,7 +161,7 @@ final class PaymentRepository
     public function studentDirectory(): array
     {
         $statement = Database::connection()->query(
-            "SELECT
+            'SELECT
                 s.id,
                 s.first_name,
                 s.family_name,
@@ -174,7 +174,7 @@ final class PaymentRepository
              FROM students s
              INNER JOIN plans p ON p.id = s.plan_id
              INNER JOIN staff st ON st.id = s.staff_id
-             ORDER BY s.family_name ASC NULLS LAST, s.first_name ASC, s.father_name ASC NULLS LAST, s.id ASC"
+             ORDER BY s.family_name ASC NULLS LAST, s.first_name ASC, s.father_name ASC NULLS LAST, s.id ASC'
         );
 
         return $statement->fetchAll(PDO::FETCH_ASSOC);

@@ -15,7 +15,7 @@
     <p><strong>Current access:</strong> <?= e($user['is_active'] ? 'Active' : 'Inactive') ?></p>
     <p><strong>Reset target password:</strong> <?= e($defaultPassword) ?></p>
 
-    <form method="post" action="<?= e(app_url('admin/user-reset-password.php?id=' . (int) $user['id'])) ?>" class="form-actions">
+    <form method="post" action="<?= e(app_url('admin/user-reset-password.php?id='.(int) $user['id'])) ?>" class="form-actions">
         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
         <button type="submit" class="button button-primary">Reset Password</button>
         <a class="button button-ghost" href="<?= e($usersBackLink) ?>">Cancel</a>

@@ -1,12 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\PaymentRepository;
+use App\Services\PaymentFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\PaymentRepository();
+$repository = new PaymentRepository;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -55,5 +58,5 @@ render('admin/payments', [
     'students' => $students,
     'status' => $status,
     'studentId' => $studentId > 0 ? (string) $studentId : '',
-    'statuses' => \App\Services\PaymentFormService::STATUSES,
+    'statuses' => PaymentFormService::STATUSES,
 ], 'admin');

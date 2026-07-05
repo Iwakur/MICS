@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\StudentRepository;
+use App\Services\StudentFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireTeacher();
+Auth::requireTeacher();
 
-$staffId = (int) (\App\Auth::user()['staff_id'] ?? 0);
-$repository = new \App\Repositories\StudentRepository();
+$staffId = (int) (Auth::user()['staff_id'] ?? 0);
+$repository = new StudentRepository;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -19,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = trim((string) ($_POST['status'] ?? ''));
     $student = $repository->findByIdForTeacher($studentId, $staffId);
 
-    if ($student === null || ! in_array($status, \App\Services\StudentFormService::STATUSES, true)) {
+    if ($student === null || ! in_array($status, StudentFormService::STATUSES, true)) {
         flash('error', 'Unable to update that student status.');
         redirect('teacher/students.php');
     }
@@ -51,5 +54,5 @@ render('teacher/students', [
     'students' => $students,
     'search' => $search,
     'status' => $status,
-    'statuses' => \App\Services\StudentFormService::STATUSES,
+    'statuses' => StudentFormService::STATUSES,
 ], 'teacher');

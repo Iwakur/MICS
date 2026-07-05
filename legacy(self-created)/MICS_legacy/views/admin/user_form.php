@@ -8,11 +8,11 @@
 </section>
 
 <section class="panel">
-    <?php if ($showPasswordNotice): ?>
+    <?php if ($showPasswordNotice) { ?>
         <p>The new account will start with the configured default password: <strong><?= e($defaultPassword) ?></strong></p>
-    <?php else: ?>
+    <?php } else { ?>
         <p>Password changes are handled separately through the dedicated reset action.</p>
-    <?php endif; ?>
+    <?php } ?>
 
     <form method="post" action="<?= e($formAction) ?>" class="stack">
         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">

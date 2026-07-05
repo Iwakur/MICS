@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\StudentRepository;
+use App\Services\StudentFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\StudentRepository();
-$formService = new \App\Services\StudentFormService();
+$repository = new StudentRepository;
+$formService = new StudentFormService;
 $plans = $repository->activePlans();
 $staffOptions = $repository->activeStaff();
 $planIds = array_map(static fn (array $plan): int => (int) $plan['id'], $plans);
@@ -42,6 +45,6 @@ render('admin/student_form', [
     'values' => $formService->defaults(),
     'plans' => $plans,
     'staffOptions' => $staffOptions,
-    'statuses' => \App\Services\StudentFormService::STATUSES,
+    'statuses' => StudentFormService::STATUSES,
     'allowStaffAssignment' => true,
 ], 'admin');

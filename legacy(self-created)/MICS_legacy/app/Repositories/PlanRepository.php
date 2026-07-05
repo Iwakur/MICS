@@ -40,11 +40,11 @@ final class PlanRepository
 
         if (is_string($search) && trim($search) !== '') {
             $conditions[] = "(LOWER(p.name) LIKE :search OR LOWER(COALESCE(p.comments, '')) LIKE :search)";
-            $params['search'] = '%' . strtolower(trim($search)) . '%';
+            $params['search'] = '%'.strtolower(trim($search)).'%';
         }
 
         if ($conditions !== []) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' WHERE '.implode(' AND ', $conditions);
         }
 
         $sql .= ' ORDER BY p.is_assignable DESC, p.name ASC, p.id ASC';

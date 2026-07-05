@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StaffCompensationMode;
 use Database\Factories\StaffFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,19 +13,21 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'staff_role_id', 'first_name', 'family_name', 'father_name', 'email', 'phone',
-    'birthday', 'city', 'payout_card_number', 'salary_amount', 'is_active', 'note',
+    'birthday', 'city', 'payout_card_number', 'compensation_mode', 'salary_amount',
+    'is_active', 'note',
 ])]
 class Staff extends Model
 {
     /** @use HasFactory<StaffFactory> */
     use HasFactory;
 
-    protected $attributes = ['is_active' => true];
+    protected $attributes = ['compensation_mode' => 'fixed', 'is_active' => true];
 
     protected function casts(): array
     {
         return [
             'birthday' => 'date',
+            'compensation_mode' => StaffCompensationMode::class,
             'salary_amount' => 'decimal:2',
             'is_active' => 'boolean',
         ];

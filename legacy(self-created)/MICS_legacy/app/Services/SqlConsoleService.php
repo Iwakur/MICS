@@ -8,9 +8,7 @@ use App\Repositories\SqlConsoleRepository;
 
 final class SqlConsoleService
 {
-    public function __construct(private readonly SqlConsoleRepository $repository)
-    {
-    }
+    public function __construct(private readonly SqlConsoleRepository $repository) {}
 
     public function validate(array $input): array
     {

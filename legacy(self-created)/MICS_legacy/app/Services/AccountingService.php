@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Database;
 use InvalidArgumentException;
-use PDO;
 use Throwable;
 
 final class AccountingService

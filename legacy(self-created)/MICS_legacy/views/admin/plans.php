@@ -12,18 +12,18 @@
         <input type="search" name="q" value="<?= e($search) ?>" placeholder="Search by name or comments">
         <select name="assignable">
             <option value="">All plan statuses</option>
-            <?php foreach ($assignableOptions as $option): ?>
+            <?php foreach ($assignableOptions as $option) { ?>
                 <option value="<?= e($option) ?>"<?= $assignable === $option ? ' selected' : '' ?>><?= e(ucfirst($option)) ?></option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <button type="submit" class="button button-ghost">Apply</button>
     </form>
 </section>
 
 <section class="panel">
-    <?php if ($plans === []): ?>
+    <?php if ($plans === []) { ?>
         <p>No plans match the current filters.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -37,7 +37,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($plans as $plan): ?>
+                <?php foreach ($plans as $plan) { ?>
                     <?php $statusClass = (bool) $plan['is_assignable'] ? 'active' : 'archived'; ?>
                     <?php $monthlyPrice = (float) $plan['lesson_count'] * (float) $plan['lesson_price']; ?>
                     <?php $monthlyTeacherShare = (float) $plan['lesson_count'] * (float) $plan['teacher_share_per_lesson']; ?>
@@ -63,7 +63,7 @@
                         </td>
                         <td>
                             <div class="row-actions">
-                                <a class="button button-ghost" href="<?= e(app_url('admin/plan-edit.php?id=' . (int) $plan['id'])) ?>">Edit</a>
+                                <a class="button button-ghost" href="<?= e(app_url('admin/plan-edit.php?id='.(int) $plan['id'])) ?>">Edit</a>
                                 <form method="post">
                                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                     <input type="hidden" name="plan_id" value="<?= e((string) $plan['id']) ?>">
@@ -75,9 +75,9 @@
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

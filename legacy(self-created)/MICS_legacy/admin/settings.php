@@ -1,11 +1,14 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\SqlConsoleRepository;
+use App\Services\SqlConsoleService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
-\App\Auth::requireAdmin();
+require dirname(__DIR__).'/app/bootstrap.php';
+Auth::requireAdmin();
 
-$service = new \App\Services\SqlConsoleService(new \App\Repositories\SqlConsoleRepository());
+$service = new SqlConsoleService(new SqlConsoleRepository);
 $sql = '';
 $errors = [];
 $result = null;

@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\ExpenseRepository;
+use App\Services\ExpenseFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\ExpenseRepository();
-$formService = new \App\Services\ExpenseFormService();
+$repository = new ExpenseRepository;
+$formService = new ExpenseFormService;
 $categories = $repository->categories();
 $accounts = $repository->paidFromAccounts();
 $staff = $repository->activeStaff();
@@ -45,5 +48,5 @@ render('admin/expense_form', [
     'categories' => $categories,
     'accounts' => $accounts,
     'staff' => $staff,
-    'statuses' => \App\Services\ExpenseFormService::STATUSES,
+    'statuses' => ExpenseFormService::STATUSES,
 ], 'admin');

@@ -13,25 +13,32 @@
                 Teachers and administrators do not share the same control surface. This page keeps the same visual system, but narrows the visible scope.
             </p>
 
-            <div class="mt-6 grid gap-4 md:grid-cols-2">
+            <div class="mt-6 grid gap-4 md:grid-cols-3">
                 <div class="app-surface-strong p-4">
-                    <p class="text-sm uppercase tracking-[0.2em] text-shell-muted">Username</p>
-                    <p class="mt-2 text-lg font-semibold text-shell-text">{{ auth()->user()->username }}</p>
+                    <p class="text-sm uppercase tracking-[0.2em] text-shell-muted">Active Students</p>
+                    <p class="mt-2 text-3xl font-semibold text-shell-text">{{ $activeStudents }}</p>
                 </div>
 
                 <div class="app-surface-strong p-4">
-                    <p class="text-sm uppercase tracking-[0.2em] text-shell-muted">Email</p>
-                    <p class="mt-2 text-lg font-semibold text-shell-text">{{ auth()->user()->email }}</p>
+                    <p class="text-sm uppercase tracking-[0.2em] text-shell-muted">Per Lesson</p>
+                    <p class="mt-2 text-3xl font-semibold text-shell-text">{{ $perLessonStudents }}</p>
+                </div>
+
+                <div class="app-surface-strong p-4">
+                    <p class="text-sm uppercase tracking-[0.2em] text-shell-muted">Monthly Plans</p>
+                    <p class="mt-2 text-3xl font-semibold text-shell-text">{{ $planStudents }}</p>
                 </div>
             </div>
+
+            <a href="{{ route('teacher.students.index') }}" class="app-button-primary mt-6 inline-flex">Open My Students</a>
         </article>
 
         <article class="app-surface p-6">
             <h3 class="text-xl font-semibold text-shell-text">Current Scope</h3>
             <ul class="mt-4 space-y-3 text-sm text-shell-muted">
-                <li>Protected login is working.</li>
-                <li>The shared app shell is now in place.</li>
-                <li>Teacher-specific business pages can be added here next.</li>
+                <li>View and edit only assigned students.</li>
+                <li>Create students directly under your profile.</li>
+                <li>Monthly lesson-count entry remains the next workflow.</li>
             </ul>
         </article>
     </section>

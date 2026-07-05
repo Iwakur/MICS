@@ -31,7 +31,7 @@ final class UserRepository
         SQL;
 
         [$whereSql, $params] = $this->buildListFilters($search, $role, $isActive, $staffId);
-        $sql .= $whereSql . ' ORDER BY u.created_at DESC, u.id DESC';
+        $sql .= $whereSql.' ORDER BY u.created_at DESC, u.id DESC';
 
         $statement = Database::connection()->prepare($sql);
         $statement->execute($params);
@@ -183,14 +183,14 @@ final class UserRepository
 
         if (is_string($search) && trim($search) !== '') {
             $conditions[] = "(LOWER(u.username) LIKE :search OR LOWER(CONCAT_WS(' ', s.family_name, s.first_name, s.father_name, s.role)) LIKE :search)";
-            $params['search'] = '%' . strtolower(trim($search)) . '%';
+            $params['search'] = '%'.strtolower(trim($search)).'%';
         }
 
         if ($conditions === []) {
             return ['', $params];
         }
 
-        return [' WHERE ' . implode(' AND ', $conditions), $params];
+        return [' WHERE '.implode(' AND ', $conditions), $params];
     }
 
     private function userParams(array $data): array

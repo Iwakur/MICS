@@ -56,7 +56,7 @@ final class RecurringFinanceService
         $statement->execute([
             'charge_month' => $monthStart->format('Y-m-d'),
             'next_month_start' => $nextMonthStart->format('Y-m-d H:i:sP'),
-            'comment' => 'System-generated charge for ' . $monthStart->format('F Y') . '.',
+            'comment' => 'System-generated charge for '.$monthStart->format('F Y').'.',
         ]);
     }
 
@@ -101,7 +101,7 @@ final class RecurringFinanceService
 
         $statement->execute([
             'payout_date' => $monthStart->format('Y-m-d H:i:sP'),
-            'comment' => 'System-generated fixed salary draft for ' . $previousMonthStart->format('F Y') . '.',
+            'comment' => 'System-generated fixed salary draft for '.$previousMonthStart->format('F Y').'.',
             'month_start' => $monthStart->format('Y-m-d H:i:sP'),
             'next_month_start' => $nextMonthStart->format('Y-m-d H:i:sP'),
         ]);

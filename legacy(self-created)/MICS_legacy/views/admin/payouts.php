@@ -22,7 +22,7 @@
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($suggestions as $suggestion): ?>
+            <?php foreach ($suggestions as $suggestion) { ?>
                 <?php $staffName = person_name_from_row($suggestion); ?>
                 <tr>
                     <td>
@@ -41,7 +41,7 @@
                         </form>
                     </td>
                 </tr>
-            <?php endforeach; ?>
+            <?php } ?>
             </tbody>
         </table>
     </div>
@@ -51,18 +51,18 @@
     <form method="get" class="filter-bar">
         <select name="status">
             <option value="">All statuses</option>
-            <?php foreach ($statuses as $payoutStatus): ?>
+            <?php foreach ($statuses as $payoutStatus) { ?>
                 <option value="<?= e($payoutStatus) ?>"<?= $status === $payoutStatus ? ' selected' : '' ?>><?= e(ucfirst($payoutStatus)) ?></option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <select name="staff_id">
             <option value="">All staff</option>
-            <?php foreach ($staff as $staffMember): ?>
+            <?php foreach ($staff as $staffMember) { ?>
                 <?php $staffName = person_name_from_row($staffMember); ?>
                 <option value="<?= e((string) $staffMember['id']) ?>"<?= $staffId === (string) $staffMember['id'] ? ' selected' : '' ?>>
                     <?= e($staffName) ?>
                 </option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <button type="submit" class="button button-ghost">Apply</button>
         <a class="button button-ghost" href="<?= e(app_url('admin/payouts.php')) ?>">Reset</a>
@@ -72,9 +72,9 @@
 <section class="panel">
     <h2>Saved Payout Records</h2>
 
-    <?php if ($history === []): ?>
+    <?php if ($history === []) { ?>
         <p>No payout records match the current filters.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -90,7 +90,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($history as $payout): ?>
+                <?php foreach ($history as $payout) { ?>
                     <?php $staffName = person_name_from_row($payout); ?>
                     <tr>
                         <td>
@@ -101,36 +101,36 @@
                         <td><?= e(number_format((float) $payout['amount'], 2)) ?></td>
                         <td><span class="status-pill status-<?= e($payout['status']) ?>"><?= e(ucfirst($payout['status'])) ?></span></td>
                         <td><?= e($payout['posted_at'] !== null ? date('d/m/Y - H:i:s', strtotime((string) $payout['posted_at'])) : 'Not posted') ?></td>
-                        <td><?= e($payout['import_row_id'] !== null ? ('Import row #' . $payout['import_row_id']) : 'Suggested / manual') ?></td>
+                        <td><?= e($payout['import_row_id'] !== null ? ('Import row #'.$payout['import_row_id']) : 'Suggested / manual') ?></td>
                         <td><?= e((string) ($payout['comment'] ?: '')) ?></td>
                         <td>
                             <div class="row-actions">
-                                <?php if ($payout['status'] === 'draft'): ?>
-                                    <a class="button button-ghost" href="<?= e(app_url('admin/payout-edit.php?id=' . (int) $payout['id'])) ?>">Edit</a>
+                                <?php if ($payout['status'] === 'draft') { ?>
+                                    <a class="button button-ghost" href="<?= e(app_url('admin/payout-edit.php?id='.(int) $payout['id'])) ?>">Edit</a>
                                     <form method="post">
                                         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                         <input type="hidden" name="action" value="post_payout">
                                         <input type="hidden" name="payout_id" value="<?= e((string) $payout['id']) ?>">
                                         <button type="submit" class="button button-ghost">Post</button>
                                     </form>
-                                <?php endif; ?>
-                                <?php if ($payout['status'] !== 'void'): ?>
+                                <?php } ?>
+                                <?php if ($payout['status'] !== 'void') { ?>
                                     <form method="post">
                                         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                         <input type="hidden" name="action" value="void_payout">
                                         <input type="hidden" name="payout_id" value="<?= e((string) $payout['id']) ?>">
                                         <button type="submit" class="button button-ghost">Void</button>
                                     </form>
-                                <?php endif; ?>
-                                <?php if ($payout['status'] === 'void'): ?>
+                                <?php } ?>
+                                <?php if ($payout['status'] === 'void') { ?>
                                     <span class="table-subtext">No action</span>
-                                <?php endif; ?>
+                                <?php } ?>
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

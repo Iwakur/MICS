@@ -7,6 +7,7 @@ namespace App\Services;
 final class UserFormService
 {
     public const ROLES = ['admin', 'teacher'];
+
     public const ACTIVE_OPTIONS = ['1', '0'];
 
     public function validate(array $input, array $staffIds, bool $usernameExists): array

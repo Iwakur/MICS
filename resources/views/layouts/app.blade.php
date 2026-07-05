@@ -31,10 +31,34 @@
                                 Admin Dashboard
                             </a>
                             <a
+                                href="{{ route('admin.staff.index') }}"
+                                class="app-nav-link {{ request()->routeIs('admin.staff.*') ? 'app-nav-link-active' : '' }}"
+                            >
+                                Staff
+                            </a>
+                            <a
+                                href="{{ route('admin.students.index') }}"
+                                class="app-nav-link {{ request()->routeIs('admin.students.*') ? 'app-nav-link-active' : '' }}"
+                            >
+                                Students
+                            </a>
+                            <a
                                 href="{{ route('admin.users.index') }}"
                                 class="app-nav-link {{ request()->routeIs('admin.users.*') ? 'app-nav-link-active' : '' }}"
                             >
                                 User Management
+                            </a>
+                            <a
+                                href="{{ route('admin.lesson-types.index') }}"
+                                class="app-nav-link {{ request()->routeIs('admin.lesson-types.*') ? 'app-nav-link-active' : '' }}"
+                            >
+                                Lesson Types
+                            </a>
+                            <a
+                                href="{{ route('admin.plans.index') }}"
+                                class="app-nav-link {{ request()->routeIs('admin.plans.*') ? 'app-nav-link-active' : '' }}"
+                            >
+                                Plans
                             </a>
                         @else
                             <a
@@ -42,6 +66,12 @@
                                 class="app-nav-link {{ request()->routeIs('teacher.dashboard') ? 'app-nav-link-active' : '' }}"
                             >
                                 Teacher Dashboard
+                            </a>
+                            <a
+                                href="{{ route('teacher.students.index') }}"
+                                class="app-nav-link {{ request()->routeIs('teacher.students.*') ? 'app-nav-link-active' : '' }}"
+                            >
+                                My Students
                             </a>
                         @endif
                     </nav>

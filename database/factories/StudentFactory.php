@@ -35,7 +35,7 @@ class StudentFactory extends Factory
             'status' => StudentStatus::Active,
             'billing_type' => StudentBillingType::PerLesson,
             'lesson_type_id' => LessonType::factory(),
-            'lesson_amount' => fake()->numberBetween(1, 20),
+            'lesson_amount' => null,
             'plan_id' => null,
             'plan_start_at' => null,
             'discount_amount' => 0,

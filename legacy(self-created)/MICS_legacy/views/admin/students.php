@@ -12,18 +12,18 @@
         <input type="search" name="q" value="<?= e($search) ?>" placeholder="Search by name, phone, or email">
         <select name="status">
             <option value="">All statuses</option>
-            <?php foreach ($statuses as $studentStatus): ?>
+            <?php foreach ($statuses as $studentStatus) { ?>
                 <option value="<?= e($studentStatus) ?>"<?= $status === $studentStatus ? ' selected' : '' ?>><?= e(ucfirst($studentStatus)) ?></option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <button type="submit" class="button button-ghost">Apply</button>
     </form>
 </section>
 
 <section class="panel">
-    <?php if ($students === []): ?>
+    <?php if ($students === []) { ?>
         <p>No students match the current filters.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -37,7 +37,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($students as $student): ?>
+                <?php foreach ($students as $student) { ?>
                     <?php $studentName = person_name_from_row($student); ?>
                     <?php $teacherName = person_name_from_row($student, 'staff_'); ?>
                     <tr>
@@ -51,7 +51,7 @@
                         <td><?= e(date('Y-m-d H:i', strtotime((string) $student['joined_at']))) ?></td>
                         <td>
                             <div class="row-actions">
-                                <a class="button button-ghost" href="<?= e(app_url('admin/student-edit.php?id=' . (int) $student['id'])) ?>">Edit</a>
+                                <a class="button button-ghost" href="<?= e(app_url('admin/student-edit.php?id='.(int) $student['id'])) ?>">Edit</a>
                                 <form method="post">
                                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                     <input type="hidden" name="student_id" value="<?= e((string) $student['id']) ?>">
@@ -61,9 +61,9 @@
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

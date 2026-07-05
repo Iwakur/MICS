@@ -1,14 +1,17 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\StudentRepository;
+use App\Services\StudentFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireTeacher();
+Auth::requireTeacher();
 
-$staffId = (int) (\App\Auth::user()['staff_id'] ?? 0);
-$repository = new \App\Repositories\StudentRepository();
-$formService = new \App\Services\StudentFormService();
+$staffId = (int) (Auth::user()['staff_id'] ?? 0);
+$repository = new StudentRepository;
+$formService = new StudentFormService;
 $plans = $repository->activePlans();
 $planIds = array_map(static fn (array $plan): int => (int) $plan['id'], $plans);
 $staffIds = [$staffId];
@@ -41,5 +44,5 @@ render('teacher/student_form', [
     'studentsBackLink' => app_url('teacher/students.php'),
     'values' => $formService->defaults(),
     'plans' => $plans,
-    'statuses' => \App\Services\StudentFormService::STATUSES,
+    'statuses' => StudentFormService::STATUSES,
 ], 'teacher');

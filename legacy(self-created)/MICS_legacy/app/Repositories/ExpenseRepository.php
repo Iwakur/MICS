@@ -52,7 +52,7 @@ final class ExpenseRepository
         }
 
         if ($conditions !== []) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' WHERE '.implode(' AND ', $conditions);
         }
 
         $sql .= ' ORDER BY e.expense_date DESC, e.id DESC';

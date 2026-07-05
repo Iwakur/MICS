@@ -25,9 +25,9 @@
     <h2>Current-Month Calculation</h2>
     <p>This suggestion is based on active students assigned to you whose join date falls on or before the end of <?= e($periodLabel) ?>.</p>
 
-    <?php if ($students === []): ?>
+    <?php if ($students === []) { ?>
         <p>No active students currently contribute to this month’s payout.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -39,7 +39,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($students as $student): ?>
+                <?php foreach ($students as $student) { ?>
                     <?php $studentName = person_name_from_row($student); ?>
                     <tr>
                         <td><strong><?= e($studentName) ?></strong></td>
@@ -47,19 +47,19 @@
                         <td><?= e(date('d/m/Y - H:i:s', strtotime((string) $student['joined_at']))) ?></td>
                         <td><?= e(number_format((float) $student['monthly_teacher_share'], 2)) ?></td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>
 
 <section class="panel">
     <h2>Saved Payout History</h2>
 
-    <?php if ($history === []): ?>
+    <?php if ($history === []) { ?>
         <p>No payout records have been created yet.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -72,7 +72,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($history as $payout): ?>
+                <?php foreach ($history as $payout) { ?>
                     <tr>
                         <td><?= e(date('d/m/Y - H:i:s', strtotime((string) $payout['payout_date']))) ?></td>
                         <td><?= e(number_format((float) $payout['amount'], 2)) ?></td>
@@ -80,9 +80,9 @@
                         <td><?= e($payout['posted_at'] !== null ? date('d/m/Y - H:i:s', strtotime((string) $payout['posted_at'])) : 'Not posted') ?></td>
                         <td><?= e((string) ($payout['comment'] ?: '')) ?></td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

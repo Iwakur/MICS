@@ -12,9 +12,9 @@
         <input type="search" name="q" value="<?= e($search) ?>" placeholder="Search by username or linked staff">
         <select name="role">
             <option value="">All roles</option>
-            <?php foreach ($roles as $userRole): ?>
+            <?php foreach ($roles as $userRole) { ?>
                 <option value="<?= e($userRole) ?>"<?= $role === $userRole ? ' selected' : '' ?>><?= e(ucfirst($userRole)) ?></option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <select name="is_active">
             <option value="">All access states</option>
@@ -23,21 +23,21 @@
         </select>
         <select name="staff_id">
             <option value="">All staff</option>
-            <?php foreach ($staffOptions as $staffOption): ?>
+            <?php foreach ($staffOptions as $staffOption) { ?>
                 <?php $staffName = person_name_from_row($staffOption); ?>
                 <option value="<?= e((string) $staffOption['id']) ?>"<?= $staffId === (string) $staffOption['id'] ? ' selected' : '' ?>>
                     <?= e($staffName) ?>
                 </option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <button type="submit" class="button button-ghost">Apply</button>
     </form>
 </section>
 
 <section class="panel">
-    <?php if ($users === []): ?>
+    <?php if ($users === []) { ?>
         <p>No user accounts match the current filters.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -52,7 +52,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($users as $user): ?>
+                <?php foreach ($users as $user) { ?>
                     <?php $staffName = person_name_from_row($user, 'staff_'); ?>
                     <tr>
                         <td>
@@ -69,8 +69,8 @@
                         <td><?= e(date('Y-m-d H:i:s', strtotime((string) $user['updated_at']))) ?></td>
                         <td>
                             <div class="row-actions">
-                                <a class="button button-ghost" href="<?= e(app_url('admin/user-edit.php?id=' . (int) $user['id'])) ?>">Edit</a>
-                                <a class="button button-ghost" href="<?= e(app_url('admin/user-reset-password.php?id=' . (int) $user['id'])) ?>">Reset Password</a>
+                                <a class="button button-ghost" href="<?= e(app_url('admin/user-edit.php?id='.(int) $user['id'])) ?>">Edit</a>
+                                <a class="button button-ghost" href="<?= e(app_url('admin/user-reset-password.php?id='.(int) $user['id'])) ?>">Reset Password</a>
                                 <form method="post">
                                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                     <input type="hidden" name="user_id" value="<?= e((string) $user['id']) ?>">
@@ -80,9 +80,9 @@
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

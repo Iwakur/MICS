@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\PaymentRepository;
+use App\Services\PaymentFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\PaymentRepository();
-$formService = new \App\Services\PaymentFormService();
+$repository = new PaymentRepository;
+$formService = new PaymentFormService;
 $students = $repository->studentDirectory();
 $studentIds = array_map(static fn (array $student): int => (int) $student['id'], $students);
 
@@ -39,5 +42,5 @@ render('admin/payment_form', [
     'backLink' => app_url('admin/payments.php'),
     'values' => $formService->defaults(),
     'students' => $students,
-    'statuses' => \App\Services\PaymentFormService::STATUSES,
+    'statuses' => PaymentFormService::STATUSES,
 ], 'admin');

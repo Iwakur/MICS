@@ -1,15 +1,18 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\PaymentImportRepository;
+use App\Services\PaymentImportService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\PaymentImportRepository();
-$service = new \App\Services\PaymentImportService();
-$authUser = \App\Auth::user();
-$allowedStatuses = \App\Services\PaymentImportService::ROW_STATUSES;
+$repository = new PaymentImportRepository;
+$service = new PaymentImportService;
+$authUser = Auth::user();
+$allowedStatuses = PaymentImportService::ROW_STATUSES;
 
 $buildRedirect = static function (?int $batchId, string $status): string {
     $query = [];
@@ -22,7 +25,7 @@ $buildRedirect = static function (?int $batchId, string $status): string {
         $query['status'] = $status;
     }
 
-    return 'admin/imports.php' . ($query === [] ? '' : '?' . http_build_query($query));
+    return 'admin/imports.php'.($query === [] ? '' : '?'.http_build_query($query));
 };
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -126,7 +129,7 @@ foreach ($studentDirectory as $student) {
 
     $studentsById[(int) $student['id']] = [
         'id' => (int) $student['id'],
-        'label' => trim($studentName) . ' | ' . ((string) ($student['plan_name'] ?? 'No plan')),
+        'label' => trim($studentName).' | '.((string) ($student['plan_name'] ?? 'No plan')),
         'meta' => trim($teacherName) !== '' ? $teacherName : 'No teacher',
         'status' => (string) ($student['status'] ?? ''),
     ];
@@ -161,9 +164,9 @@ foreach ($repository->listRows($batchId, $status !== '' ? $status : null) as $ro
     $row['matched_student_name'] = $matchedName !== '' ? $matchedName : null;
     $row['default_student_id'] = $suggestedIds[0] ?? ($row['matched_student_id'] !== null ? (int) $row['matched_student_id'] : 0);
     $row['created_document_label'] = match ((string) ($row['created_document_type'] ?? '')) {
-        'payment' => 'Payment #' . (string) $row['payment_id'],
-        'expense' => 'Expense #' . (string) $row['expense_id'] . ((string) ($row['expense_category_name'] ?? '') !== '' ? ' | ' . $row['expense_category_name'] : ''),
-        'payout' => 'Payout #' . (string) $row['payout_id'] . ($payoutStaffName !== '' ? ' | ' . $payoutStaffName : ''),
+        'payment' => 'Payment #'.(string) $row['payment_id'],
+        'expense' => 'Expense #'.(string) $row['expense_id'].((string) ($row['expense_category_name'] ?? '') !== '' ? ' | '.$row['expense_category_name'] : ''),
+        'payout' => 'Payout #'.(string) $row['payout_id'].($payoutStaffName !== '' ? ' | '.$payoutStaffName : ''),
         default => null,
     };
     $rows[] = $row;

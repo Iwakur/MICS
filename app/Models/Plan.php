@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'name', 'duration_minutes', 'lesson_count', 'lesson_price', 'plan_price',
-    'is_assignable', 'note',
+    'teacher_monthly_amount', 'is_assignable', 'note',
 ])]
 class Plan extends Model
 {
@@ -24,6 +24,7 @@ class Plan extends Model
         return [
             'lesson_price' => 'decimal:2',
             'plan_price' => 'decimal:2',
+            'teacher_monthly_amount' => 'decimal:2',
             'is_assignable' => 'boolean',
         ];
     }

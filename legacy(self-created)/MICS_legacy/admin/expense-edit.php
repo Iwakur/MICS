@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\ExpenseRepository;
+use App\Services\ExpenseFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
 $expenseId = (int) ($_GET['id'] ?? 0);
-$repository = new \App\Repositories\ExpenseRepository();
+$repository = new ExpenseRepository;
 $expense = $repository->findById($expenseId);
 
 if ($expense === null) {
@@ -15,7 +18,7 @@ if ($expense === null) {
     redirect('admin/expenses.php');
 }
 
-$formService = new \App\Services\ExpenseFormService();
+$formService = new ExpenseFormService;
 $categories = $repository->categories();
 $accounts = $repository->paidFromAccounts();
 $staff = $repository->activeStaff();
@@ -26,7 +29,7 @@ $staffIds = array_map(static fn (array $row): int => (int) $row['id'], $staff);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
         flash('error', 'Invalid form token.');
-        redirect('admin/expense-edit.php?id=' . $expenseId);
+        redirect('admin/expense-edit.php?id='.$expenseId);
     }
 
     $result = $formService->validate($_POST, $categoryIds, $accountIds, $staffIds);
@@ -35,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('_old_input', $_POST);
         flash('_form_errors', $result['errors']);
         flash('error', 'Please correct the expense form.');
-        redirect('admin/expense-edit.php?id=' . $expenseId);
+        redirect('admin/expense-edit.php?id='.$expenseId);
     }
 
     $result['data']['import_row_id'] = $expense['import_row_id'] !== null ? (int) $expense['import_row_id'] : null;
@@ -47,12 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 render('admin/expense_form', [
     'title' => 'Edit Expense',
     'pageTitle' => 'Edit Expense',
-    'formAction' => app_url('admin/expense-edit.php?id=' . $expenseId),
+    'formAction' => app_url('admin/expense-edit.php?id='.$expenseId),
     'submitLabel' => 'Save Expense',
     'backLink' => app_url('admin/expenses.php'),
     'values' => $formService->defaults($expense),
     'categories' => $categories,
     'accounts' => $accounts,
     'staff' => $staff,
-    'statuses' => \App\Services\ExpenseFormService::STATUSES,
+    'statuses' => ExpenseFormService::STATUSES,
 ], 'admin');

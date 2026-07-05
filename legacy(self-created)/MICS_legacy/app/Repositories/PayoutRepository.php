@@ -143,7 +143,7 @@ final class PayoutRepository
         SQL;
 
         if ($conditions !== []) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' WHERE '.implode(' AND ', $conditions);
         }
 
         $sql .= ' ORDER BY sp.payout_date DESC, sp.id DESC';

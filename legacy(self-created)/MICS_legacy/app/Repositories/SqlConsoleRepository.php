@@ -50,7 +50,7 @@ final class SqlConsoleRepository
 
         for ($index = 0; $index < $statement->columnCount(); $index++) {
             $meta = $statement->getColumnMeta($index);
-            $columns[] = is_array($meta) && isset($meta['name']) ? (string) $meta['name'] : 'column_' . ($index + 1);
+            $columns[] = is_array($meta) && isset($meta['name']) ? (string) $meta['name'] : 'column_'.($index + 1);
         }
 
         return $columns;

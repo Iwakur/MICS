@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\UserRepository;
+use App\Services\UserFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\UserRepository();
-$formService = new \App\Services\UserFormService();
+$repository = new UserRepository;
+$formService = new UserFormService;
 $staffOptions = $repository->staffOptions();
 $staffIds = array_map(static fn (array $staff): int => (int) $staff['id'], $staffOptions);
 
@@ -39,7 +42,7 @@ render('admin/user_form', [
     'usersBackLink' => app_url('admin/users.php'),
     'values' => $formService->defaults(),
     'staffOptions' => $staffOptions,
-    'roles' => \App\Services\UserFormService::ROLES,
+    'roles' => UserFormService::ROLES,
     'defaultPassword' => default_user_password(),
     'showPasswordNotice' => true,
 ], 'admin');

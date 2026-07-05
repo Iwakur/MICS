@@ -1,13 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\UserRepository;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
 $userId = (int) ($_GET['id'] ?? 0);
-$repository = new \App\Repositories\UserRepository();
+$repository = new UserRepository;
 $user = $repository->findWithStaffById($userId);
 
 if ($user === null) {
@@ -18,7 +20,7 @@ if ($user === null) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
         flash('error', 'Invalid form token.');
-        redirect('admin/user-reset-password.php?id=' . $userId);
+        redirect('admin/user-reset-password.php?id='.$userId);
     }
 
     $repository->resetPassword($userId, default_user_password());

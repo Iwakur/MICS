@@ -35,7 +35,7 @@ final class Database
             ]);
             self::applySessionSettings(self::$connection);
         } catch (PDOException $exception) {
-            throw new RuntimeException('Database connection failed: ' . $exception->getMessage(), 0, $exception);
+            throw new RuntimeException('Database connection failed: '.$exception->getMessage(), 0, $exception);
         }
 
         return self::$connection;

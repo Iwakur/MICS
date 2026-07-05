@@ -1,11 +1,14 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\UserRepository;
+use App\Services\UserFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
-\App\Auth::requireAdmin();
+require dirname(__DIR__).'/app/bootstrap.php';
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\UserRepository();
+$repository = new UserRepository;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -17,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $isActive = (string) ($_POST['is_active'] ?? '');
     $user = $repository->findById($userId);
 
-    if ($user === null || ! in_array($isActive, \App\Services\UserFormService::ACTIVE_OPTIONS, true)) {
+    if ($user === null || ! in_array($isActive, UserFormService::ACTIVE_OPTIONS, true)) {
         flash('error', 'Unable to update that user status.');
         redirect('admin/users.php');
     }
@@ -52,6 +55,6 @@ render('admin/users', [
     'role' => $role,
     'isActive' => $isActive,
     'staffId' => $staffId > 0 ? (string) $staffId : '',
-    'roles' => \App\Services\UserFormService::ROLES,
+    'roles' => UserFormService::ROLES,
     'staffOptions' => $staffOptions,
 ], 'admin');

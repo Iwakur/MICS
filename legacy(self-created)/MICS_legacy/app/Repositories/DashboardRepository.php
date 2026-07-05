@@ -52,8 +52,8 @@ final class DashboardRepository
     public function teacherSummary(int $staffId): array
     {
         $pdo = Database::connection();
-        $payoutService = new PayoutService();
-        $payoutRepository = new PayoutRepository();
+        $payoutService = new PayoutService;
+        $payoutRepository = new PayoutRepository;
         $period = $payoutService->currentMonthPeriod();
         $monthStart = $period['month_start'];
         $nextMonthStart = $period['next_month_start'];
@@ -163,11 +163,11 @@ final class DashboardRepository
 
         $joinedCurrent = $this->countPrepared(
             $pdo,
-            "SELECT COUNT(*)
+            'SELECT COUNT(*)
              FROM students
              WHERE staff_id = :staff_id
                AND joined_at >= :month_start
-               AND joined_at < :next_month_start",
+               AND joined_at < :next_month_start',
             [
                 'staff_id' => $staffId,
                 'month_start' => $monthStartSql,
@@ -177,11 +177,11 @@ final class DashboardRepository
 
         $joinedPrevious = $this->countPrepared(
             $pdo,
-            "SELECT COUNT(*)
+            'SELECT COUNT(*)
              FROM students
              WHERE staff_id = :staff_id
                AND joined_at >= :previous_month_start
-               AND joined_at < :month_start",
+               AND joined_at < :month_start',
             [
                 'staff_id' => $staffId,
                 'previous_month_start' => $previousMonthStartSql,
@@ -300,7 +300,7 @@ final class DashboardRepository
                 continue;
             }
 
-            $date = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $month . '-01 00:00:00', $timezone);
+            $date = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $month.'-01 00:00:00', $timezone);
             if (! $date instanceof DateTimeImmutable) {
                 continue;
             }

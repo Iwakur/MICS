@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'duration_minutes', 'lesson_price', 'is_assignable', 'note'])]
+#[Fillable([
+    'name', 'duration_minutes', 'lesson_price', 'teacher_share_per_lesson',
+    'is_assignable', 'note',
+])]
 class LessonType extends Model
 {
     /** @use HasFactory<LessonTypeFactory> */
@@ -18,7 +21,11 @@ class LessonType extends Model
 
     protected function casts(): array
     {
-        return ['lesson_price' => 'decimal:2', 'is_assignable' => 'boolean'];
+        return [
+            'lesson_price' => 'decimal:2',
+            'teacher_share_per_lesson' => 'decimal:2',
+            'is_assignable' => 'boolean',
+        ];
     }
 
     public function students(): HasMany

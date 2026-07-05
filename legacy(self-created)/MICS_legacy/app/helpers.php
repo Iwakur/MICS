@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 function base_path(string $path = ''): string
 {
-    $full = BASE_PATH . ($path !== '' ? '/' . ltrim($path, '/') : '');
+    $full = BASE_PATH.($path !== '' ? '/'.ltrim($path, '/') : '');
 
     return str_replace('\\', '/', $full);
 }
@@ -33,14 +33,14 @@ function config(string $key)
 function app_url(string $path = ''): string
 {
     $basePath = app_base_path();
-    $cleanBase = $basePath === '' ? '' : '/' . trim($basePath, '/');
+    $cleanBase = $basePath === '' ? '' : '/'.trim($basePath, '/');
     $cleanPath = ltrim($path, '/');
 
     if ($cleanPath === '') {
-        return $cleanBase === '' ? '/' : $cleanBase . '/';
+        return $cleanBase === '' ? '/' : $cleanBase.'/';
     }
 
-    return ($cleanBase === '' ? '' : $cleanBase) . '/' . $cleanPath;
+    return ($cleanBase === '' ? '' : $cleanBase).'/'.$cleanPath;
 }
 
 function app_base_path(): string
@@ -89,7 +89,7 @@ function normalize_app_path(string $path): string
         return '';
     }
 
-    return '/' . trim($trimmed, '/');
+    return '/'.trim($trimmed, '/');
 }
 
 function request_path_matches_base(string $requestPath, string $basePath): bool
@@ -101,12 +101,12 @@ function request_path_matches_base(string $requestPath, string $basePath): bool
     }
 
     return $normalizedRequestPath === $basePath
-        || str_starts_with($normalizedRequestPath, $basePath . '/');
+        || str_starts_with($normalizedRequestPath, $basePath.'/');
 }
 
 function asset_url(string $path): string
 {
-    return app_url('assets/' . ltrim($path, '/'));
+    return app_url('assets/'.ltrim($path, '/'));
 }
 
 function app_timezone(): string
@@ -149,7 +149,7 @@ function profile_image_url(?string $path): ?string
 
 function redirect(string $path): never
 {
-    header('Location: ' . app_url($path));
+    header('Location: '.app_url($path));
     exit;
 }
 
@@ -169,9 +169,9 @@ function person_full_name(?string $familyName, ?string $firstName, ?string $fath
 
 function person_name_from_row(array $row, string $prefix = ''): string
 {
-    $familyKey = $prefix === '' ? 'family_name' : $prefix . 'family_name';
-    $firstKey = $prefix === '' ? 'first_name' : $prefix . 'first_name';
-    $fatherKey = $prefix === '' ? 'father_name' : $prefix . 'father_name';
+    $familyKey = $prefix === '' ? 'family_name' : $prefix.'family_name';
+    $firstKey = $prefix === '' ? 'first_name' : $prefix.'first_name';
+    $fatherKey = $prefix === '' ? 'father_name' : $prefix.'father_name';
 
     return person_full_name(
         isset($row[$familyKey]) ? (string) $row[$familyKey] : null,
@@ -256,8 +256,8 @@ function field_error(string $key): ?string
 
 function render(string $view, array $data = [], string $layout = 'guest'): void
 {
-    $viewFile = base_path('views/' . $view . '.php');
-    $layoutFile = base_path('views/layouts/' . $layout . '.php');
+    $viewFile = base_path('views/'.$view.'.php');
+    $layoutFile = base_path('views/layouts/'.$layout.'.php');
 
     if (! is_file($viewFile) || ! is_file($layoutFile)) {
         throw new RuntimeException('View or layout not found.');

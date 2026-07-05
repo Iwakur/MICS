@@ -1,12 +1,14 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\DashboardRepository;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\DashboardRepository();
+$repository = new DashboardRepository;
 $selectedMonths = [];
 
 foreach (['month_1', 'month_2', 'month_3'] as $field) {

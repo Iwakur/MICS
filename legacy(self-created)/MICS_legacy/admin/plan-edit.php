@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\PlanRepository;
+use App\Services\PlanFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
 $planId = (int) ($_GET['id'] ?? 0);
-$repository = new \App\Repositories\PlanRepository();
+$repository = new PlanRepository;
 $plan = $repository->findById($planId);
 
 if ($plan === null) {
@@ -15,12 +18,12 @@ if ($plan === null) {
     redirect('admin/plans.php');
 }
 
-$formService = new \App\Services\PlanFormService();
+$formService = new PlanFormService;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
         flash('error', 'Invalid form token.');
-        redirect('admin/plan-edit.php?id=' . $planId);
+        redirect('admin/plan-edit.php?id='.$planId);
     }
 
     $result = $formService->validate(
@@ -32,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('_old_input', $_POST);
         flash('_form_errors', $result['errors']);
         flash('error', 'Please correct the plan form.');
-        redirect('admin/plan-edit.php?id=' . $planId);
+        redirect('admin/plan-edit.php?id='.$planId);
     }
 
     $repository->update($planId, $result['data']);
@@ -43,9 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 render('admin/plan_form', [
     'title' => 'Edit Plan',
     'pageTitle' => 'Edit Plan',
-    'formAction' => app_url('admin/plan-edit.php?id=' . $planId),
+    'formAction' => app_url('admin/plan-edit.php?id='.$planId),
     'submitLabel' => 'Save Plan',
     'plansBackLink' => app_url('admin/plans.php'),
     'values' => $formService->defaults($plan),
-    'assignableOptions' => \App\Services\PlanFormService::ASSIGNABLE_OPTIONS,
+    'assignableOptions' => PlanFormService::ASSIGNABLE_OPTIONS,
 ], 'admin');

@@ -1,11 +1,12 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
 
-require __DIR__ . '/app/bootstrap.php';
+require __DIR__.'/app/bootstrap.php';
 
-if (! \App\Auth::check()) {
+if (! Auth::check()) {
     redirect('login.php');
 }
 
-redirect(\App\Auth::isAdmin() ? 'admin/dashboard.php' : 'teacher/dashboard.php');
+redirect(Auth::isAdmin() ? 'admin/dashboard.php' : 'teacher/dashboard.php');

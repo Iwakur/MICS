@@ -1,12 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\StaffRepository;
+use App\Services\StaffFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\StaffRepository();
+$repository = new StaffRepository;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -18,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = trim((string) ($_POST['status'] ?? ''));
     $staff = $repository->findById($staffId);
 
-    if ($staff === null || ! in_array($status, \App\Services\StaffFormService::STATUSES, true)) {
+    if ($staff === null || ! in_array($status, StaffFormService::STATUSES, true)) {
         flash('error', 'Unable to update that staff status.');
         redirect('admin/staff.php');
     }
@@ -49,5 +52,5 @@ render('admin/staff', [
     'staff' => $staff,
     'search' => $search,
     'status' => $status,
-    'statuses' => \App\Services\StaffFormService::STATUSES,
+    'statuses' => StaffFormService::STATUSES,
 ], 'admin');

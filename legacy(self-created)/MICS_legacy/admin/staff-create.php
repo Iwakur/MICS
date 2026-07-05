@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\StaffRepository;
+use App\Services\StaffFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\StaffRepository();
-$formService = new \App\Services\StaffFormService();
+$repository = new StaffRepository;
+$formService = new StaffFormService;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -36,5 +39,5 @@ render('admin/staff_form', [
     'submitLabel' => 'Create Staff',
     'staffBackLink' => app_url('admin/staff.php'),
     'values' => $formService->defaults(),
-    'statuses' => \App\Services\StaffFormService::STATUSES,
+    'statuses' => StaffFormService::STATUSES,
 ], 'admin');

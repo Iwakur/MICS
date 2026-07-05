@@ -30,9 +30,9 @@
             <p class="table-subtext">Each batch keeps the uploaded file history plus row review progress.</p>
         </div>
     </div>
-    <?php if ($batches === []): ?>
+    <?php if ($batches === []) { ?>
         <p>No statements have been imported yet.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -46,9 +46,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($batches as $batch): ?>
+                <?php foreach ($batches as $batch) { ?>
                     <?php
-                    $batchLink = app_url('admin/imports.php?batch_id=' . (int) $batch['id']);
+                    $batchLink = app_url('admin/imports.php?batch_id='.(int) $batch['id']);
                     $queueCount = (int) $batch['rows_new'] + (int) $batch['rows_unmatched'];
                     $finishedCount = (int) $batch['rows_draft_created'] + (int) $batch['rows_ignored'] + (int) $batch['rows_deleted'];
                     ?>
@@ -78,11 +78,11 @@
                         </td>
                         <td><?= e(date('Y-m-d H:i', strtotime((string) $batch['created_at']))) ?></td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>
 
 <section class="panel">
@@ -95,19 +95,19 @@
     <form method="get" class="filter-bar">
         <select name="batch_id">
             <option value="">All batches</option>
-            <?php foreach ($batches as $batch): ?>
+            <?php foreach ($batches as $batch) { ?>
                 <option value="<?= e((string) $batch['id']) ?>"<?= $batchId === (int) $batch['id'] ? ' selected' : '' ?>>
-                    <?= e('#' . (string) $batch['id'] . ' - ' . $batch['original_filename']) ?>
+                    <?= e('#'.(string) $batch['id'].' - '.$batch['original_filename']) ?>
                 </option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <select name="status">
             <option value="">Open queue only</option>
-            <?php foreach ($statuses as $rowStatus): ?>
+            <?php foreach ($statuses as $rowStatus) { ?>
                 <option value="<?= e($rowStatus) ?>"<?= $status === $rowStatus ? ' selected' : '' ?>>
                     <?= e($statusLabel($rowStatus)) ?>
                 </option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <button type="submit" class="button button-ghost">Apply</button>
         <a class="button button-ghost" href="<?= e(app_url('admin/imports.php')) ?>">Reset</a>
@@ -115,9 +115,9 @@
 </section>
 
 <section class="panel">
-    <?php if ($rows === []): ?>
+    <?php if ($rows === []) { ?>
         <p>No imported rows match the current filters.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -129,7 +129,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($rows as $row): ?>
+                <?php foreach ($rows as $row) { ?>
                     <?php
                     $defaultMonth = date('Y-m', strtotime((string) $row['operation_date']));
                     $canCreate = in_array((string) $row['status'], ['new', 'unmatched'], true)
@@ -148,28 +148,28 @@
                         </td>
                         <td>
                             <strong><?= e((string) ($row['correspondent_name'] ?: 'Unknown correspondent')) ?></strong><br>
-                            <span class="table-subtext"><?= e((string) ($row['bank_name'] ?: 'Unknown bank')) ?><?= $row['bank_mfo'] ? ' | MFO ' . e((string) $row['bank_mfo']) : '' ?></span><br>
+                            <span class="table-subtext"><?= e((string) ($row['bank_name'] ?: 'Unknown bank')) ?><?= $row['bank_mfo'] ? ' | MFO '.e((string) $row['bank_mfo']) : '' ?></span><br>
                             <span class="table-subtext"><?= e((string) ($row['correspondent_account'] ?: 'No correspondent account')) ?></span><br>
                             <span class="table-subtext"><?= e((string) ($row['payment_purpose'] ?: 'No payment purpose')) ?></span>
                         </td>
                         <td>
-                            <?php if ($row['created_document_label'] !== null): ?>
+                            <?php if ($row['created_document_label'] !== null) { ?>
                                 <strong><?= e((string) $row['created_document_label']) ?></strong><br>
                                 <span class="table-subtext">This row is already linked to a finance draft.</span>
-                            <?php elseif ($row['matched_student_name'] !== null): ?>
+                            <?php } elseif ($row['matched_student_name'] !== null) { ?>
                                 <strong><?= e((string) $row['matched_student_name']) ?></strong><br>
                                 <span class="table-subtext">Suggested student from row text.</span>
-                            <?php elseif ($row['suggested_students'] !== []): ?>
-                                <?php foreach ($row['suggested_students'] as $suggestedStudent): ?>
+                            <?php } elseif ($row['suggested_students'] !== []) { ?>
+                                <?php foreach ($row['suggested_students'] as $suggestedStudent) { ?>
                                     <strong><?= e($suggestedStudent['label']) ?></strong><br>
                                     <span class="table-subtext"><?= e($suggestedStudent['meta']) ?> | <?= e(ucfirst($suggestedStudent['status'])) ?></span><br>
-                                <?php endforeach; ?>
-                            <?php else: ?>
+                                <?php } ?>
+                            <?php } else { ?>
                                 <span class="status-pill status-unmatched">No automatic suggestion</span>
-                            <?php endif; ?>
+                            <?php } ?>
                         </td>
                         <td>
-                            <?php if ($canCreate && $row['direction'] === 'incoming'): ?>
+                            <?php if ($canCreate && $row['direction'] === 'incoming') { ?>
                                 <form method="post" class="stack review-card">
                                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                     <input type="hidden" name="action" value="create_payment_draft">
@@ -180,11 +180,11 @@
                                         <span>Student</span>
                                         <select name="student_id" required>
                                             <option value="">Choose student</option>
-                                            <?php foreach ($studentsById as $studentOption): ?>
+                                            <?php foreach ($studentsById as $studentOption) { ?>
                                                 <option value="<?= e((string) $studentOption['id']) ?>"<?= $row['default_student_id'] === $studentOption['id'] ? ' selected' : '' ?>>
-                                                    <?= e($studentOption['label'] . ' | ' . $studentOption['meta']) ?>
+                                                    <?= e($studentOption['label'].' | '.$studentOption['meta']) ?>
                                                 </option>
-                                            <?php endforeach; ?>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                     <div class="field">
@@ -193,7 +193,7 @@
                                     </div>
                                     <button type="submit" class="button button-primary">Create Payment Draft</button>
                                 </form>
-                            <?php elseif ($canCreate && $row['direction'] === 'outgoing'): ?>
+                            <?php } elseif ($canCreate && $row['direction'] === 'outgoing') { ?>
                                 <form method="post" class="stack review-card">
                                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                     <input type="hidden" name="action" value="create_expense_draft">
@@ -204,18 +204,18 @@
                                         <span>Expense category</span>
                                         <select name="category_id" required>
                                             <option value="">Choose category</option>
-                                            <?php foreach ($expenseCategories as $category): ?>
-                                                <option value="<?= e((string) $category['id']) ?>"><?= e($category['name'] . ' (' . $category['code'] . ')') ?></option>
-                                            <?php endforeach; ?>
+                                            <?php foreach ($expenseCategories as $category) { ?>
+                                                <option value="<?= e((string) $category['id']) ?>"><?= e($category['name'].' ('.$category['code'].')') ?></option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                     <div class="field">
                                         <span>Paid from account</span>
                                         <select name="paid_from_account_id" required>
                                             <option value="">Choose account</option>
-                                            <?php foreach ($paidFromAccounts as $account): ?>
-                                                <option value="<?= e((string) $account['id']) ?>"><?= e($account['code'] . ' - ' . $account['name']) ?></option>
-                                            <?php endforeach; ?>
+                                            <?php foreach ($paidFromAccounts as $account) { ?>
+                                                <option value="<?= e((string) $account['id']) ?>"><?= e($account['code'].' - '.$account['name']) ?></option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                     <button type="submit" class="button button-primary">Create Expense Draft</button>
@@ -231,19 +231,19 @@
                                         <span>Staff</span>
                                         <select name="staff_id" required>
                                             <option value="">Choose staff</option>
-                                            <?php foreach ($staffById as $staffOption): ?>
-                                                <option value="<?= e((string) $staffOption['id']) ?>"><?= e($staffOption['label'] . ' | ' . $staffOption['meta']) ?></option>
-                                            <?php endforeach; ?>
+                                            <?php foreach ($staffById as $staffOption) { ?>
+                                                <option value="<?= e((string) $staffOption['id']) ?>"><?= e($staffOption['label'].' | '.$staffOption['meta']) ?></option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                     <button type="submit" class="button button-ghost">Create Payout Draft</button>
                                 </form>
-                            <?php else: ?>
+                            <?php } else { ?>
                                 <p class="table-subtext">No draft action available for this row right now.</p>
-                            <?php endif; ?>
+                            <?php } ?>
 
                             <div class="row-actions review-actions">
-                                <?php if ((string) $row['status'] === 'ignored' || (string) $row['status'] === 'deleted'): ?>
+                                <?php if ((string) $row['status'] === 'ignored' || (string) $row['status'] === 'deleted') { ?>
                                     <form method="post">
                                         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                         <input type="hidden" name="action" value="restore_row">
@@ -252,7 +252,7 @@
                                         <input type="hidden" name="status_filter" value="<?= e($status) ?>">
                                         <button type="submit" class="button button-ghost">Restore To Queue</button>
                                     </form>
-                                <?php else: ?>
+                                <?php } else { ?>
                                     <form method="post">
                                         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                         <input type="hidden" name="action" value="ignore_row">
@@ -269,13 +269,13 @@
                                         <input type="hidden" name="status_filter" value="<?= e($status) ?>">
                                         <button type="submit" class="button button-ghost">Delete From Queue</button>
                                     </form>
-                                <?php endif; ?>
+                                <?php } ?>
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

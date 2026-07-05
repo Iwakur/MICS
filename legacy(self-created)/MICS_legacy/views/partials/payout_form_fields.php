@@ -6,26 +6,26 @@
         <span>Staff</span>
         <select name="staff_id" required>
             <option value="">Choose staff</option>
-            <?php foreach ($staff as $staffMember): ?>
+            <?php foreach ($staff as $staffMember) { ?>
                 <?php $staffName = person_name_from_row($staffMember); ?>
                 <option value="<?= e((string) $staffMember['id']) ?>"<?= $values['staff_id'] === (string) $staffMember['id'] ? ' selected' : '' ?>>
                     <?= e($staffName) ?>
                 </option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
-        <?php if (isset($errors['staff_id'])): ?><small class="field-error"><?= e($errors['staff_id']) ?></small><?php endif; ?>
+        <?php if (isset($errors['staff_id'])) { ?><small class="field-error"><?= e($errors['staff_id']) ?></small><?php } ?>
     </label>
 
     <label class="field">
         <span>Payout Date</span>
         <input type="datetime-local" name="payout_date" value="<?= e($values['payout_date']) ?>" required>
-        <?php if (isset($errors['payout_date'])): ?><small class="field-error"><?= e($errors['payout_date']) ?></small><?php endif; ?>
+        <?php if (isset($errors['payout_date'])) { ?><small class="field-error"><?= e($errors['payout_date']) ?></small><?php } ?>
     </label>
 
     <label class="field">
         <span>Amount</span>
         <input type="number" name="amount" value="<?= e($values['amount']) ?>" min="0.01" step="0.01" required>
-        <?php if (isset($errors['amount'])): ?><small class="field-error"><?= e($errors['amount']) ?></small><?php endif; ?>
+        <?php if (isset($errors['amount'])) { ?><small class="field-error"><?= e($errors['amount']) ?></small><?php } ?>
     </label>
 </div>
 

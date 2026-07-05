@@ -9,9 +9,9 @@
         </div>
     </div>
 
-    <?php if ($error = flash('error')): ?>
+    <?php if ($error = flash('error')) { ?>
         <div class="alert alert-error"><?= e($error) ?></div>
-    <?php endif; ?>
+    <?php } ?>
 
     <form method="post" class="stack">
         <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">

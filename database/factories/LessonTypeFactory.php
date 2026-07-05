@@ -21,6 +21,7 @@ class LessonTypeFactory extends Factory
             'name' => fake()->unique()->words(2, true),
             'duration_minutes' => fake()->randomElement([30, 45, 60, 90]),
             'lesson_price' => fake()->randomFloat(2, 10, 100),
+            'teacher_share_per_lesson' => fake()->randomFloat(2, 5, 50),
             'is_assignable' => true,
             'note' => fake()->optional()->sentence(),
         ];

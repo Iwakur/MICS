@@ -23,6 +23,7 @@ class PlanFactory extends Factory
             'lesson_count' => fake()->numberBetween(4, 20),
             'lesson_price' => fake()->randomFloat(2, 10, 100),
             'plan_price' => fake()->randomFloat(2, 100, 1000),
+            'teacher_monthly_amount' => fake()->randomFloat(2, 50, 500),
             'is_assignable' => true,
             'note' => fake()->optional()->sentence(),
         ];

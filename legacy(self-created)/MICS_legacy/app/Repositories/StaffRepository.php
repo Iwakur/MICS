@@ -21,13 +21,13 @@ final class StaffRepository
 
         if (is_string($search) && trim($search) !== '') {
             $conditions[] = "(LOWER(CONCAT_WS(' ', family_name, first_name, father_name, role)) LIKE :search OR LOWER(COALESCE(phone, '')) LIKE :search OR LOWER(COALESCE(email, '')) LIKE :search)";
-            $params['search'] = '%' . strtolower(trim($search)) . '%';
+            $params['search'] = '%'.strtolower(trim($search)).'%';
         }
 
         $sql = 'SELECT id, role, first_name, family_name, father_name, status, payout_card_number, fixed_salary_amount, phone, email, comments FROM staff';
 
         if ($conditions !== []) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' WHERE '.implode(' AND ', $conditions);
         }
 
         $sql .= ' ORDER BY family_name ASC NULLS LAST, first_name ASC, father_name ASC NULLS LAST, id ASC';

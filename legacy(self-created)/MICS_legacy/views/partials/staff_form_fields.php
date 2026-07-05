@@ -5,13 +5,13 @@
     <label class="field">
         <span>Role</span>
         <input type="text" name="role" value="<?= e($values['role']) ?>" required>
-        <?php if (isset($errors['role'])): ?><small class="field-error"><?= e($errors['role']) ?></small><?php endif; ?>
+        <?php if (isset($errors['role'])) { ?><small class="field-error"><?= e($errors['role']) ?></small><?php } ?>
     </label>
 
     <label class="field">
         <span>First Name</span>
         <input type="text" name="first_name" value="<?= e($values['first_name']) ?>" required>
-        <?php if (isset($errors['first_name'])): ?><small class="field-error"><?= e($errors['first_name']) ?></small><?php endif; ?>
+        <?php if (isset($errors['first_name'])) { ?><small class="field-error"><?= e($errors['first_name']) ?></small><?php } ?>
     </label>
 
     <label class="field">
@@ -27,11 +27,11 @@
     <label class="field">
         <span>Status</span>
         <select name="status">
-            <?php foreach ($statuses as $staffStatus): ?>
+            <?php foreach ($statuses as $staffStatus) { ?>
                 <option value="<?= e($staffStatus) ?>"<?= $values['status'] === $staffStatus ? ' selected' : '' ?>><?= e(ucfirst($staffStatus)) ?></option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
-        <?php if (isset($errors['status'])): ?><small class="field-error"><?= e($errors['status']) ?></small><?php endif; ?>
+        <?php if (isset($errors['status'])) { ?><small class="field-error"><?= e($errors['status']) ?></small><?php } ?>
     </label>
 
     <label class="field">
@@ -42,7 +42,7 @@
     <label class="field">
         <span>Fixed Salary Amount</span>
         <input type="number" name="fixed_salary_amount" value="<?= e($values['fixed_salary_amount']) ?>" min="0" step="0.01">
-        <?php if (isset($errors['fixed_salary_amount'])): ?><small class="field-error"><?= e($errors['fixed_salary_amount']) ?></small><?php endif; ?>
+        <?php if (isset($errors['fixed_salary_amount'])) { ?><small class="field-error"><?= e($errors['fixed_salary_amount']) ?></small><?php } ?>
     </label>
 
     <label class="field">
@@ -53,7 +53,7 @@
     <label class="field">
         <span>Email</span>
         <input type="email" name="email" value="<?= e($values['email']) ?>">
-        <?php if (isset($errors['email'])): ?><small class="field-error"><?= e($errors['email']) ?></small><?php endif; ?>
+        <?php if (isset($errors['email'])) { ?><small class="field-error"><?= e($errors['email']) ?></small><?php } ?>
     </label>
 </div>
 

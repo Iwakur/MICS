@@ -3,6 +3,7 @@
 namespace Tests\Feature\Domain;
 
 use App\Enums\ReviewStatus;
+use App\Enums\StaffCompensationMode;
 use App\Enums\StudentBillingType;
 use App\Models\BankMonth;
 use App\Models\Expense;
@@ -51,6 +52,7 @@ class DatabaseSchemaTest extends TestCase
         $this->assertTrue($month->payments->contains($payment));
         $this->assertTrue($category->expenses->contains($expense));
         $this->assertTrue($teacher->expenses->contains($expense));
+        $this->assertSame(StaffCompensationMode::Fixed, $teacher->compensation_mode);
         $this->assertSame(ReviewStatus::Validated, $payment->status);
         $this->assertSame(ReviewStatus::Validated, $expense->status);
     }

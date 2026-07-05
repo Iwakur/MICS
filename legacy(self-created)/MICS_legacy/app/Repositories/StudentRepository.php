@@ -33,7 +33,7 @@ final class StudentRepository
         SQL;
 
         [$whereSql, $params] = $this->buildListFilters($search, $status, null);
-        $sql .= $whereSql . ' ORDER BY s.created_at DESC, s.id DESC';
+        $sql .= $whereSql.' ORDER BY s.created_at DESC, s.id DESC';
 
         $statement = $pdo->prepare($sql);
         $statement->execute($params);
@@ -61,7 +61,7 @@ final class StudentRepository
         SQL;
 
         [$whereSql, $params] = $this->buildListFilters($search, $status, $staffId);
-        $sql .= $whereSql . ' ORDER BY s.created_at DESC, s.id DESC';
+        $sql .= $whereSql.' ORDER BY s.created_at DESC, s.id DESC';
 
         $statement = $pdo->prepare($sql);
         $statement->execute($params);
@@ -200,14 +200,14 @@ final class StudentRepository
 
         if (is_string($search) && trim($search) !== '') {
             $conditions[] = "(LOWER(CONCAT_WS(' ', s.family_name, s.first_name, s.father_name)) LIKE :search OR LOWER(COALESCE(s.phone, '')) LIKE :search OR LOWER(COALESCE(s.email, '')) LIKE :search)";
-            $params['search'] = '%' . strtolower(trim($search)) . '%';
+            $params['search'] = '%'.strtolower(trim($search)).'%';
         }
 
         if ($conditions === []) {
             return ['', $params];
         }
 
-        return [' WHERE ' . implode(' AND ', $conditions), $params];
+        return [' WHERE '.implode(' AND ', $conditions), $params];
     }
 
     private function studentParams(array $data): array

@@ -264,7 +264,7 @@ final class PaymentImportRepository
         }
 
         if ($conditions !== []) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' WHERE '.implode(' AND ', $conditions);
         }
 
         $sql .= ' ORDER BY r.operation_date DESC, r.id DESC';
@@ -278,12 +278,12 @@ final class PaymentImportRepository
     public function findRowById(int $rowId): ?array
     {
         $statement = Database::connection()->prepare(
-            "SELECT
+            'SELECT
                 r.*,
                 r.suggested_student_ids::text AS suggested_student_ids_text
              FROM statement_import_rows r
              WHERE r.id = :id
-             LIMIT 1"
+             LIMIT 1'
         );
 
         $statement->execute(['id' => $rowId]);
@@ -356,7 +356,7 @@ final class PaymentImportRepository
 
             $paymentStatement->execute([
                 'student_id' => $studentId,
-                'payment_date' => (string) $row['operation_date'] . ' 00:00:00',
+                'payment_date' => (string) $row['operation_date'].' 00:00:00',
                 'amount' => $row['amount'],
                 'method' => 'bank_transfer',
                 'source' => 'bank_statement',
@@ -366,8 +366,8 @@ final class PaymentImportRepository
                 'import_row_id' => $rowId,
                 'comment' => trim(
                     'Imported bank statement draft. '
-                    . ((string) $row['correspondent_name'] !== '' ? 'Correspondent: ' . $row['correspondent_name'] . '. ' : '')
-                    . ((string) $row['payment_purpose'] !== '' ? 'Purpose: ' . $row['payment_purpose'] : '')
+                    .((string) $row['correspondent_name'] !== '' ? 'Correspondent: '.$row['correspondent_name'].'. ' : '')
+                    .((string) $row['payment_purpose'] !== '' ? 'Purpose: '.$row['payment_purpose'] : '')
                 ),
             ]);
 
@@ -433,7 +433,7 @@ final class PaymentImportRepository
             );
 
             $statement->execute([
-                'expense_date' => (string) $row['operation_date'] . ' 00:00:00',
+                'expense_date' => (string) $row['operation_date'].' 00:00:00',
                 'category_id' => $categoryId,
                 'amount' => $row['amount'],
                 'paid_from_account_id' => $paidFromAccountId,
@@ -499,10 +499,10 @@ final class PaymentImportRepository
 
             $statement->execute([
                 'staff_id' => $staffId,
-                'payout_date' => (string) $row['operation_date'] . ' 00:00:00',
+                'payout_date' => (string) $row['operation_date'].' 00:00:00',
                 'amount' => $row['amount'],
                 'status' => 'draft',
-                'comment' => 'Imported bank statement payout draft. ' . $this->buildImportedDescription($row),
+                'comment' => 'Imported bank statement payout draft. '.$this->buildImportedDescription($row),
                 'import_row_id' => $rowId,
             ]);
 
@@ -527,7 +527,7 @@ final class PaymentImportRepository
     public function studentDirectory(): array
     {
         $statement = Database::connection()->query(
-            "SELECT
+            'SELECT
                 s.id,
                 s.first_name,
                 s.family_name,
@@ -540,7 +540,7 @@ final class PaymentImportRepository
              FROM students s
              INNER JOIN plans p ON p.id = s.plan_id
              INNER JOIN staff st ON st.id = s.staff_id
-             ORDER BY s.family_name ASC NULLS LAST, s.first_name ASC, s.father_name ASC NULLS LAST, s.id ASC"
+             ORDER BY s.family_name ASC NULLS LAST, s.first_name ASC, s.father_name ASC NULLS LAST, s.id ASC'
         );
 
         return $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -647,8 +647,8 @@ final class PaymentImportRepository
     private function buildImportedDescription(array $row): string
     {
         return trim(
-            ((string) ($row['correspondent_name'] ?? '') !== '' ? 'Correspondent: ' . $row['correspondent_name'] . '. ' : '')
-            . ((string) ($row['payment_purpose'] ?? '') !== '' ? 'Purpose: ' . $row['payment_purpose'] : '')
+            ((string) ($row['correspondent_name'] ?? '') !== '' ? 'Correspondent: '.$row['correspondent_name'].'. ' : '')
+            .((string) ($row['payment_purpose'] ?? '') !== '' ? 'Purpose: '.$row['payment_purpose'] : '')
         );
     }
 }

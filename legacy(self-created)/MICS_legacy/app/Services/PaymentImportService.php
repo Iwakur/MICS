@@ -29,9 +29,8 @@ final class PaymentImportService
     ];
 
     public function __construct(
-        private readonly PaymentImportRepository $repository = new PaymentImportRepository()
-    ) {
-    }
+        private readonly PaymentImportRepository $repository = new PaymentImportRepository
+    ) {}
 
     public function importUploadedStatement(array $file, int $userId): array
     {
@@ -138,7 +137,7 @@ final class PaymentImportService
             throw new InvalidArgumentException('Covered month must be selected.');
         }
 
-        return $value . '-01';
+        return $value.'-01';
     }
 
     public function statusLabel(string $status): string
@@ -213,7 +212,7 @@ final class PaymentImportService
 
     private function suggestStudentIds(array $row, array $students): array
     {
-        $haystack = $this->normalizeText(trim((string) ($row['correspondent_name'] ?? '') . ' ' . (string) ($row['payment_purpose'] ?? '')));
+        $haystack = $this->normalizeText(trim((string) ($row['correspondent_name'] ?? '').' '.(string) ($row['payment_purpose'] ?? '')));
         if ($haystack === '') {
             return [];
         }
@@ -305,8 +304,8 @@ final class PaymentImportService
     {
         $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
         $extension = $extension !== '' ? $extension : 'csv';
-        $filename = date('Ymd_His') . '_' . substr($fileHash, 0, 12) . '.' . $extension;
-        $destination = base_path('uploads/statements/' . $filename);
+        $filename = date('Ymd_His').'_'.substr($fileHash, 0, 12).'.'.$extension;
+        $destination = base_path('uploads/statements/'.$filename);
 
         if (! move_uploaded_file($tmpPath, $destination)) {
             throw new RuntimeException('Failed to store the uploaded statement file.');

@@ -1,13 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\DashboardRepository;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireTeacher();
+Auth::requireTeacher();
 
-$staffId = (int) (\App\Auth::user()['staff_id'] ?? 0);
-$repository = new \App\Repositories\DashboardRepository();
+$staffId = (int) (Auth::user()['staff_id'] ?? 0);
+$repository = new DashboardRepository;
 $summary = $repository->teacherSummary($staffId);
 
 render('teacher/dashboard', [

@@ -12,18 +12,18 @@
         <input type="search" name="q" value="<?= e($search) ?>" placeholder="Search by name, role, phone, or email">
         <select name="status">
             <option value="">All statuses</option>
-            <?php foreach ($statuses as $staffStatus): ?>
+            <?php foreach ($statuses as $staffStatus) { ?>
                 <option value="<?= e($staffStatus) ?>"<?= $status === $staffStatus ? ' selected' : '' ?>><?= e(ucfirst($staffStatus)) ?></option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
         <button type="submit" class="button button-ghost">Apply</button>
     </form>
 </section>
 
 <section class="panel">
-    <?php if ($staff === []): ?>
+    <?php if ($staff === []) { ?>
         <p>No staff records match the current filters.</p>
-    <?php else: ?>
+    <?php } else { ?>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -36,7 +36,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($staff as $staffMember): ?>
+                <?php foreach ($staff as $staffMember) { ?>
                     <?php $staffName = person_name_from_row($staffMember); ?>
                     <tr>
                         <td><strong><?= e($staffName) ?></strong></td>
@@ -45,7 +45,7 @@
                         <td><?= e((string) ($staffMember['phone'] ?: $staffMember['email'] ?: 'No contact')) ?></td>
                         <td>
                             <div class="row-actions">
-                                <a class="button button-ghost" href="<?= e(app_url('admin/staff-edit.php?id=' . (int) $staffMember['id'])) ?>">Edit</a>
+                                <a class="button button-ghost" href="<?= e(app_url('admin/staff-edit.php?id='.(int) $staffMember['id'])) ?>">Edit</a>
                                 <form method="post">
                                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
                                     <input type="hidden" name="staff_id" value="<?= e((string) $staffMember['id']) ?>">
@@ -55,9 +55,9 @@
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php } ?>
                 </tbody>
             </table>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 </section>

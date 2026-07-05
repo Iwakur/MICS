@@ -1,12 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Auth;
+use App\Repositories\ExpenseRepository;
+use App\Services\ExpenseFormService;
 
-require dirname(__DIR__) . '/app/bootstrap.php';
+require dirname(__DIR__).'/app/bootstrap.php';
 
-\App\Auth::requireAdmin();
+Auth::requireAdmin();
 
-$repository = new \App\Repositories\ExpenseRepository();
+$repository = new ExpenseRepository;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (! verify_csrf($_POST['_csrf'] ?? null)) {
@@ -55,5 +58,5 @@ render('admin/expenses', [
     'categories' => $categories,
     'status' => $status,
     'categoryId' => $categoryId > 0 ? (string) $categoryId : '',
-    'statuses' => \App\Services\ExpenseFormService::STATUSES,
+    'statuses' => ExpenseFormService::STATUSES,
 ], 'admin');

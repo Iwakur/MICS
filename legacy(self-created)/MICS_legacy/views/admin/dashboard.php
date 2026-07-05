@@ -127,92 +127,92 @@ $distributions = $summary['current_distributions'];
             <thead>
             <tr>
                 <th>Metric</th>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <th><?= e($month['label']) ?></th>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             </thead>
             <tbody>
             <tr>
                 <td><strong>New Students Joined</strong><br><span class="table-subtext">Students created with joined date in the month.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e((string) $month['student_joined']) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Confirmed Payments</strong><br><span class="table-subtext">Count and amount from `payments.status = confirmed`.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td>
                         <?= e((string) $month['confirmed_payments_count']) ?><br>
                         <span class="table-subtext"><?= e(number_format((float) $month['confirmed_payments_amount'], 2)) ?></span>
                     </td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Pending Payments</strong><br><span class="table-subtext">Draft or unresolved business payment records.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td>
                         <?= e((string) $month['pending_payments_count']) ?><br>
                         <span class="table-subtext"><?= e(number_format((float) $month['pending_payments_amount'], 2)) ?></span>
                     </td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Imported Batches</strong><br><span class="table-subtext">Bank CSV files uploaded during the month.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e((string) $month['import_batches']) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Imported Rows</strong><br><span class="table-subtext">Raw bank rows added to the system.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e((string) $month['import_rows']) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Statement Queue Rows</strong><br><span class="table-subtext">Rows still `new` or `unmatched` from that month’s imports.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e((string) $month['import_queue_rows']) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Draft-Created Rows</strong><br><span class="table-subtext">Imported rows already turned into payment drafts.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e((string) $month['draft_created_rows']) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Posted Expenses</strong><br><span class="table-subtext">Count and amount from `expenses.status = posted`.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td>
                         <?= e((string) $month['posted_expenses_count']) ?><br>
                         <span class="table-subtext"><?= e(number_format((float) $month['posted_expenses_amount'], 2)) ?></span>
                     </td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Draft Payouts</strong><br><span class="table-subtext">Prepared payout amount before send/validation.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e(number_format((float) $month['draft_payouts_amount'], 2)) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Posted Payouts</strong><br><span class="table-subtext">Actually marked as paid to staff.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e(number_format((float) $month['posted_payouts_amount'], 2)) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Posted Journal Entries</strong><br><span class="table-subtext">Accounting entries posted in the selected month.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e((string) $month['posted_journal_entries']) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             <tr>
                 <td><strong>Operational Net Flow</strong><br><span class="table-subtext">Confirmed payments minus posted expenses and posted payouts.</span></td>
-                <?php foreach ($monthComparisons as $month): ?>
+                <?php foreach ($monthComparisons as $month) { ?>
                     <td><?= e(number_format((float) $month['operational_net_flow'], 2)) ?></td>
-                <?php endforeach; ?>
+                <?php } ?>
             </tr>
             </tbody>
         </table>
@@ -227,9 +227,9 @@ $distributions = $summary['current_distributions'];
     <div class="panel-grid dashboard-panels-wide">
         <article class="panel">
             <h2>Students By Plan</h2>
-            <?php if ($distributions['students_by_plan'] === []): ?>
+            <?php if ($distributions['students_by_plan'] === []) { ?>
                 <p>No plans are available yet.</p>
-            <?php else: ?>
+            <?php } else { ?>
                 <div class="table-wrap">
                     <table class="data-table">
                         <thead>
@@ -241,7 +241,7 @@ $distributions = $summary['current_distributions'];
                         </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($distributions['students_by_plan'] as $plan): ?>
+                        <?php foreach ($distributions['students_by_plan'] as $plan) { ?>
                             <?php $planStatus = (bool) $plan['is_assignable'] ? 'active' : 'archived'; ?>
                             <tr>
                                 <td>
@@ -252,18 +252,18 @@ $distributions = $summary['current_distributions'];
                                 <td><?= e((string) $plan['active_students']) ?></td>
                                 <td><span class="status-pill status-<?= e($planStatus) ?>"><?= e((bool) $plan['is_assignable'] ? 'Assignable' : 'Archived') ?></span></td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php } ?>
                         </tbody>
                     </table>
                 </div>
-            <?php endif; ?>
+            <?php } ?>
         </article>
 
         <article class="panel">
             <h2>Students By Teacher</h2>
-            <?php if ($distributions['students_by_teacher'] === []): ?>
+            <?php if ($distributions['students_by_teacher'] === []) { ?>
                 <p>No staff records are available yet.</p>
-            <?php else: ?>
+            <?php } else { ?>
                 <div class="table-wrap">
                     <table class="data-table">
                         <thead>
@@ -276,7 +276,7 @@ $distributions = $summary['current_distributions'];
                         </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($distributions['students_by_teacher'] as $teacher): ?>
+                        <?php foreach ($distributions['students_by_teacher'] as $teacher) { ?>
                             <?php $teacherName = person_name_from_row($teacher); ?>
                             <tr>
                                 <td>
@@ -288,11 +288,11 @@ $distributions = $summary['current_distributions'];
                                 <td><?= e((string) $teacher['paused_students']) ?></td>
                                 <td><?= e((string) $teacher['archived_students']) ?></td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php } ?>
                         </tbody>
                     </table>
                 </div>
-            <?php endif; ?>
+            <?php } ?>
         </article>
     </div>
 </section>
@@ -303,9 +303,9 @@ $distributions = $summary['current_distributions'];
         <p class="table-subtext">Useful for quickly seeing whether imported bank batches are still waiting for review.</p>
     </div>
     <section class="panel">
-        <?php if ($distributions['recent_statement_batches'] === []): ?>
+        <?php if ($distributions['recent_statement_batches'] === []) { ?>
             <p>No statement batches have been imported yet.</p>
-        <?php else: ?>
+        <?php } else { ?>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -319,7 +319,7 @@ $distributions = $summary['current_distributions'];
                     </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($distributions['recent_statement_batches'] as $batch): ?>
+                    <?php foreach ($distributions['recent_statement_batches'] as $batch) { ?>
                         <tr>
                             <td>
                                 <strong><?= e($batch['original_filename']) ?></strong><br>
@@ -331,10 +331,10 @@ $distributions = $summary['current_distributions'];
                             <td><?= e((string) $batch['open_rows']) ?></td>
                             <td><?= e(date('Y-m-d H:i', strtotime((string) $batch['created_at']))) ?></td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php } ?>
                     </tbody>
                 </table>
             </div>
-        <?php endif; ?>
+        <?php } ?>
     </section>
 </section>
