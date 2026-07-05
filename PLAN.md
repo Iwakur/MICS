@@ -12,7 +12,14 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Complete first-deployment hardening: effective-dated configuration, partial refunds, bank reconciliation, expense-category management, linked active accounts, longitudinal/browser coverage, release automation, UI consistency, and beginner-first documentation.
+Confirm first-deployment school data, package metadata, administrator bootstrap, and bank-account scope using `docs/SEEDING-DECISIONS.md`, then implement only the approved seed/import behavior.
+
+### Current Decision Gate
+
+- Package prices are complete monthly charges; they are not calculated from lesson averages or suffixes.
+- Values such as `4.5` and package per-lesson suffixes are reporting metadata only.
+- The local customer CSV is source material, not a production seeder, and remains excluded from Git.
+- Implementation waits for the remaining answers in `docs/SEEDING-DECISIONS.md`.
 
 ### Current Known Facts
 
