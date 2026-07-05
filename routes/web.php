@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\LessonTypeController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StaffRoleController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -67,6 +68,9 @@ Route::middleware('auth')->group(function (): void {
             ->name('dashboard');
 
         Route::resource('staff', StaffController::class)
+            ->except('show');
+
+        Route::resource('staff-roles', StaffRoleController::class)
             ->except('show');
 
         Route::resource('lesson-types', LessonTypeController::class)

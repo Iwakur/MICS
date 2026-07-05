@@ -4,9 +4,11 @@ namespace App\Http\Requests;
 
 use App\Enums\StudentBillingType;
 use App\Enums\StudentStatus;
+use App\Models\Staff;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Validator;
 
 class SaveStudentRequest extends FormRequest
 {
@@ -68,5 +70,26 @@ class SaveStudentRequest extends FormRequest
         }
 
         return $data;
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                if (! $this->routeIs('admin.*') || ! $this->filled('staff_id')) {
+                    return;
+                }
+
+                $canReceiveStudents = Staff::query()
+                    ->whereKey($this->integer('staff_id'))
+                    ->where('is_active', true)
+                    ->whereHas('role', fn ($query) => $query->where('can_teach', true))
+                    ->exists();
+
+                if (! $canReceiveStudents) {
+                    $validator->errors()->add('staff_id', 'Choose an active staff member with a teaching role.');
+                }
+            },
+        ];
     }
 }

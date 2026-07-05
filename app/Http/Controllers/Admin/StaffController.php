@@ -29,7 +29,7 @@ class StaffController extends Controller
     public function create(): View
     {
         return view('admin.staff.create', [
-            'staffRoles' => StaffRole::query()->orderBy('name')->get(),
+            'staffRoles' => StaffRole::query()->where('is_active', true)->orderBy('name')->get(),
             'availableUsers' => $this->availableUsers(),
         ]);
     }
@@ -55,7 +55,11 @@ class StaffController extends Controller
 
         return view('admin.staff.edit', [
             'staffMember' => $staff,
-            'staffRoles' => StaffRole::query()->orderBy('name')->get(),
+            'staffRoles' => StaffRole::query()
+                ->where('is_active', true)
+                ->orWhereKey($staff->staff_role_id)
+                ->orderBy('name')
+                ->get(),
             'availableUsers' => $this->availableUsers($staff),
         ]);
     }

@@ -156,6 +156,10 @@ Staff compensation is explicit: fixed staff use a configured salary amount, whil
 
 Student profiles use one billing mode at a time. Administrators may assign, edit, pause, reactivate, or archive any student. Teachers may create and edit only students assigned to their linked active staff profile and cannot reassign or archive them. Per-lesson counts are not stored on the student profile because they belong to a specific billing month.
 
+Staff roles are editable business metadata, separate from login access roles. Every staff role has explicit active and teaching-capability flags. The default `Teacher` role is seeded idempotently, and only active staff with a teaching-capable role may receive student assignments.
+
+The non-production seeder provides connected reference and demo data for every implemented domain area. Run `ddev exec php artisan db:seed` repeatedly without creating duplicates. Local demo logins are reset to `admin` / `password` and `teacher` / `password`. Production seeding creates reference catalogs only, never demo people or financial records.
+
 The current user-management screen predates staff management, so `users.staff_id` is temporarily nullable. When present it is unique, preserving a one-to-one staff/login relationship. It should become required only after account creation can select or create the corresponding staff record.
 
 The intended monthly calculation is:

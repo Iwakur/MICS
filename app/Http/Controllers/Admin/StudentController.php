@@ -36,7 +36,7 @@ class StudentController extends Controller
 
         return view('admin.students.index', [
             'students' => $students,
-            'teachers' => Staff::query()->where('is_active', true)->orderBy('first_name')->get(),
+            'teachers' => $this->teachingStaff()->orderBy('first_name')->get(),
         ]);
     }
 
@@ -74,8 +74,7 @@ class StudentController extends Controller
     private function formOptions(?Student $student = null): array
     {
         return [
-            'teachers' => Staff::query()
-                ->where('is_active', true)
+            'teachers' => $this->teachingStaff()
                 ->when($student, fn (Builder $query) => $query->orWhereKey($student->staff_id))
                 ->orderBy('first_name')
                 ->get(),
@@ -90,5 +89,12 @@ class StudentController extends Controller
                 ->orderBy('name')
                 ->get(),
         ];
+    }
+
+    private function teachingStaff(): Builder
+    {
+        return Staff::query()
+            ->where('is_active', true)
+            ->whereHas('role', fn (Builder $query) => $query->where('can_teach', true));
     }
 }

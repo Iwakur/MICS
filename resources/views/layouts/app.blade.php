@@ -30,36 +30,30 @@
                             >
                                 Admin Dashboard
                             </a>
-                            <a
-                                href="{{ route('admin.staff.index') }}"
-                                class="app-nav-link {{ request()->routeIs('admin.staff.*') ? 'app-nav-link-active' : '' }}"
-                            >
-                                Staff
-                            </a>
-                            <a
-                                href="{{ route('admin.students.index') }}"
-                                class="app-nav-link {{ request()->routeIs('admin.students.*') ? 'app-nav-link-active' : '' }}"
-                            >
-                                Students
-                            </a>
-                            <a
-                                href="{{ route('admin.users.index') }}"
-                                class="app-nav-link {{ request()->routeIs('admin.users.*') ? 'app-nav-link-active' : '' }}"
-                            >
-                                User Management
-                            </a>
-                            <a
-                                href="{{ route('admin.lesson-types.index') }}"
-                                class="app-nav-link {{ request()->routeIs('admin.lesson-types.*') ? 'app-nav-link-active' : '' }}"
-                            >
-                                Lesson Types
-                            </a>
-                            <a
-                                href="{{ route('admin.plans.index') }}"
-                                class="app-nav-link {{ request()->routeIs('admin.plans.*') ? 'app-nav-link-active' : '' }}"
-                            >
-                                Plans
-                            </a>
+
+                            <div class="pt-5">
+                                <p class="px-3 text-xs font-semibold uppercase tracking-[0.25em] text-shell-muted">People</p>
+                                <div class="mt-2 space-y-2">
+                                    <a href="{{ route('admin.students.index') }}" class="app-nav-link {{ request()->routeIs('admin.students.*') ? 'app-nav-link-active' : '' }}">Students</a>
+                                    <a href="{{ route('admin.staff.index') }}" class="app-nav-link {{ request()->routeIs('admin.staff.*') ? 'app-nav-link-active' : '' }}">Staff</a>
+                                    <a href="{{ route('admin.staff-roles.index') }}" class="app-nav-link {{ request()->routeIs('admin.staff-roles.*') ? 'app-nav-link-active' : '' }}">Staff Roles</a>
+                                </div>
+                            </div>
+
+                            <div class="pt-5">
+                                <p class="px-3 text-xs font-semibold uppercase tracking-[0.25em] text-shell-muted">Billing Setup</p>
+                                <div class="mt-2 space-y-2">
+                                    <a href="{{ route('admin.lesson-types.index') }}" class="app-nav-link {{ request()->routeIs('admin.lesson-types.*') ? 'app-nav-link-active' : '' }}">Lesson Types</a>
+                                    <a href="{{ route('admin.plans.index') }}" class="app-nav-link {{ request()->routeIs('admin.plans.*') ? 'app-nav-link-active' : '' }}">Plans</a>
+                                </div>
+                            </div>
+
+                            <div class="pt-5">
+                                <p class="px-3 text-xs font-semibold uppercase tracking-[0.25em] text-shell-muted">Access</p>
+                                <div class="mt-2 space-y-2">
+                                    <a href="{{ route('admin.users.index') }}" class="app-nav-link {{ request()->routeIs('admin.users.*') ? 'app-nav-link-active' : '' }}">User Management</a>
+                                </div>
+                            </div>
                         @else
                             <a
                                 href="{{ route('teacher.dashboard') }}"

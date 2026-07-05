@@ -19,6 +19,8 @@ class StaffRoleFactory extends Factory
     {
         return [
             'name' => fake()->unique()->jobTitle(),
+            'can_teach' => true,
+            'is_active' => true,
             'note' => fake()->optional()->sentence(),
         ];
     }

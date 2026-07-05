@@ -37,7 +37,7 @@ Build the next operational CRUD modules on top of the already-translated schema,
 
 ### Current Runtime Assessment
 
-The translated schema layer is in place. Admin staff CRUD includes explicit fixed/dynamic compensation, admin catalog CRUD exposes separate school and teacher earning amounts, and student CRUD now enforces per-lesson versus plan-based configuration. Administrators control assignment and archive state; teachers can create and edit only students assigned to their linked active staff profile.
+The translated schema layer is in place. Admin staff CRUD includes explicit fixed/dynamic compensation, and business roles are managed through an archive-safe staff-role catalog with explicit teaching capability. Student CRUD enforces per-lesson versus plan-based configuration and permits assignment only to active teaching-capable staff. Administrators control assignment and archive state; teachers can create and edit only students assigned to their linked active teaching profile.
 
 ## Agreed Monthly Workflow Direction
 

@@ -57,6 +57,20 @@ class StudentManagementTest extends TestCase
         $response->assertInvalid(['plan_id', 'plan_start_at']);
     }
 
+    public function test_admin_cannot_assign_a_student_to_non_teaching_staff(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $staff = Staff::factory()->create();
+        $staff->role->update(['can_teach' => false]);
+
+        $response = $this->actingAs($admin)->post(route('admin.students.store'), $this->studentData([
+            'staff_id' => $staff->id,
+        ]));
+
+        $response->assertInvalid('staff_id');
+        $this->assertDatabaseMissing('students', ['first_name' => 'Amina', 'staff_id' => $staff->id]);
+    }
+
     public function test_admin_archives_a_student_without_deleting_it(): void
     {
         $admin = User::factory()->admin()->create();

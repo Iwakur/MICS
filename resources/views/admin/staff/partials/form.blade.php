@@ -10,6 +10,7 @@
                 <option value="{{ $staffRole->id }}" @selected((string) $staffRoleId === (string) $staffRole->id)>{{ $staffRole->name }}</option>
             @endforeach
         </select>
+        <p class="text-xs text-shell-muted">Roles are managed separately. Only teaching-capable roles may receive students.</p>
     </div>
 
     <div class="space-y-2">

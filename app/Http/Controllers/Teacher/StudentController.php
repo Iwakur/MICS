@@ -66,7 +66,8 @@ class StudentController extends Controller
     private function staffId(Request $request): int
     {
         $staffId = $request->user()->staff_id;
-        abort_if(! $staffId || ! $request->user()->staffMember?->is_active, 403, 'An active staff profile is required.');
+        $staff = $request->user()->staffMember;
+        abort_if(! $staffId || ! $staff?->is_active || ! $staff->role?->can_teach, 403, 'An active teaching staff profile is required.');
 
         return $staffId;
     }
