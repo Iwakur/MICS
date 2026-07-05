@@ -30,7 +30,10 @@
                 </div>
             </div>
 
-            <a href="{{ route('teacher.students.index') }}" class="app-button-primary mt-6 inline-flex">Open My Students</a>
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{{ route('teacher.lesson-counts.index') }}" class="app-button-primary">Enter Lesson Counts</a>
+                <a href="{{ route('teacher.students.index') }}" class="app-button-secondary">Open My Students</a>
+            </div>
         </article>
 
         <article class="app-surface p-6">
@@ -38,7 +41,7 @@
             <ul class="mt-4 space-y-3 text-sm text-shell-muted">
                 <li>View and edit only assigned students.</li>
                 <li>Create students directly under your profile.</li>
-                <li>Monthly lesson-count entry remains the next workflow.</li>
+                <li>Enter monthly counts for active per-lesson students.</li>
             </ul>
         </article>
     </section>

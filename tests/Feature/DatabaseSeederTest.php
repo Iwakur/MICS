@@ -29,7 +29,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(3, StaffRole::query()->count());
         $this->assertSame(3, LessonType::query()->count());
         $this->assertSame(3, Plan::query()->count());
-        $this->assertSame(3, ExpenseCategory::query()->count());
+        $this->assertSame(4, ExpenseCategory::query()->count());
         $this->assertSame(3, Staff::query()->count());
         $this->assertSame(2, User::query()->count());
         $this->assertSame(3, Student::query()->count());

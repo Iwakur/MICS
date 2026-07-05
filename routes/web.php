@@ -1,16 +1,20 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\LessonTypeController;
+use App\Http\Controllers\Admin\MonthClosingController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StaffRoleController;
+use App\Http\Controllers\Admin\StudentChargeController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Teacher\TeacherDashboardController;
+use App\Http\Controllers\MonthlyLessonCountController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
+use App\Http\Controllers\Teacher\TeacherDashboardController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
@@ -82,6 +86,15 @@ Route::middleware('auth')->group(function (): void {
         Route::resource('students', AdminStudentController::class)
             ->except('show');
 
+        Route::get('lesson-counts', [MonthlyLessonCountController::class, 'index'])->name('lesson-counts.index');
+        Route::put('lesson-counts', [MonthlyLessonCountController::class, 'update'])->name('lesson-counts.update');
+        Route::get('month-closing', [MonthClosingController::class, 'index'])->name('month-closing.index');
+        Route::post('month-closing', [MonthClosingController::class, 'store'])->name('month-closing.store');
+        Route::resource('expenses', ExpenseController::class)->except('show');
+        Route::get('student-charges', [StudentChargeController::class, 'index'])->name('student-charges.index');
+        Route::get('student-charges/{studentMonth}/edit', [StudentChargeController::class, 'edit'])->name('student-charges.edit');
+        Route::put('student-charges/{studentMonth}', [StudentChargeController::class, 'update'])->name('student-charges.update');
+
         Route::resource('users', UserController::class)
             ->except('show');
     });
@@ -92,6 +105,8 @@ Route::middleware('auth')->group(function (): void {
     Route::prefix('teacher')->name('teacher.')->group(function (): void {
         Route::resource('students', TeacherStudentController::class)
             ->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::get('lesson-counts', [MonthlyLessonCountController::class, 'index'])->name('lesson-counts.index');
+        Route::put('lesson-counts', [MonthlyLessonCountController::class, 'update'])->name('lesson-counts.update');
     });
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])

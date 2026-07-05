@@ -136,6 +136,19 @@ class StudentManagementTest extends TestCase
         $this->assertNotSame(StudentStatus::Archived, $student->refresh()->status);
     }
 
+    public function test_teacher_can_open_the_edit_form_with_the_current_archived_lesson_type(): void
+    {
+        $staff = Staff::factory()->create(['is_active' => true]);
+        $teacher = User::factory()->teacher()->for($staff, 'staffMember')->create();
+        $lessonType = LessonType::factory()->create(['is_assignable' => false]);
+        $student = Student::factory()->for($staff, 'teacher')->for($lessonType)->create();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.students.edit', $student))
+            ->assertOk()
+            ->assertSee($lessonType->name);
+    }
+
     private function studentData(array $overrides = []): array
     {
         return array_merge([

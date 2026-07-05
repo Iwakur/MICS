@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ReviewStatus;
 use Database\Factories\StudentMonthFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'student_id', 'month_date', 'opening_balance', 'charge_amount',
-    'manual_adjustment', 'note',
+    'student_id', 'month_date', 'lesson_count', 'opening_balance', 'charge_amount',
+    'manual_adjustment', 'status', 'adjustment_reason', 'adjusted_by_user_id', 'note',
 ])]
 class StudentMonth extends Model
 {
@@ -19,18 +20,22 @@ class StudentMonth extends Model
     use HasFactory;
 
     protected $attributes = [
+        'lesson_count' => 0,
         'opening_balance' => 0,
         'charge_amount' => 0,
         'manual_adjustment' => 0,
+        'status' => 'draft',
     ];
 
     protected function casts(): array
     {
         return [
             'month_date' => 'date',
+            'lesson_count' => 'integer',
             'opening_balance' => 'decimal:2',
             'charge_amount' => 'decimal:2',
             'manual_adjustment' => 'decimal:2',
+            'status' => ReviewStatus::class,
         ];
     }
 
@@ -47,6 +52,11 @@ class StudentMonth extends Model
     public function validatedPayments(): HasMany
     {
         return $this->payments()->validated();
+    }
+
+    public function adjustedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'adjusted_by_user_id');
     }
 
     public function closingBalance(): float

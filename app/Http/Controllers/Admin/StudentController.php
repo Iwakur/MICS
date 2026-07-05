@@ -75,17 +75,17 @@ class StudentController extends Controller
     {
         return [
             'teachers' => $this->teachingStaff()
-                ->when($student, fn (Builder $query) => $query->orWhereKey($student->staff_id))
+                ->when($student, fn (Builder $query) => $query->orWhere($query->getModel()->getQualifiedKeyName(), $student->staff_id))
                 ->orderBy('first_name')
                 ->get(),
             'lessonTypes' => LessonType::query()
                 ->where('is_assignable', true)
-                ->when($student?->lesson_type_id, fn (Builder $query) => $query->orWhereKey($student->lesson_type_id))
+                ->when($student?->lesson_type_id, fn (Builder $query) => $query->orWhere($query->getModel()->getQualifiedKeyName(), $student->lesson_type_id))
                 ->orderBy('name')
                 ->get(),
             'plans' => Plan::query()
                 ->where('is_assignable', true)
-                ->when($student?->plan_id, fn (Builder $query) => $query->orWhereKey($student->plan_id))
+                ->when($student?->plan_id, fn (Builder $query) => $query->orWhere($query->getModel()->getQualifiedKeyName(), $student->plan_id))
                 ->orderBy('name')
                 ->get(),
         ];

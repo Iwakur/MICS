@@ -43,6 +43,10 @@
                             <div class="pt-5">
                                 <p class="px-3 text-xs font-semibold uppercase tracking-[0.25em] text-shell-muted">Billing Setup</p>
                                 <div class="mt-2 space-y-2">
+                                    <a href="{{ route('admin.lesson-counts.index') }}" class="app-nav-link {{ request()->routeIs('admin.lesson-counts.*') ? 'app-nav-link-active' : '' }}">Monthly Lesson Counts</a>
+                                    <a href="{{ route('admin.month-closing.index') }}" class="app-nav-link {{ request()->routeIs('admin.month-closing.*') ? 'app-nav-link-active' : '' }}">Month Closing</a>
+                                    <a href="{{ route('admin.student-charges.index') }}" class="app-nav-link {{ request()->routeIs('admin.student-charges.*') ? 'app-nav-link-active' : '' }}">Student Charges</a>
+                                    <a href="{{ route('admin.expenses.index') }}" class="app-nav-link {{ request()->routeIs('admin.expenses.*') ? 'app-nav-link-active' : '' }}">Expenses & Salaries</a>
                                     <a href="{{ route('admin.lesson-types.index') }}" class="app-nav-link {{ request()->routeIs('admin.lesson-types.*') ? 'app-nav-link-active' : '' }}">Lesson Types</a>
                                     <a href="{{ route('admin.plans.index') }}" class="app-nav-link {{ request()->routeIs('admin.plans.*') ? 'app-nav-link-active' : '' }}">Plans</a>
                                 </div>
@@ -66,6 +70,9 @@
                                 class="app-nav-link {{ request()->routeIs('teacher.students.*') ? 'app-nav-link-active' : '' }}"
                             >
                                 My Students
+                            </a>
+                            <a href="{{ route('teacher.lesson-counts.index') }}" class="app-nav-link {{ request()->routeIs('teacher.lesson-counts.*') ? 'app-nav-link-active' : '' }}">
+                                Monthly Lesson Counts
                             </a>
                         @endif
                     </nav>

@@ -12,7 +12,7 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Build the next operational CRUD modules on top of the already-translated schema, starting with staff and then moving into student workflow.
+Add payment validation and auditable month reopening after completing financial review workflows.
 
 ### Current Known Facts
 
@@ -37,7 +37,7 @@ Build the next operational CRUD modules on top of the already-translated schema,
 
 ### Current Runtime Assessment
 
-The translated schema layer is in place. Admin staff CRUD includes explicit fixed/dynamic compensation, and business roles are managed through an archive-safe staff-role catalog with explicit teaching capability. Student CRUD enforces per-lesson versus plan-based configuration and permits assignment only to active teaching-capable staff. Administrators control assignment and archive state; teachers can create and edit only students assigned to their linked active teaching profile.
+The translated schema layer is in place. Administrators and teachers can enter scoped monthly lesson counts. Administrators can close a month, review and validate generated student charges and salary drafts, apply attributed charge adjustments, and maintain irregular manual expenses. Validated records are immutable.
 
 ## Agreed Monthly Workflow Direction
 
@@ -101,9 +101,9 @@ The translated schema layer is in place. Admin staff CRUD includes explicit fixe
 
 ## Next Controlled Steps
 
-1. Add auditable month lifecycle records.
-2. Add teacher-owned monthly lesson-count entry with authorization scoped to assigned students.
-3. Add idempotent manual month closing and salary-source snapshots.
+1. Add student payment entry and validation workflows.
+2. Add explicit, auditable administrator reopen behavior without overwriting validated records.
+3. Add monthly finance summaries for charges, validated payments, salaries, and manual expenses.
 
 ## Step Review Template
 

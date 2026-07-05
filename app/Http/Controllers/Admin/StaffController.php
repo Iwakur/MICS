@@ -57,7 +57,7 @@ class StaffController extends Controller
             'staffMember' => $staff,
             'staffRoles' => StaffRole::query()
                 ->where('is_active', true)
-                ->orWhereKey($staff->staff_role_id)
+                ->orWhere((new StaffRole)->getQualifiedKeyName(), $staff->staff_role_id)
                 ->orderBy('name')
                 ->get(),
             'availableUsers' => $this->availableUsers($staff),
@@ -101,7 +101,7 @@ class StaffController extends Controller
                 $query->whereNull('staff_id');
 
                 if ($staff?->user) {
-                    $query->orWhereKey($staff->user->id);
+                    $query->orWhere((new User)->getQualifiedKeyName(), $staff->user->id);
                 }
             })
             ->orderBy('username')

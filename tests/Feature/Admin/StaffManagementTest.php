@@ -141,4 +141,18 @@ class StaffManagementTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    public function test_admin_can_open_staff_edit_with_current_inactive_role_and_linked_user(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $role = StaffRole::factory()->create(['is_active' => false]);
+        $staff = Staff::factory()->for($role, 'role')->create();
+        $linkedUser = User::factory()->for($staff, 'staffMember')->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.staff.edit', $staff))
+            ->assertOk()
+            ->assertSee($role->name)
+            ->assertSee($linkedUser->username);
+    }
 }

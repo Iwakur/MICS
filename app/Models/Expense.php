@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'staff_id', 'expense_category_id', 'month_date', 'amount', 'status',
-    'is_auto_generated', 'note',
+    'is_auto_generated', 'generation_key', 'note',
 ])]
 class Expense extends Model
 {
@@ -40,6 +41,11 @@ class Expense extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
+    }
+
+    public function salarySources(): HasMany
+    {
+        return $this->hasMany(SalaryDraftSource::class);
     }
 
     #[Scope]

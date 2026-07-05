@@ -59,6 +59,7 @@ class ReferenceDataSeeder extends Seeder
     private function expenseCategories(): array
     {
         return [
+            ['name' => 'Salary', 'note' => 'Generated staff salary drafts.'],
             ['name' => 'Rent', 'note' => 'Premises and classroom rent.'],
             ['name' => 'Utilities', 'note' => 'Electricity, internet, and other utilities.'],
             ['name' => 'Supplies', 'note' => 'Teaching and office supplies.'],
