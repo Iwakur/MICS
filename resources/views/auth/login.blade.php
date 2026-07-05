@@ -9,13 +9,14 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
     </head>
-    <body class="min-h-screen bg-stone-950 text-stone-100">
+    <body class="app-page">
         <main class="flex min-h-screen items-center justify-center px-6 py-12">
-            <div class="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900/90 p-8 shadow-2xl shadow-stone-950/40">
+            {{-- The login card stays intentionally simple because auth should feel clear, not busy. --}}
+            <div class="app-surface w-full max-w-md p-8">
                 <div class="space-y-3">
-                    <p class="text-sm font-medium uppercase tracking-[0.3em] text-amber-300">MICS</p>
-                    <h1 class="text-3xl font-semibold text-white">Sign in</h1>
-                    <p class="text-sm text-stone-400">
+                    <p class="text-sm font-medium uppercase tracking-[0.3em] text-brand-300">MICS</p>
+                    <h1 class="text-3xl font-semibold text-shell-text">Sign in</h1>
+                    <p class="text-sm text-shell-muted">
                         Use your username and password. Email stays on the account for later communication, not for login.
                     </p>
                 </div>
@@ -24,7 +25,7 @@
                     @csrf
 
                     <div class="space-y-2">
-                        <label for="username" class="text-sm font-medium text-stone-200">Username</label>
+                        <label for="username" class="text-sm font-medium text-shell-text">Username</label>
                         <input
                             id="username"
                             name="username"
@@ -33,48 +34,45 @@
                             required
                             autofocus
                             autocomplete="username"
-                            class="w-full rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-stone-100 placeholder:text-stone-500 focus:border-amber-300 focus:outline-none"
+                            class="app-input"
                         >
                         @error('username')
-                            <p class="text-sm text-rose-300">{{ $message }}</p>
+                            <p class="text-sm text-red-200">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="space-y-2">
-                        <label for="password" class="text-sm font-medium text-stone-200">Password</label>
+                        <label for="password" class="text-sm font-medium text-shell-text">Password</label>
                         <input
                             id="password"
                             name="password"
                             type="password"
                             required
                             autocomplete="current-password"
-                            class="w-full rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-stone-100 placeholder:text-stone-500 focus:border-amber-300 focus:outline-none"
+                            class="app-input"
                         >
                         @error('password')
-                            <p class="text-sm text-rose-300">{{ $message }}</p>
+                            <p class="text-sm text-red-200">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <label class="flex items-center gap-3 text-sm text-stone-300">
+                    <label class="flex items-center gap-3 text-sm text-shell-muted">
                         <input
                             type="checkbox"
                             name="remember"
                             value="1"
                             {{ old('remember') ? 'checked' : '' }}
-                            class="h-4 w-4 rounded border-stone-600 bg-stone-950 text-amber-300 focus:ring-amber-300"
+                            class="h-4 w-4 rounded border-shell-border bg-brand-950/70 text-shell-accent"
                         >
                         <span>Remember me on this device</span>
                     </label>
 
-                    <button
-                        type="submit"
-                        class="w-full rounded-2xl bg-amber-300 px-4 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
-                    >
+                    <button type="submit" class="app-button-primary w-full">
                         Sign in
                     </button>
                 </form>
 
-                <p class="text-xs text-stone-500 my-5">
+                <p class="mt-5 text-xs text-shell-muted">
                     Default seeded account: <strong>admin</strong> / <strong>admin</strong>. Change it later through the UI once that screen exists.
                 </p>
             </div>

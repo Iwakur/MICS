@@ -12,44 +12,34 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Replace the temporary dashboard with a real authenticated shell and add the first safe admin CRUD screen for user management.
+Apply the teaching-focused documentation pass and the blue-dark UI consistency pass to the current authenticated application surface.
 
 ### Current Known Facts
 
-- Login and logout already work with `username` and `password`.
-- Users already have the core fields needed for administration:
-  - `username`
-  - `email`
-  - `password`
-  - `role`
-  - `is_active`
-- The first admin management screen should respect database uniqueness rules and the role model.
-- The system must never lose its last active administrator.
+- The current visible app surface is now login + shared authenticated shell + admin dashboard + teacher dashboard + admin user CRUD.
+- The username/password auth flow, role-based dashboard redirect, and admin CRUD safety rules must not change during this pass.
+- The frontend should not include rescue styling for broken Vite or npm situations.
+- The repo now has both durable docs (`README.md`) and a deeper codebase walkthrough (`docs/codebase-guide.md`).
 
 ### Current Runtime Assessment
 
-Laravel boots correctly in DDEV. The active work is now application structure and admin-safe user management, not auth bootstrap.
+The remaining work is presentation and explanation quality, not new domain behavior. Runtime verification in DDEV is still required after the visual and comment pass.
 
-## Current UI Direction
+## Current Documentation/UI Direction
 
-The new authenticated area now moves toward a reusable app shell:
+This pass is intentionally about understanding and consistency:
 
-- shared header
-- shared left sidebar
-- separate admin and teacher dashboards
-- first admin CRUD screen for users
-- role-aware route flow from the generic `/dashboard`
-
-This makes the application shape understandable before deeper school-domain screens are added.
+- explicit teaching comments in the files we created or materially changed
+- clearer durable docs for repo structure and request flow
+- one shared blue-dark visual language across the visible app
+- no fallback styling for asset-pipeline failure cases
 
 ## Next Controlled Steps
 
-1. Add a shared authenticated layout for staff pages.
-2. Redirect `/dashboard` to the correct role-specific dashboard.
-3. Add an admin-only user-management screen.
-4. Enforce safe rules when changing or deleting admin accounts.
-5. Add feature tests for role routing and admin CRUD safety.
-6. Verify the new screens in DDEV and then choose the next MICS domain screen.
+1. Verify the updated screens with built assets in DDEV.
+2. Run the focused auth, dashboard, and admin CRUD tests again.
+3. Review whether the old temporary `resources/views/dashboard.blade.php` should be removed in a cleanup pass.
+4. Choose the first real business module after user management, most likely students.
 
 ## Step Review Template
 

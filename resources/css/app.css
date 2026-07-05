@@ -6,4 +6,115 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-brand-50: oklch(0.97 0.01 244);
+    --color-brand-100: oklch(0.93 0.02 244);
+    --color-brand-200: oklch(0.87 0.03 244);
+    --color-brand-300: oklch(0.79 0.06 244);
+    --color-brand-400: oklch(0.69 0.09 244);
+    --color-brand-500: oklch(0.6 0.11 244);
+    --color-brand-600: oklch(0.52 0.1 244);
+    --color-brand-700: oklch(0.44 0.08 244);
+    --color-brand-800: oklch(0.33 0.05 244);
+    --color-brand-900: oklch(0.23 0.03 244);
+    --color-brand-950: oklch(0.17 0.02 244);
+
+    --color-shell-bg: oklch(0.16 0.02 248);
+    --color-shell-panel: oklch(0.22 0.025 246);
+    --color-shell-panel-strong: oklch(0.26 0.03 246);
+    --color-shell-border: oklch(0.34 0.025 246);
+    --color-shell-text: oklch(0.95 0.01 248);
+    --color-shell-muted: oklch(0.74 0.015 246);
+    --color-shell-accent: oklch(0.69 0.1 240);
+    --color-shell-accent-strong: oklch(0.61 0.12 240);
+    --color-shell-success: oklch(0.75 0.08 170);
+    --color-shell-danger: oklch(0.73 0.12 18);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared application surface classes
+|--------------------------------------------------------------------------
+|
+| These component classes keep the Blade files readable while still using the
+| Tailwind build pipeline. The visible authenticated area now shares one blue,
+| low-noise visual system instead of repeating many unrelated color choices.
+|
+*/
+@layer components {
+    .app-page {
+        @apply min-h-screen bg-shell-bg text-shell-text;
+    }
+
+    .app-shell {
+        @apply min-h-screen lg:grid lg:grid-cols-[17rem_1fr];
+    }
+
+    .app-sidebar {
+        @apply border-b border-shell-border bg-shell-panel/95 lg:border-b-0 lg:border-r;
+    }
+
+    .app-topbar {
+        @apply border-b border-shell-border bg-shell-bg/90 backdrop-blur;
+    }
+
+    .app-surface {
+        @apply rounded-3xl border border-shell-border bg-shell-panel/92 shadow-2xl shadow-black/20;
+    }
+
+    .app-surface-strong {
+        @apply rounded-2xl border border-shell-border bg-shell-panel-strong/95;
+    }
+
+    .app-nav-link {
+        @apply block rounded-2xl px-4 py-3 text-sm text-shell-muted transition hover:bg-brand-900/70 hover:text-shell-text;
+    }
+
+    .app-nav-link-active {
+        @apply bg-shell-accent text-brand-950 hover:bg-shell-accent hover:text-brand-950;
+    }
+
+    .app-input {
+        @apply w-full rounded-2xl border border-shell-border bg-brand-950/70 px-4 py-3 text-shell-text placeholder:text-shell-muted focus:border-shell-accent focus:outline-none;
+    }
+
+    .app-select {
+        @apply w-full rounded-2xl border border-shell-border bg-brand-950/70 px-4 py-3 text-shell-text focus:border-shell-accent focus:outline-none;
+    }
+
+    .app-button-primary {
+        @apply inline-flex items-center justify-center rounded-2xl bg-shell-accent px-5 py-3 text-sm font-semibold text-brand-950 transition hover:bg-shell-accent-strong;
+    }
+
+    .app-button-secondary {
+        @apply inline-flex items-center justify-center rounded-2xl border border-shell-border px-5 py-3 text-sm font-semibold text-shell-text transition hover:border-brand-500 hover:text-brand-50;
+    }
+
+    .app-button-danger {
+        @apply inline-flex items-center justify-center rounded-xl border border-red-400/35 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition hover:border-red-300 hover:text-red-50;
+    }
+
+    .app-badge-admin {
+        @apply inline-flex rounded-full bg-brand-400/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-brand-100;
+    }
+
+    .app-badge-teacher {
+        @apply inline-flex rounded-full bg-cyan-300/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100;
+    }
+
+    .app-badge-active {
+        @apply inline-flex rounded-full bg-emerald-300/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-100;
+    }
+
+    .app-badge-inactive {
+        @apply inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-shell-muted;
+    }
+
+    .app-flash-success {
+        @apply mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100;
+    }
+
+    .app-flash-error {
+        @apply mb-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-100;
+    }
 }

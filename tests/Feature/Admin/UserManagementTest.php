@@ -7,6 +7,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Feature tests for admin user management.
+ *
+ * These scenarios protect the first real CRUD surface in the rebuild and the
+ * safety rules that stop admins from locking the app out of administration.
+ */
 class UserManagementTest extends TestCase
 {
     use LazilyRefreshDatabase;
@@ -69,6 +75,9 @@ class UserManagementTest extends TestCase
         $this->assertModelMissing($teacher);
     }
 
+    /**
+     * This is the core safety rule behind the current admin CRUD surface.
+     */
     public function test_last_active_admin_cannot_be_demoted_or_deactivated(): void
     {
         $admin = User::factory()->admin()->create();

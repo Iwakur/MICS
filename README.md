@@ -63,7 +63,12 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Current Status
 
-MICS is a school and academy operations system being rebuilt cleanly on Laravel 13, PHP 8.4, PostgreSQL 17, Tailwind CSS 4, and Vite. The repository currently contains the Laravel foundation and default authentication-ready user model; the MICS business modules and database schema have not yet been implemented as Laravel migrations.
+MICS is a school and academy operations system being rebuilt cleanly on Laravel 13, PHP 8.4, PostgreSQL 17, Tailwind CSS 4, and Vite. The repository now contains:
+
+- username/password authentication
+- role-aware dashboard routing
+- separate admin and teacher dashboard surfaces
+- the first admin CRUD screen for user management
 
 The previous project and its database designs are retained locally under `legacy(self-created)/` as product research. They describe intended behavior, but they are not code to port directly and are not the source of truth for the running Laravel application.
 
@@ -82,6 +87,55 @@ MICS should support straightforward school operations without becoming a full ac
 Students are tracked business records and do not receive login accounts. Every administrator is also a teacher: administrators receive the full operational dashboard, while standard teachers use a separate dashboard where they can maintain their own profile and manage only their assigned students. Non-teaching staff and balances owed to or by them are part of the longer-term product scope, but their workflows are deferred from the first release.
 
 The rebuild should favor Laravel conventions, direct CRUD workflows, explicit business services, and testable behavior. Avoid reproducing the legacy application's custom framework, automatic bootstrap provisioning, SQL console, deep repository layering, or debit/credit journal unless a later requirement explicitly calls for them.
+
+## Project Structure Walkthrough
+
+High-level source layout:
+
+- `app/`: controllers, form requests, middleware, models, enums, and providers.
+- `routes/`: browser and console route definitions.
+- `resources/views/`: Blade templates for guest, admin, teacher, and shared layout UI.
+- `resources/css/`: Tailwind v4 entry file plus shared blue-dark design tokens and component classes.
+- `resources/js/`: JavaScript entry file, currently minimal.
+- `database/`: migrations, factories, and seeders.
+- `tests/`: feature and unit tests.
+- `bootstrap/`: Laravel 13 application bootstrap and middleware alias registration.
+- `config/`: runtime configuration for auth, session, database, queue, cache, and related services.
+- `.ddev/`: local development environment definition.
+- `docs/codebase-guide.md`: deeper codebase walkthrough for studying the repo file-by-file.
+
+If you are learning the codebase, start with:
+
+1. `routes/web.php`
+2. `app/Http/Requests/Auth/LoginRequest.php`
+3. `app/Http/Controllers/DashboardController.php`
+4. `resources/views/layouts/app.blade.php`
+5. `app/Http/Controllers/Admin/UserController.php`
+6. `tests/Feature/Auth/AuthenticationTest.php`
+7. `tests/Feature/Admin/UserManagementTest.php`
+
+## Developer Study Guide
+
+### Current browser request flow
+
+1. A guest visits `/login`.
+2. `AuthenticatedSessionController@create` returns the login page.
+3. The login form posts to `login.store`.
+4. `LoginRequest` validates the input, checks the inactive-user rule, and performs the auth attempt.
+5. `AuthenticatedSessionController@store` regenerates the session and redirects to `/dashboard`.
+6. `DashboardController` sends the user to the admin or teacher dashboard depending on role.
+7. Admin pages are additionally protected by the `admin` middleware alias from `bootstrap/app.php`.
+8. Admin user management uses Form Requests for field validation and `UserController` for higher-level safety rules.
+
+### Current admin user-management rules
+
+The first CRUD surface in the rebuild manages users safely:
+
+- `username` must stay unique.
+- `email` must stay unique.
+- a blank password on edit means "keep the current password".
+- an admin cannot delete their own account.
+- the last active administrator cannot be demoted, deactivated, or deleted.
 
 ## Planned Data Model
 
@@ -112,8 +166,9 @@ During development, use this order of authority:
 
 1. Current Laravel migrations, models, tests, and application code describe what exists.
 2. This README describes the agreed product direction.
-3. `legacy(self-created)/database/schema.dbml` supplies the initial database proposal.
-4. `legacy(self-created)/MICS_legacy/` is historical evidence only.
+3. `docs/codebase-guide.md` explains the current codebase layout in more detail.
+4. `legacy(self-created)/database/schema.dbml` supplies the initial database proposal.
+5. `legacy(self-created)/MICS_legacy/` is historical evidence only.
 
 Before implementing a legacy idea, translate it into Laravel terminology, confirm its business rule, and cover it with migrations and feature tests. Do not assume that historical tables, statuses, or workflows are final requirements.
 
@@ -138,4 +193,3 @@ ddev composer dev
 ```
 
 Run the test suite with `ddev composer test`, format PHP with `ddev exec ./vendor/bin/pint`, and build production assets with `ddev npm run build`.
-

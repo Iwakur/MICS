@@ -8,6 +8,12 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Validation for creating a user from the admin panel.
+ *
+ * This request translates the admin form into safe, database-compatible values
+ * before the controller creates a record.
+ */
 class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
@@ -15,6 +21,9 @@ class StoreUserRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Checkbox values arrive as strings, so normalize them before validation.
+     */
     protected function prepareForValidation(): void
     {
         $this->merge([
@@ -23,6 +32,8 @@ class StoreUserRequest extends FormRequest
     }
 
     /**
+     * Keep the create flow aligned with the users table uniqueness rules.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array

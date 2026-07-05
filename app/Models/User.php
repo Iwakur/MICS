@@ -10,6 +10,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Authenticated application user.
+ *
+ * In MICS this model represents login accounts and access control. It does not
+ * represent every future business identity directly. For example, students are
+ * business records, not authenticated users.
+ */
 #[Fillable(['username', 'email', 'password', 'role', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -18,7 +25,10 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * Get the attributes that should be cast.
+     * Cast database values into richer PHP types.
+     *
+     * The role string becomes the UserRole enum so route and view checks can be
+     * explicit and readable.
      *
      * @return array<string, string>
      */
@@ -33,7 +43,10 @@ class User extends Authenticatable
     }
 
     /**
-     * The model's default values for attributes.
+     * Mirror important database defaults at the model level.
+     *
+     * Keeping defaults here helps factories, forms, and mass assignment behave
+     * the same way as the users table.
      *
      * @var array<string, mixed>
      */
@@ -42,11 +55,17 @@ class User extends Authenticatable
         'is_active' => true,
     ];
 
+    /**
+     * Small helper for authorization checks in routes, middleware, and views.
+     */
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;
     }
 
+    /**
+     * Small helper for teacher-only UI and future teacher-scoped data rules.
+     */
     public function isTeacher(): bool
     {
         return $this->role === UserRole::Teacher;

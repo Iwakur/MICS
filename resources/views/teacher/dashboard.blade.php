@@ -3,32 +3,32 @@
 @section('title', 'Teacher Dashboard | MICS')
 @section('eyebrow', 'Teacher')
 @section('page-title', 'Teacher Dashboard')
-@section('page-description', 'This is the teacher-facing version of the authenticated shell. It uses the same structure as admin, but with a narrower navigation surface and simpler starting information.')
+@section('page-description', 'This dashboard shares the same shell as admin, but intentionally shows a smaller and more focused teacher workspace.')
 
 @section('content')
     <section class="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <article class="rounded-3xl border border-stone-800 bg-stone-900/90 p-6 shadow-2xl shadow-stone-950/30">
-            <h3 class="text-xl font-semibold text-white">Welcome back</h3>
-            <p class="mt-3 max-w-2xl text-sm text-stone-400">
-                The teacher dashboard is intentionally smaller than the admin dashboard. That teaches the real MICS rule that teachers and administrators do not share the same control surface.
+        <article class="app-surface p-6">
+            <h3 class="text-xl font-semibold text-shell-text">Welcome back</h3>
+            <p class="mt-3 max-w-2xl text-sm text-shell-muted">
+                Teachers and administrators do not share the same control surface. This page keeps the same visual system, but narrows the visible scope.
             </p>
 
             <div class="mt-6 grid gap-4 md:grid-cols-2">
-                <div class="rounded-2xl border border-stone-800 bg-stone-950/80 p-4">
-                    <p class="text-sm uppercase tracking-[0.2em] text-stone-500">Username</p>
-                    <p class="mt-2 text-lg font-semibold text-white">{{ auth()->user()->username }}</p>
+                <div class="app-surface-strong p-4">
+                    <p class="text-sm uppercase tracking-[0.2em] text-shell-muted">Username</p>
+                    <p class="mt-2 text-lg font-semibold text-shell-text">{{ auth()->user()->username }}</p>
                 </div>
 
-                <div class="rounded-2xl border border-stone-800 bg-stone-950/80 p-4">
-                    <p class="text-sm uppercase tracking-[0.2em] text-stone-500">Email</p>
-                    <p class="mt-2 text-lg font-semibold text-white">{{ auth()->user()->email }}</p>
+                <div class="app-surface-strong p-4">
+                    <p class="text-sm uppercase tracking-[0.2em] text-shell-muted">Email</p>
+                    <p class="mt-2 text-lg font-semibold text-shell-text">{{ auth()->user()->email }}</p>
                 </div>
             </div>
         </article>
 
-        <article class="rounded-3xl border border-stone-800 bg-stone-900/90 p-6 shadow-2xl shadow-stone-950/30">
-            <h3 class="text-xl font-semibold text-white">Current Scope</h3>
-            <ul class="mt-4 space-y-3 text-sm text-stone-400">
+        <article class="app-surface p-6">
+            <h3 class="text-xl font-semibold text-shell-text">Current Scope</h3>
+            <ul class="mt-4 space-y-3 text-sm text-shell-muted">
                 <li>Protected login is working.</li>
                 <li>The shared app shell is now in place.</li>
                 <li>Teacher-specific business pages can be added here next.</li>

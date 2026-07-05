@@ -8,6 +8,12 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Validation for editing a user from the admin panel.
+ *
+ * The update flow differs from create because unique checks must ignore the
+ * current record and the password may be left blank to keep the old value.
+ */
 class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
@@ -15,6 +21,9 @@ class UpdateUserRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Normalize checkbox input before the rule set runs.
+     */
     protected function prepareForValidation(): void
     {
         $this->merge([
@@ -23,6 +32,8 @@ class UpdateUserRequest extends FormRequest
     }
 
     /**
+     * Keep edits aligned with the users table while allowing unchanged values.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array

@@ -6,6 +6,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Feature tests for role-aware dashboard access.
+ *
+ * These tests protect the idea that /dashboard is only a decision point and
+ * that teachers must not reach admin-only pages.
+ */
 class DashboardAccessTest extends TestCase
 {
     use LazilyRefreshDatabase;
@@ -28,6 +34,9 @@ class DashboardAccessTest extends TestCase
         $response->assertRedirect(route('teacher.dashboard'));
     }
 
+    /**
+     * Teachers may authenticate successfully, but their visible workspace is narrower.
+     */
     public function test_teacher_cannot_access_admin_pages(): void
     {
         $teacher = User::factory()->teacher()->create();

@@ -7,6 +7,12 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+/**
+ * Application seeder.
+ *
+ * Right now the most important seed behavior is guaranteeing one known admin
+ * account for local development. The firstOrCreate call keeps reruns safe.
+ */
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;

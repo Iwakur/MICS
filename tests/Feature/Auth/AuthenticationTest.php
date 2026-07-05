@@ -6,6 +6,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Feature tests for the browser login/logout flow.
+ *
+ * These tests protect the smallest auth surface the project currently has:
+ * the login form, session login, inactive-account rejection, and logout.
+ */
 class AuthenticationTest extends TestCase
 {
     use LazilyRefreshDatabase;
@@ -25,6 +31,9 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    /**
+     * This proves the current login identifier is username, not email.
+     */
     public function test_user_can_log_in_with_username_and_password(): void
     {
         $user = User::factory()->create([
@@ -56,6 +65,9 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    /**
+     * Business rule on top of normal auth: inactive accounts cannot open sessions.
+     */
     public function test_inactive_user_cannot_log_in(): void
     {
         User::factory()->inactive()->create([
