@@ -137,9 +137,9 @@ The first CRUD surface in the rebuild manages users safely:
 - an admin cannot delete their own account.
 - the last active administrator cannot be demoted, deactivated, or deleted.
 
-## Planned Data Model
+## Implemented Data Model
 
-The simplified legacy DBML is the starting design reference, not an applied schema. Its principal entities are:
+The simplified legacy DBML has been translated into Laravel migrations, Eloquent models, factories, and feature tests. Its principal entities are:
 
 - `staff` and `staff_roles` for business identities and responsibilities
 - `users` for login accounts and system access roles
@@ -151,6 +151,8 @@ The simplified legacy DBML is the starting design reference, not an applied sche
 - `bank_months` for simple monthly opening and closing snapshots
 
 Access role and business role are separate concepts: a user's role controls authorization, while a staff role describes their function in the organization. Student debt must not be stored as a mutable total on `students`; it is derived from monthly history.
+
+The current user-management screen predates staff management, so `users.staff_id` is temporarily nullable. When present it is unique, preserving a one-to-one staff/login relationship. It should become required only after account creation can select or create the corresponding staff record.
 
 The intended monthly calculation is:
 
@@ -170,7 +172,7 @@ During development, use this order of authority:
 4. `legacy(self-created)/database/schema.dbml` supplies the initial database proposal.
 5. `legacy(self-created)/MICS_legacy/` is historical evidence only.
 
-Before implementing a legacy idea, translate it into Laravel terminology, confirm its business rule, and cover it with migrations and feature tests. Do not assume that historical tables, statuses, or workflows are final requirements.
+Before implementing another legacy idea, translate it into Laravel terminology, confirm its business rule, and cover it with migrations and feature tests. Do not assume that historical tables, statuses, or workflows are final requirements.
 
 ## Frontend UI Direction
 

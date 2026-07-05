@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -17,7 +18,7 @@ use Illuminate\Notifications\Notifiable;
  * represent every future business identity directly. For example, students are
  * business records, not authenticated users.
  */
-#[Fillable(['username', 'email', 'password', 'role', 'is_active'])]
+#[Fillable(['staff_id', 'username', 'email', 'password', 'role', 'is_active', 'last_login_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -39,6 +40,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
             'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -69,5 +71,10 @@ class User extends Authenticatable
     public function isTeacher(): bool
     {
         return $this->role === UserRole::Teacher;
+    }
+
+    public function staffMember(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'staff_id');
     }
 }
