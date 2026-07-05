@@ -186,9 +186,9 @@ The translated schema layer is in place. Administrators and teachers can enter s
 
 ## Next Controlled Steps
 
-1. Merge the tested release candidate into protected `main` through a pull request and tag the deployed commit as `v1.0.0`.
+1. Keep `main` protected as the deployment branch and retain `v1.0.0` as the first immutable release marker.
 2. The project owner will configure and operate the VPS, including secrets, HTTPS, backups, deployment, and rollback.
-3. Continue new work on short-lived `feature/<topic>`, `fix/<topic>`, or `docs/<topic>` branches created from current `main`.
+3. Use the persistent `feature` branch for one new-functionality change at a time and the persistent `fix` branch for one regression-tested correction at a time; merge either into `main` only through a passing pull request.
 4. Resolve the final product decisions above, especially bank reconciliation and expense-category management.
 5. Perform the full desktop/mobile browser walkthrough against the production-like deployment.
 

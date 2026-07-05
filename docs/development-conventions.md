@@ -107,9 +107,11 @@ Update documentation as part of the same change:
 
 ## Git and Release Workflow
 
-- `main` is the protected, production-ready branch. Deploy only commits merged into `main` after CI passes.
-- Create short-lived branches from current `main`: `feature/<topic>` for behavior, `fix/<topic>` for defects, and `docs/<topic>` for documentation-only work.
-- Open a pull request into `main`, require the quality workflow to pass, then merge. Delete the source branch after merging.
+- `main` contains production-ready code and is the only deployment branch. Protect it, require CI, and update it only through reviewed pull requests from `feature` or `fix`.
+- `feature` contains new functionality that is not yet released. Start feature work here, keep it synchronized with `main`, and open a pull request from `feature` into `main` when the complete change passes the quality gate.
+- `fix` contains corrections to existing behavior. Start bug-fix work here, add a regression test, keep it synchronized with `main`, and open a pull request from `fix` into `main` when the correction passes the quality gate.
+- After merging either working branch, update it from `main` before beginning unrelated work. Do not merge `feature` into `fix` or `fix` into `feature`; `main` is their shared integration point.
+- Only one coherent change should be active on each working branch at a time. If concurrent feature or fix work becomes necessary, replace this three-branch model with short-lived topic branches such as `feature/<topic>` and `fix/<topic>`.
 - Mark deployed releases with annotated semantic-version tags such as `v1.0.0`, `v1.0.1`, and `v1.1.0`. A tag identifies an immutable release; it is not a working branch.
 - Keep VPS-specific secrets and deployment configuration outside Git. VPS deployment and rollback execution are the project owner's responsibility.
 
