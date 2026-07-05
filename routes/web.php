@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\FinanceSummaryController;
 use App\Http\Controllers\Admin\LessonTypeController;
 use App\Http\Controllers\Admin\MonthClosingController;
+use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StaffRoleController;
@@ -13,10 +15,13 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonthlyLessonCountController;
+use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/ready', ReadinessController::class)->name('ready');
 
 /*
 |--------------------------------------------------------------------------
@@ -63,7 +68,7 @@ Route::middleware('guest')->group(function (): void {
 | both auth and the custom admin middleware alias.
 |
 */
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)
         ->name('dashboard');
 
@@ -90,7 +95,12 @@ Route::middleware('auth')->group(function (): void {
         Route::put('lesson-counts', [MonthlyLessonCountController::class, 'update'])->name('lesson-counts.update');
         Route::get('month-closing', [MonthClosingController::class, 'index'])->name('month-closing.index');
         Route::post('month-closing', [MonthClosingController::class, 'store'])->name('month-closing.store');
+        Route::post('month-closing/reopen', [MonthClosingController::class, 'reopen'])->name('month-closing.reopen');
+        Route::post('payments/{payment}/validate', [PaymentController::class, 'validatePayment'])->name('payments.validate');
+        Route::post('payments/{payment}/reverse', [PaymentController::class, 'reverse'])->name('payments.reverse');
+        Route::resource('payments', PaymentController::class)->except('show');
         Route::resource('expenses', ExpenseController::class)->except('show');
+        Route::get('finance-summary', FinanceSummaryController::class)->name('finance-summary');
         Route::get('student-charges', [StudentChargeController::class, 'index'])->name('student-charges.index');
         Route::get('student-charges/{studentMonth}/edit', [StudentChargeController::class, 'edit'])->name('student-charges.edit');
         Route::put('student-charges/{studentMonth}', [StudentChargeController::class, 'update'])->name('student-charges.update');

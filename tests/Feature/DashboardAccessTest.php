@@ -47,4 +47,15 @@ class DashboardAccessTest extends TestCase
         $dashboardResponse->assertForbidden();
         $usersResponse->assertForbidden();
     }
+
+    public function test_authenticated_user_is_logged_out_after_account_is_deactivated(): void
+    {
+        $user = User::factory()->teacher()->create(['is_active' => false]);
+
+        $this->actingAs($user)->get(route('teacher.dashboard'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('username');
+
+        $this->assertGuest();
+    }
 }

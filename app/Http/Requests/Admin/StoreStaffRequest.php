@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Requests Admin StoreStaffRequest. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Requests\Admin;
 
 use App\Enums\StaffCompensationMode;

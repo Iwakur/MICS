@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin staff-roles create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 @section('title', 'Create Staff Role | MICS')
 @section('eyebrow', 'Administrator · Staff')

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Console closure commands and the future scheduling entrypoint for MICS.
+ */
+
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 

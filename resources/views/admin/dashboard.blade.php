@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin dashboard. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Admin Dashboard | MICS')
@@ -72,6 +73,19 @@
             <a href="{{ route('admin.plans.index') }}" class="app-surface-strong flex items-center justify-between gap-4 p-5">
                 <div><p class="font-semibold text-shell-text">Plans</p><p class="mt-1 text-sm text-shell-muted">Monthly student price and teacher earning.</p></div><span class="app-button-secondary">Open</span>
             </a>
+        </div>
+    </section>
+
+    <section class="app-surface mt-6 p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-brand-300">Monthly Finance</p>
+        <h3 class="mt-2 text-xl font-semibold text-shell-text">Review, validate, and close</h3>
+        <p class="mt-2 text-sm text-shell-muted">Keep operational inputs separate from financial validation and month lifecycle controls.</p>
+        <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <a href="{{ route('admin.finance-summary') }}" class="app-surface-strong p-5"><p class="font-semibold text-shell-text">Finance Summary</p><p class="mt-2 text-sm text-shell-muted">See monthly totals and debt.</p></a>
+            <a href="{{ route('admin.lesson-counts.index') }}" class="app-surface-strong p-5"><p class="font-semibold text-shell-text">Lesson Counts</p><p class="mt-2 text-sm text-shell-muted">Enter monthly teaching activity.</p></a>
+            <a href="{{ route('admin.month-closing.index') }}" class="app-surface-strong p-5"><p class="font-semibold text-shell-text">Month Closing</p><p class="mt-2 text-sm text-shell-muted">Generate or reopen monthly drafts.</p></a>
+            <a href="{{ route('admin.payments.index') }}" class="app-surface-strong p-5"><p class="font-semibold text-shell-text">Payments</p><p class="mt-2 text-sm text-shell-muted">Validate student payment evidence.</p></a>
+            <a href="{{ route('admin.expenses.index') }}" class="app-surface-strong p-5"><p class="font-semibold text-shell-text">Expenses</p><p class="mt-2 text-sm text-shell-muted">Review salaries and manual costs.</p></a>
         </div>
     </section>
 @endsection

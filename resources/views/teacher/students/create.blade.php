@@ -1,3 +1,4 @@
+{{-- MICS Blade view: teacher students create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 @section('title', 'Add Student | MICS')
 @section('eyebrow', 'Teacher')

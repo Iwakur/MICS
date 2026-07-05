@@ -30,7 +30,7 @@ class UserController extends Controller
             'users' => User::query()
                 ->orderByRaw('case when role = ? then 0 else 1 end', [UserRole::Admin->value])
                 ->orderBy('username')
-                ->get(),
+                ->paginate(25),
         ]);
     }
 

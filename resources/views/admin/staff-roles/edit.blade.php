@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin staff-roles edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 @section('title', 'Edit Staff Role | MICS')
 @section('eyebrow', 'Administrator · Staff')

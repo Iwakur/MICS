@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: database seeders DatabaseSeeder. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

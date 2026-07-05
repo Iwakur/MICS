@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Controllers Admin StudentController. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\StudentBillingType;
@@ -32,7 +36,8 @@ class StudentController extends Controller
             ->when($request->integer('staff_id'), fn (Builder $query, int $staffId) => $query->where('staff_id', $staffId))
             ->orderByDesc('status')
             ->orderBy('first_name')
-            ->get();
+            ->paginate(25)
+            ->withQueryString();
 
         return view('admin.students.index', [
             'students' => $students,

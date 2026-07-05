@@ -1,3 +1,4 @@
+{{-- MICS Blade view: welcome. Full responsibility is documented in docs/file-reference.md. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

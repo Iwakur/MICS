@@ -14,11 +14,18 @@ use App\Models\Staff;
 use App\Models\Student;
 use App\Models\StudentMonth;
 use App\Models\User;
+use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
+/**
+ * Converts mutable monthly activity into reviewable financial snapshots.
+ *
+ * Closing is deliberately manual and transactional. Reclosing after an
+ * audited reopen refreshes drafts but never overwrites validated records.
+ */
 class MonthClosingService
 {
     /** @return array{students: Collection, salaries: Collection, student_total: float, salary_total: float} */
@@ -30,8 +37,8 @@ class MonthClosingService
         return [
             'students' => $students,
             'salaries' => $salaries,
-            'student_total' => round($students->sum('charge'), 2),
-            'salary_total' => round($salaries->sum('amount'), 2),
+            'student_total' => Money::display($students->sum('charge_cents')),
+            'salary_total' => Money::display($salaries->sum('amount_cents')),
         ];
     }
 
@@ -46,13 +53,45 @@ class MonthClosingService
             }
 
             $preview = $this->preview($month);
+            Student::query()
+                ->whereKey($preview['students']->pluck('student.id')->sort()->values())
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
             $this->persistStudentMonths($month, $preview['students']);
+            $this->persistOpeningBalances($month);
             $this->persistSalaryDrafts($month, $preview['salaries']);
 
             $billingMonth->update([
                 'status' => BillingMonthStatus::Closed,
                 'closed_by_user_id' => $admin->id,
                 'closed_at' => now(),
+            ]);
+            $billingMonth->events()->create([
+                'user_id' => $admin->id,
+                'action' => 'closed',
+                'occurred_at' => now(),
+            ]);
+
+            return $billingMonth->refresh();
+        }, 3);
+    }
+
+    public function reopen(CarbonImmutable $month, User $admin, string $reason): BillingMonth
+    {
+        return DB::transaction(function () use ($month, $admin, $reason): BillingMonth {
+            $billingMonth = BillingMonth::query()->whereDate('month_date', $month)->lockForUpdate()->first();
+
+            if (! $billingMonth || $billingMonth->status !== BillingMonthStatus::Closed) {
+                throw new UnprocessableEntityHttpException('Only a closed billing month can be reopened.');
+            }
+
+            $billingMonth->update(['status' => BillingMonthStatus::Open]);
+            $billingMonth->events()->create([
+                'user_id' => $admin->id,
+                'action' => 'reopened',
+                'reason' => $reason,
+                'occurred_at' => now(),
             ]);
 
             return $billingMonth->refresh();
@@ -79,9 +118,12 @@ class MonthClosingService
                 $studentMonth = $student->months->first();
                 $isPerLesson = $student->billing_type === StudentBillingType::PerLesson;
                 $units = $isPerLesson ? ($studentMonth?->lesson_count ?? 0) : 1;
-                $schoolRate = (float) ($isPerLesson ? $student->lessonType->lesson_price : $student->plan->plan_price);
-                $teacherRate = (float) ($isPerLesson ? $student->lessonType->teacher_share_per_lesson : $student->plan->teacher_monthly_amount);
-                $grossCharge = round($units * $schoolRate, 2);
+                $schoolRateCents = Money::cents($isPerLesson ? $student->lessonType->lesson_price : $student->plan->plan_price);
+                $teacherRateCents = Money::cents($isPerLesson ? $student->lessonType->teacher_share_per_lesson : $student->plan->teacher_monthly_amount);
+                $grossChargeCents = $units * $schoolRateCents;
+                $discountCents = Money::cents($student->discount_amount);
+                $chargeCents = max(0, $grossChargeCents - $discountCents);
+                $teacherAmountCents = $units * $teacherRateCents;
 
                 return [
                     'student' => $student,
@@ -89,12 +131,17 @@ class MonthClosingService
                     'source_type' => $isPerLesson ? 'per_lesson' : 'plan_based',
                     'description' => $isPerLesson ? $student->lessonType->name : $student->plan->name,
                     'units' => $units,
-                    'school_rate' => $schoolRate,
-                    'teacher_rate' => $teacherRate,
-                    'gross_charge' => $grossCharge,
-                    'discount' => (float) $student->discount_amount,
-                    'charge' => max(0, round($grossCharge - (float) $student->discount_amount, 2)),
-                    'teacher_amount' => round($units * $teacherRate, 2),
+                    'school_rate' => Money::display($schoolRateCents),
+                    'teacher_rate' => Money::display($teacherRateCents),
+                    'teacher_rate_value' => Money::decimal($teacherRateCents),
+                    'gross_charge' => Money::display($grossChargeCents),
+                    'discount' => Money::display($discountCents),
+                    'charge' => Money::display($chargeCents),
+                    'charge_cents' => $chargeCents,
+                    'charge_value' => Money::decimal($chargeCents),
+                    'teacher_amount' => Money::display($teacherAmountCents),
+                    'teacher_amount_cents' => $teacherAmountCents,
+                    'teacher_amount_value' => Money::decimal($teacherAmountCents),
                 ];
             });
     }
@@ -104,14 +151,16 @@ class MonthClosingService
         return Staff::query()->where('is_active', true)->orderBy('first_name')->get()
             ->map(function (Staff $staff) use ($students): array {
                 if ($staff->compensation_mode === StaffCompensationMode::Fixed) {
-                    $amount = (float) ($staff->salary_amount ?? 0);
+                    $amountCents = Money::cents($staff->salary_amount);
                     $sources = collect([[
                         'student' => null,
                         'source_type' => 'fixed',
                         'description' => 'Fixed monthly salary',
                         'units' => 1,
-                        'rate' => $amount,
-                        'amount' => $amount,
+                        'rate' => Money::display($amountCents),
+                        'rate_value' => Money::decimal($amountCents),
+                        'amount' => Money::display($amountCents),
+                        'amount_value' => Money::decimal($amountCents),
                     ]]);
                 } else {
                     $sources = $students->filter(fn (array $item) => $item['student']->staff_id === $staff->id)
@@ -121,35 +170,53 @@ class MonthClosingService
                             'description' => $item['description'],
                             'units' => $item['units'],
                             'rate' => $item['teacher_rate'],
+                            'rate_value' => $item['teacher_rate_value'],
                             'amount' => $item['teacher_amount'],
+                            'amount_value' => $item['teacher_amount_value'],
                         ])->values();
-                    $amount = round($sources->sum('amount'), 2);
+                    $amountCents = (int) $students
+                        ->filter(fn (array $item) => $item['student']->staff_id === $staff->id)
+                        ->sum('teacher_amount_cents');
                 }
 
-                return ['staff' => $staff, 'amount' => $amount, 'sources' => $sources];
+                return [
+                    'staff' => $staff,
+                    'amount' => Money::display($amountCents),
+                    'amount_cents' => $amountCents,
+                    'amount_value' => Money::decimal($amountCents),
+                    'sources' => $sources,
+                ];
             });
     }
 
     private function persistStudentMonths(CarbonImmutable $month, Collection $students): void
     {
         foreach ($students as $item) {
-            $studentMonth = StudentMonth::query()->updateOrCreate(
-                ['student_id' => $item['student']->id, 'month_date' => $month],
-                ['charge_amount' => $item['charge']],
-            );
+            $studentMonth = StudentMonth::query()->firstOrCreate([
+                'student_id' => $item['student']->id,
+                'month_date' => $month,
+            ]);
 
-            $validatedPayments = $studentMonth->validatedPayments()->sum('amount');
-            $closingBalance = round(
-                (float) $studentMonth->opening_balance + (float) $studentMonth->charge_amount
-                + (float) $studentMonth->manual_adjustment - (float) $validatedPayments,
-                2,
-            );
-
-            StudentMonth::query()->updateOrCreate(
-                ['student_id' => $item['student']->id, 'month_date' => $month->addMonth()],
-                ['opening_balance' => $closingBalance],
-            );
+            if ($studentMonth->status === ReviewStatus::Draft) {
+                $studentMonth->update(['charge_amount' => $item['charge_value']]);
+            }
         }
+    }
+
+    private function persistOpeningBalances(CarbonImmutable $month): void
+    {
+        StudentMonth::query()
+            ->with('validatedPayments')
+            ->whereDate('month_date', $month)
+            ->orderBy('student_id')
+            ->lockForUpdate()
+            ->get()
+            ->each(function (StudentMonth $studentMonth) use ($month): void {
+                StudentMonth::query()->updateOrCreate(
+                    ['student_id' => $studentMonth->student_id, 'month_date' => $month->addMonth()],
+                    ['opening_balance' => $studentMonth->closingBalanceAmount()],
+                );
+            });
     }
 
     private function persistSalaryDrafts(CarbonImmutable $month, Collection $salaries): void
@@ -160,18 +227,32 @@ class MonthClosingService
         );
 
         foreach ($salaries as $salary) {
-            $expense = Expense::query()->updateOrCreate(
+            $expense = Expense::query()->firstOrCreate(
                 ['generation_key' => "salary:{$month->format('Y-m')}:staff:{$salary['staff']->id}"],
                 [
                     'staff_id' => $salary['staff']->id,
                     'expense_category_id' => $salaryCategory->id,
                     'month_date' => $month,
-                    'amount' => $salary['amount'],
+                    'amount' => $salary['amount_value'],
                     'status' => ReviewStatus::Draft,
                     'is_auto_generated' => true,
                     'note' => 'Generated by month closing.',
                 ],
             );
+
+            if ($expense->status === ReviewStatus::Validated) {
+                continue;
+            }
+
+            $expense->update([
+                'staff_id' => $salary['staff']->id,
+                'expense_category_id' => $salaryCategory->id,
+                'month_date' => $month,
+                'amount' => $salary['amount_value'],
+                'status' => ReviewStatus::Draft,
+                'is_auto_generated' => true,
+                'note' => 'Generated by month closing.',
+            ]);
 
             $expense->salarySources()->delete();
             $expense->salarySources()->createMany($salary['sources']->map(fn (array $source) => [
@@ -179,8 +260,8 @@ class MonthClosingService
                 'source_type' => $source['source_type'],
                 'description' => $source['description'],
                 'units' => $source['units'],
-                'rate' => $source['rate'],
-                'amount' => $source['amount'],
+                'rate' => $source['rate_value'],
+                'amount' => $source['amount_value'],
             ])->all());
         }
     }

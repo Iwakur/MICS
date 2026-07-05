@@ -1,0 +1,10 @@
+{{-- MICS Blade view: admin payments partials form. Full responsibility is documented in docs/file-reference.md. --}}
+@php($locked = $payment?->status === \App\Enums\ReviewStatus::Validated)
+<div class="grid gap-6 md:grid-cols-2">
+    <div><label for="student_id" class="text-sm text-shell-muted">Student</label><select id="student_id" name="student_id" class="app-select mt-2" required @disabled($locked)>@foreach($students as $student)<option value="{{ $student->id }}" @selected((string) old('student_id', $payment?->studentMonth->student_id) === (string) $student->id)>{{ trim($student->first_name.' '.$student->family_name) }}</option>@endforeach</select></div>
+    <div><label for="month" class="text-sm text-shell-muted">Applied billing month</label><input id="month" name="month" type="month" value="{{ old('month', $selectedMonth) }}" class="app-input mt-2" required @readonly($locked)></div>
+    <div><label for="paid_at" class="text-sm text-shell-muted">Payment received at</label><input id="paid_at" name="paid_at" type="datetime-local" value="{{ old('paid_at', $payment?->paid_at?->format('Y-m-d\TH:i') ?? now()->format('Y-m-d\TH:i')) }}" class="app-input mt-2" required @readonly($locked)></div>
+    <div><label for="amount" class="text-sm text-shell-muted">Amount</label><input id="amount" name="amount" type="number" min="0.01" step="0.01" value="{{ old('amount', $payment?->amount) }}" class="app-input mt-2" required @readonly($locked)></div>
+    <div><label for="payment_method" class="text-sm text-shell-muted">Method</label><select id="payment_method" name="payment_method" class="app-select mt-2" required @disabled($locked)>@foreach(['cash' => 'Cash', 'bank_transfer' => 'Bank transfer', 'card' => 'Card', 'other' => 'Other'] as $value => $label)<option value="{{ $value }}" @selected(old('payment_method', $payment?->payment_method) === $value)>{{ $label }}</option>@endforeach</select></div>
+</div>
+<div><label for="note" class="text-sm text-shell-muted">Evidence / note</label><textarea id="note" name="note" class="app-input mt-2" rows="4" @readonly($locked)>{{ old('note', $payment?->note) }}</textarea></div>

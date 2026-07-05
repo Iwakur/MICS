@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin lesson-types index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Lesson Types | MICS')
@@ -57,5 +58,6 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-6">{{ $lessonTypes->links() }}</div>
     </section>
 @endsection

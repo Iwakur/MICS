@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin month-closing index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Month Closing | MICS')
@@ -83,7 +84,26 @@
                     <input type="hidden" name="month" value="{{ $month->format('Y-m') }}">
                     <button type="submit" class="app-button-primary">Close Month and Generate Drafts</button>
                 </form>
+            @else
+                <form method="POST" action="{{ route('admin.month-closing.reopen') }}" class="grid w-full gap-3 sm:max-w-xl">
+                    @csrf
+                    <input type="hidden" name="month" value="{{ $month->format('Y-m') }}">
+                    <label for="reason" class="text-sm font-medium text-shell-text">Reason for reopening</label>
+                    <textarea id="reason" name="reason" class="app-input" rows="3" minlength="10" required placeholder="Describe the correction that requires reopening."></textarea>
+                    <button type="submit" class="app-button-danger justify-self-start">Reopen Month</button>
+                </form>
             @endif
         </div>
+
+        @if($billingMonth?->events->isNotEmpty())
+            <article class="app-surface overflow-hidden">
+                <div class="border-b border-shell-border px-5 py-5"><h3 class="text-lg font-semibold text-shell-text">Lifecycle Audit</h3><p class="mt-1 text-sm text-shell-muted">Every close and reopen action is retained with administrator attribution.</p></div>
+                <div class="divide-y divide-shell-border">
+                    @foreach($billingMonth->events as $event)
+                        <div class="grid gap-2 px-5 py-4 sm:grid-cols-[8rem_1fr_auto] sm:items-center"><span class="{{ $event->action === 'closed' ? 'app-badge-active' : 'app-badge-inactive' }}">{{ $event->action }}</span><div><p class="text-sm text-shell-text">{{ $event->reason ?: 'Month closed and drafts generated.' }}</p><p class="mt-1 text-xs text-shell-muted">{{ $event->user?->username ?? 'deleted user' }}</p></div><time class="text-xs text-shell-muted">{{ $event->occurred_at->format('d M Y H:i') }}</time></div>
+                    @endforeach
+                </div>
+            </article>
+        @endif
     </section>
 @endsection

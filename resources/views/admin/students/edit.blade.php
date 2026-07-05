@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin students edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 @section('title', 'Edit Student | MICS')
 @section('eyebrow', 'Administrator')

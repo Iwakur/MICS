@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS test coverage: tests Feature StudentManagementTest. See docs/file-reference.md for protected behavior.
+ */
+
 namespace Tests\Feature;
 
 use App\Enums\StaffCompensationMode;
@@ -39,6 +43,31 @@ class StudentManagementTest extends TestCase
         $this->assertNull($student->plan_id);
         $this->assertNull($student->plan_start_at);
         $this->assertNull($student->lesson_amount);
+    }
+
+    public function test_student_index_is_paginated(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $teacher = Staff::factory()->create();
+        $lessonType = LessonType::factory()->create();
+
+        foreach (range(1, 26) as $number) {
+            Student::factory()->create([
+                'staff_id' => $teacher->id,
+                'lesson_type_id' => $lessonType->id,
+                'first_name' => sprintf('Student %02d', $number),
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('admin.students.index'))
+            ->assertOk()
+            ->assertDontSeeText('Student 26');
+
+        $this->actingAs($admin)
+            ->get(route('admin.students.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSeeText('Student 26');
     }
 
     public function test_plan_based_student_requires_a_plan_and_start_date(): void

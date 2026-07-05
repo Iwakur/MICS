@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin plans index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Plans | MICS')
@@ -57,5 +58,6 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-6">{{ $plans->links() }}</div>
     </section>
 @endsection

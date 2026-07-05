@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: database seeders ReferenceDataSeeder. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace Database\Seeders;
 
 use App\Models\ExpenseCategory;

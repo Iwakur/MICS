@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Controllers Teacher StudentController. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
@@ -10,6 +14,7 @@ use App\Models\Student;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class StudentController extends Controller
@@ -20,7 +25,7 @@ class StudentController extends Controller
             'students' => $this->ownedStudents($request)
                 ->with(['lessonType', 'plan'])
                 ->orderBy('first_name')
-                ->get(),
+                ->paginate(25),
         ]);
     }
 
@@ -40,14 +45,14 @@ class StudentController extends Controller
 
     public function edit(Request $request, Student $student): View
     {
-        $this->ensureOwned($request, $student);
+        Gate::authorize('update', $student);
 
         return view('teacher.students.edit', ['student' => $student] + $this->formOptions($student));
     }
 
     public function update(SaveStudentRequest $request, Student $student): RedirectResponse
     {
-        $this->ensureOwned($request, $student);
+        Gate::authorize('update', $student);
         $student->update($request->studentData($this->staffId($request)));
 
         return to_route('teacher.students.index')->with('status', 'Student updated successfully.');
@@ -56,11 +61,6 @@ class StudentController extends Controller
     private function ownedStudents(Request $request): Builder
     {
         return Student::query()->where('staff_id', $this->staffId($request));
-    }
-
-    private function ensureOwned(Request $request, Student $student): void
-    {
-        abort_unless($student->staff_id === $this->staffId($request), 403);
     }
 
     private function staffId(Request $request): int

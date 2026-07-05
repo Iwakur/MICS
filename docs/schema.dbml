@@ -1,0 +1,246 @@
+// Generated documentation snapshot of the MICS application schema.
+// Source of truth: database/migrations/*.php. Regenerate this file after schema changes.
+// Laravel infrastructure tables (cache, jobs, sessions, and password resets) are omitted.
+
+Project MICS {
+  database_type: "PostgreSQL"
+  Note: "Application schema for the first MICS release"
+}
+
+Table users {
+  id bigint [pk, increment]
+  username varchar [not null, unique]
+  email varchar [not null, unique]
+  email_verified_at timestamp
+  password varchar [not null]
+  role varchar [not null, default: 'teacher']
+  is_active boolean [not null, default: true]
+  remember_token varchar
+  staff_id bigint [unique]
+  last_login_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table staff_roles {
+  id bigint [pk, increment]
+  name varchar(100) [not null, unique]
+  can_teach boolean [not null, default: false]
+  is_active boolean [not null, default: true]
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table staff {
+  id bigint [pk, increment]
+  staff_role_id bigint [not null]
+  first_name varchar(100) [not null]
+  family_name varchar(100)
+  father_name varchar(100)
+  email varchar
+  phone varchar(32)
+  birthday date
+  city varchar(100)
+  payout_card_number varchar(64)
+  compensation_mode varchar(20) [not null, default: 'fixed']
+  salary_amount decimal(10,2)
+  is_active boolean [not null, default: true]
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table lesson_types {
+  id bigint [pk, increment]
+  name varchar(100) [not null, unique]
+  duration_minutes integer [not null]
+  lesson_price decimal(10,2) [not null]
+  teacher_share_per_lesson decimal(10,2) [not null, default: 0]
+  is_assignable boolean [not null, default: true]
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table plans {
+  id bigint [pk, increment]
+  name varchar(100) [not null, unique]
+  duration_minutes integer [not null]
+  lesson_count integer [not null]
+  lesson_price decimal(10,2) [not null]
+  plan_price decimal(10,2) [not null]
+  teacher_monthly_amount decimal(10,2) [not null, default: 0]
+  is_assignable boolean [not null, default: true]
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table students {
+  id bigint [pk, increment]
+  staff_id bigint [not null]
+  first_name varchar(100) [not null]
+  family_name varchar(100)
+  father_name varchar(100)
+  email varchar
+  phone varchar(32)
+  birthday date
+  city varchar(100)
+  joined_at date [not null]
+  status varchar(20) [not null, default: 'active']
+  billing_type varchar(20) [not null]
+  lesson_type_id bigint
+  lesson_amount integer
+  plan_id bigint
+  plan_start_at date
+  discount_amount decimal(10,2) [not null, default: 0]
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (staff_id, status)
+  }
+}
+
+Table student_months {
+  id bigint [pk, increment]
+  student_id bigint [not null]
+  month_date date [not null]
+  lesson_count integer [not null, default: 0]
+  opening_balance decimal(10,2) [not null, default: 0]
+  charge_amount decimal(10,2) [not null, default: 0]
+  manual_adjustment decimal(10,2) [not null, default: 0]
+  status varchar(20) [not null, default: 'draft']
+  validated_by_user_id bigint
+  validated_at timestamp
+  adjustment_reason text
+  adjusted_by_user_id bigint
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (student_id, month_date) [unique]
+  }
+}
+
+Table payments {
+  id bigint [pk, increment]
+  reversal_of_payment_id bigint [unique]
+  student_month_id bigint [not null]
+  paid_at timestamp [not null]
+  amount decimal(10,2) [not null]
+  payment_method varchar(50) [not null]
+  status varchar(20) [not null, default: 'draft']
+  validated_by_user_id bigint
+  validated_at timestamp
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (student_month_id, status)
+  }
+}
+
+Table expense_categories {
+  id bigint [pk, increment]
+  name varchar(100) [not null, unique]
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table expenses {
+  id bigint [pk, increment]
+  staff_id bigint
+  expense_category_id bigint [not null]
+  month_date date
+  amount decimal(10,2) [not null]
+  status varchar(20) [not null, default: 'draft']
+  validated_by_user_id bigint
+  validated_at timestamp
+  is_auto_generated boolean [not null, default: false]
+  generation_key varchar [unique]
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (expense_category_id, status)
+  }
+}
+
+Table salary_draft_sources {
+  id bigint [pk, increment]
+  expense_id bigint [not null]
+  student_id bigint
+  source_type varchar(30) [not null]
+  description varchar [not null]
+  units decimal(10,2) [not null, default: 1]
+  rate decimal(10,2) [not null]
+  amount decimal(10,2) [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (expense_id, source_type)
+  }
+}
+
+Table billing_months {
+  id bigint [pk, increment]
+  month_date date [not null, unique]
+  status varchar(20) [not null, default: 'open']
+  closed_by_user_id bigint
+  closed_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table billing_month_events {
+  id bigint [pk, increment]
+  billing_month_id bigint [not null]
+  user_id bigint
+  action varchar(20) [not null]
+  reason text
+  occurred_at timestamp [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (billing_month_id, occurred_at)
+  }
+}
+
+Table bank_months {
+  id bigint [pk, increment]
+  month_date date [not null, unique]
+  opening_balance decimal(10,2) [not null, default: 0]
+  closing_balance decimal(10,2) [not null, default: 0]
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: users.staff_id > staff.id [delete: set null]
+Ref: staff.staff_role_id > staff_roles.id [delete: restrict]
+Ref: students.staff_id > staff.id [delete: restrict]
+Ref: students.lesson_type_id > lesson_types.id [delete: restrict]
+Ref: students.plan_id > plans.id [delete: restrict]
+Ref: student_months.student_id > students.id [delete: cascade]
+Ref: student_months.validated_by_user_id > users.id [delete: set null]
+Ref: student_months.adjusted_by_user_id > users.id [delete: set null]
+Ref: payments.reversal_of_payment_id > payments.id [delete: restrict]
+Ref: payments.student_month_id > student_months.id [delete: cascade]
+Ref: payments.validated_by_user_id > users.id [delete: set null]
+Ref: expenses.staff_id > staff.id [delete: set null]
+Ref: expenses.expense_category_id > expense_categories.id [delete: restrict]
+Ref: expenses.validated_by_user_id > users.id [delete: set null]
+Ref: salary_draft_sources.expense_id > expenses.id [delete: cascade]
+Ref: salary_draft_sources.student_id > students.id [delete: set null]
+Ref: billing_months.closed_by_user_id > users.id [delete: set null]
+Ref: billing_month_events.billing_month_id > billing_months.id [delete: cascade]
+Ref: billing_month_events.user_id > users.id [delete: set null]

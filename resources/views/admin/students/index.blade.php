@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin students index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Students | MICS')
@@ -57,5 +58,6 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-6">{{ $students->links() }}</div>
     </section>
 @endsection

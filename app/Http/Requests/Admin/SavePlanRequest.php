@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Requests Admin SavePlanRequest. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Requests\Admin;
 
 use App\Models\Plan;

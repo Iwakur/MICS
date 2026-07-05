@@ -14,8 +14,8 @@ use Illuminate\View\View;
 /**
  * Administrator dashboard controller.
  *
- * The first admin home is intentionally simple: it gives a quick operational
- * summary and an entry point into user management.
+ * The admin home provides grouped operational counts and entry points into
+ * people, access, catalog, and monthly finance workflows.
  */
 class AdminDashboardController extends Controller
 {

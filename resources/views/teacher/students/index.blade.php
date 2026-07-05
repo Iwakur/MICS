@@ -1,3 +1,4 @@
+{{-- MICS Blade view: teacher students index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 @section('title', 'My Students | MICS')
 @section('eyebrow', 'Teacher')
@@ -13,5 +14,6 @@
                 <p class="text-sm text-shell-muted">No students are assigned to you.</p>
             @endforelse
         </div>
+        <div class="mt-6">{{ $students->links() }}</div>
     </section>
 @endsection

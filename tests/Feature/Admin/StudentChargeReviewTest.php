@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS test coverage: tests Feature Admin StudentChargeReviewTest. See docs/file-reference.md for protected behavior.
+ */
+
 namespace Tests\Feature\Admin;
 
 use App\Enums\ReviewStatus;
@@ -33,6 +37,8 @@ class StudentChargeReviewTest extends TestCase
         $this->assertSame('-10.00', $month->manual_adjustment);
         $this->assertSame(ReviewStatus::Validated, $month->status);
         $this->assertSame($admin->id, $month->adjusted_by_user_id);
+        $this->assertSame($admin->id, $month->validated_by_user_id);
+        $this->assertNotNull($month->validated_at);
         $this->assertSame('70.00', StudentMonth::query()->whereBelongsTo($student)->whereDate('month_date', '2026-08-01')->firstOrFail()->opening_balance);
         $this->actingAs($admin)->put(route('admin.student-charges.update', $month), [])->assertForbidden();
     }

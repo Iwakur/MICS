@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin plans edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Edit Plan | MICS')

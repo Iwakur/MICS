@@ -1,3 +1,4 @@
+{{-- MICS Blade view: lesson-counts index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Monthly Lesson Counts | MICS')

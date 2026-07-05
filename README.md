@@ -68,7 +68,11 @@ MICS is a school and academy operations system being rebuilt cleanly on Laravel 
 - username/password authentication
 - role-aware dashboard routing
 - separate admin and teacher dashboard surfaces
-- the first admin CRUD screen for user management
+- staff, role, student, lesson-type, plan, and user management
+- teacher-scoped student and monthly lesson-count workflows
+- manual month closing with generated student charges and salary drafts
+- payment, charge, salary, and manual-expense review workflows
+- auditable month reopening with validated-record protection
 
 The previous project and its database designs are retained locally under `legacy(self-created)/` as product research. They describe intended behavior, but they are not code to port directly and are not the source of truth for the running Laravel application.
 
@@ -87,6 +91,10 @@ MICS should support straightforward school operations without becoming a full ac
 Students are tracked business records and do not receive login accounts. Every administrator is also a teacher: administrators receive the full operational dashboard, while standard teachers use a separate dashboard where they can maintain their own profile and manage only their assigned students. Non-teaching staff and balances owed to or by them are part of the longer-term product scope, but their workflows are deferred from the first release.
 
 The rebuild should favor Laravel conventions, direct CRUD workflows, explicit business services, and testable behavior. Avoid reproducing the legacy application's custom framework, automatic bootstrap provisioning, SQL console, deep repository layering, or debit/credit journal unless a later requirement explicitly calls for them.
+
+Production setup is documented in `docs/deployment.md`. The `/up` endpoint reports process liveness, `/ready` confirms database readiness, and `php artisan app:check-production-readiness` rejects unsafe production configuration before migration or traffic cutover.
+
+Developers studying the application should use `docs/codebase-guide.md` for the Laravel/MICS architecture and `docs/file-reference.md` for the maintained path-by-path source inventory.
 
 ## Project Structure Walkthrough
 
@@ -149,6 +157,7 @@ The simplified legacy DBML has been translated into Laravel migrations, Eloquent
 - `payments` linked to a specific student month
 - `expenses` and `expense_categories` for reviewed outgoings
 - `bank_months` for simple monthly opening and closing snapshots
+- `billing_months` and lifecycle events for auditable close/reopen history
 
 Access role and business role are separate concepts: a user's role controls authorization, while a staff role describes their function in the organization. Student debt must not be stored as a mutable total on `students`; it is derived from monthly history.
 
@@ -170,6 +179,10 @@ closing_balance = opening_balance + charge_amount + manual_adjustment - validate
 
 Only validated payments and expenses count as real financial activity. Draft records remain reviewable without affecting totals. A month's closing student balance becomes the next month's opening balance.
 
+Payments use an explicit review transition: administrators record and edit a draft, then validate it after checking evidence. Validation records the administrator and timestamp, makes the payment immutable, and propagates its balance effect through existing future student months. Month reopening requires an attributed reason; reclosing may refresh drafts but never overwrites validated charges or salary records.
+
+A validated payment is never edited to correct a mistake. An administrator instead creates one linked full reversal with a required reason; the negative validated record restores the debt and preserves both sides of the audit trail. A corrected payment can then be entered through the normal draft and validation workflow.
+
 ## Implementation Source of Truth
 
 During development, use this order of authority:
@@ -177,8 +190,8 @@ During development, use this order of authority:
 1. Current Laravel migrations, models, tests, and application code describe what exists.
 2. This README describes the agreed product direction.
 3. `docs/codebase-guide.md` explains the current codebase layout in more detail.
-4. `legacy(self-created)/database/schema.dbml` supplies the initial database proposal.
-5. `legacy(self-created)/MICS_legacy/` is historical evidence only.
+4. `docs/schema.dbml` is a generated visual snapshot of the current application schema.
+5. Deleted legacy material remains available through Git history as historical evidence only.
 
 Before implementing another legacy idea, translate it into Laravel terminology, confirm its business rule, and cover it with migrations and feature tests. Do not assume that historical tables, statuses, or workflows are final requirements.
 

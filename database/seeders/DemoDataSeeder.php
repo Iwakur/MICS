@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: database seeders DemoDataSeeder. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace Database\Seeders;
 
 use App\Enums\ReviewStatus;
@@ -61,7 +65,7 @@ class DemoDataSeeder extends Seeder
             'note' => 'Demo fixed-salary operations manager.',
         ]);
 
-        $this->account('admin', 'admin@example.com', UserRole::Admin, $adminStaff);
+        $admin = $this->account('admin', 'admin@example.com', UserRole::Admin, $adminStaff);
         $this->account('teacher', 'teacher@example.com', UserRole::Teacher, $teacherStaff);
 
         $standardLesson = LessonType::query()->where('name', 'Standard 45')->firstOrFail();
@@ -114,11 +118,11 @@ class DemoDataSeeder extends Seeder
         $youssefMonth = $this->studentMonth($youssef, 350, -10);
         $saraMonth = $this->studentMonth($sara, 310, 0);
 
-        $this->payment($aminaMonth, 280, ReviewStatus::Validated, 'Demo payment: Amina July');
-        $this->payment($youssefMonth, 200, ReviewStatus::Draft, 'Demo payment: Youssef July');
-        $this->payment($saraMonth, 310, ReviewStatus::Validated, 'Demo payment: Sara July');
+        $this->payment($aminaMonth, 280, ReviewStatus::Validated, 'Demo payment: Amina July', $admin);
+        $this->payment($youssefMonth, 200, ReviewStatus::Draft, 'Demo payment: Youssef July', $admin);
+        $this->payment($saraMonth, 310, ReviewStatus::Validated, 'Demo payment: Sara July', $admin);
 
-        $this->expenses($managerStaff);
+        $this->expenses($managerStaff, $admin);
         $this->bankMonths();
     }
 
@@ -127,7 +131,7 @@ class DemoDataSeeder extends Seeder
         return Staff::query()->updateOrCreate(['email' => $email], $attributes + ['is_active' => true]);
     }
 
-    private function account(string $username, string $email, UserRole $role, Staff $staff): void
+    private function account(string $username, string $email, UserRole $role, Staff $staff): User
     {
         $user = User::query()->firstOrCreate(
             ['username' => $username],
@@ -140,6 +144,8 @@ class DemoDataSeeder extends Seeder
             'role' => $role,
             'is_active' => true,
         ]);
+
+        return $user;
     }
 
     private function student(string $email, array $attributes): Student
@@ -162,15 +168,22 @@ class DemoDataSeeder extends Seeder
         );
     }
 
-    private function payment(StudentMonth $month, float $amount, ReviewStatus $status, string $note): void
+    private function payment(StudentMonth $month, float $amount, ReviewStatus $status, string $note, User $admin): void
     {
         Payment::query()->updateOrCreate(
             ['student_month_id' => $month->id, 'note' => $note],
-            ['paid_at' => '2026-07-25 12:00:00', 'amount' => $amount, 'payment_method' => 'bank_transfer', 'status' => $status],
+            [
+                'paid_at' => '2026-07-25 12:00:00',
+                'amount' => $amount,
+                'payment_method' => 'bank_transfer',
+                'status' => $status,
+                'validated_by_user_id' => $status === ReviewStatus::Validated ? $admin->id : null,
+                'validated_at' => $status === ReviewStatus::Validated ? '2026-07-26 09:00:00' : null,
+            ],
         );
     }
 
-    private function expenses(Staff $manager): void
+    private function expenses(Staff $manager, User $admin): void
     {
         $rows = [
             ['category' => 'Rent', 'amount' => 1800, 'status' => ReviewStatus::Validated, 'note' => 'Demo expense: July rent'],
@@ -188,6 +201,8 @@ class DemoDataSeeder extends Seeder
                     'month_date' => '2026-07-01',
                     'amount' => $row['amount'],
                     'status' => $row['status'],
+                    'validated_by_user_id' => $row['status'] === ReviewStatus::Validated ? $admin->id : null,
+                    'validated_at' => $row['status'] === ReviewStatus::Validated ? '2026-07-26 09:00:00' : null,
                     'is_auto_generated' => false,
                 ],
             );

@@ -12,7 +12,7 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Add payment validation and auditable month reopening after completing financial review workflows.
+Complete maintainability hardening, then resolve final product/hosting decisions and execute production browser, backup, and restore acceptance.
 
 ### Current Known Facts
 
@@ -37,7 +37,7 @@ Add payment validation and auditable month reopening after completing financial 
 
 ### Current Runtime Assessment
 
-The translated schema layer is in place. Administrators and teachers can enter scoped monthly lesson counts. Administrators can close a month, review and validate generated student charges and salary drafts, apply attributed charge adjustments, and maintain irregular manual expenses. Validated records are immutable.
+The translated schema layer is in place. Administrators and teachers can enter scoped monthly lesson counts. Administrators can close and auditably reopen a month, review and validate generated student charges and salary drafts, validate student payments, apply attributed charge adjustments, and maintain irregular manual expenses. Validated records are immutable.
 
 ## Agreed Monthly Workflow Direction
 
@@ -99,11 +99,98 @@ The translated schema layer is in place. Administrators and teachers can enter s
 - Use PHP backed enums with portable string columns for PostgreSQL/SQLite compatibility.
 - Index foreign keys, statuses, dates, and common compound filters.
 
+## Completed Current Step
+
+- Financial arithmetic now uses integer cents through `App\Support\Money`; no accounting total depends on binary float addition.
+- Student balance propagation uses transactions and deterministic PostgreSQL row locking to protect concurrent corrections.
+- Student record ownership is centralized in `StudentPolicy`, while validation depends on user capabilities rather than route naming.
+- Larastan level 5, a reviewed initial baseline, a unified `composer check` command, and GitHub Actions enforce static analysis, formatting, tests, and asset builds.
+- `docs/development-conventions.md` teaches safe code placement, financial invariants, lock ordering, migration evolution, testing, and atomic release practices.
+
+- Payments follow an explicit draft-to-validated workflow. Only validated payments reduce student debt.
+- Validation records the administrator and timestamp. Validated payments cannot be edited or deleted.
+- Administrators may reopen only a closed month and must provide a reason of at least 10 characters.
+- Every close and reopen is retained as a lifecycle event with administrator attribution and timestamp.
+- Reclosing refreshes unvalidated drafts while preserving validated student charges and salary expenses.
+- Feature tests cover payment authorization, validation, immutability, reopen auditing, and protected records.
+- The monthly finance summary separates charges, validated payments, outstanding debt, validated/draft salaries, and validated/draft manual expenses.
+- The student debt ledger explains each selected month's opening balance, charges, validated payments, and closing balance.
+- Validated payment mistakes are corrected with one immutable full reversal linked to the original payment.
+- Reversals require an administrator reason, restore student debt, and propagate corrected balances through existing future months.
+- Production deployments have a secret-free environment template, explicit trusted-proxy configuration, liveness/readiness endpoints, and a configuration gate command.
+- `docs/deployment.md` defines deployment order, PostgreSQL backup/restore testing, process requirements, rollback boundaries, and release verification.
+- The pre-release schema is consolidated into two commented MICS domain migrations plus Laravel's three framework migrations; future post-launch changes must use new migrations.
+- Inactive authenticated accounts are logged out immediately instead of retaining access until their session expires.
+- Missing payment months inherit prior closing debt, paused students carry existing debt without receiving new charges, and student credits no longer hide other students' positive debt.
+- Student charges, salaries, and expenses record validator identity and validation time; generated salary corrections require an explanation.
+- `docs/codebase-guide.md` explains Laravel and MICS architecture; `docs/file-reference.md` documents every maintained source file and generated/third-party boundary.
+- Every maintained path is mechanically verified against the file reference; folders have an ownership map, Blade files have purpose headers, and undocumented MICS PHP/test files have concise source-purpose comments.
+
+## Deployment Readiness Checklist
+
+### Required Before Production
+
+- [x] Add a monthly finance summary showing generated charges, validated payments, outstanding debt, validated salaries, and validated manual expenses.
+- [x] Correct validated payment mistakes with linked reversal records rather than editing history.
+- [x] Propagate carried student balances across existing consecutive months when a late payment is validated or a charge is adjusted.
+- [ ] Add production environment values for `APP_URL`, database, mail, queue, cache, session, and trusted proxy settings without committing secrets.
+- [ ] Configure HTTPS, secure cookies, database backups, retention, and a tested restore procedure.
+- [x] Document that workers and scheduler processes are not required until queued or scheduled workflows are introduced.
+- [ ] Run migrations against a production-like PostgreSQL copy and verify rollback/restore strategy.
+- [ ] Run `ddev composer test`, `ddev npm run build`, and `ddev exec ./vendor/bin/pint --test` from a clean checkout.
+- [ ] Perform browser acceptance tests on desktop and mobile for admin and teacher roles.
+- [ ] Replace demo passwords and confirm seeders cannot create known credentials in production.
+
+### Verification Evidence (2026-07-05)
+
+- [x] Full PHPUnit suite: 82 tests, 374 assertions.
+- [x] Larastan level 5 passes with no new findings outside the reviewed initial Laravel inference baseline.
+- [x] The unified `ddev composer check` gate passes formatting, static analysis, tests, and production asset build.
+- [x] Seeded route-render smoke coverage for every maintained admin and teacher page.
+- [x] Pint passes on application, database, route, bootstrap, and test PHP files.
+- [x] Production Vite build succeeds.
+- [x] Composer manifest validates strictly.
+- [x] Composer audit reports no known PHP dependency advisories.
+- [x] npm production audit reports zero known vulnerabilities.
+- [x] Laravel configuration, event, route, and view optimization succeeds.
+- [x] A clean local PostgreSQL 17 database builds and seeds successfully from all five consolidated migrations.
+- [x] `/up`, `/ready`, and the production-readiness command have automated coverage.
+
+### Final Product Decisions
+
+- [ ] Decide whether the seeded stable expense categories are sufficient or administrators need expense-category CRUD before launch.
+- [ ] Decide whether the existing `bank_months` data model needs an administrator reconciliation screen for the first release.
+- [ ] Decide whether every admin account must be forced to link to an active teaching staff profile at creation time; the current workflow permits temporary unlinked admin accounts.
+- [ ] Decide whether partial refunds need a separate workflow; current correction uses full reversal followed by a replacement payment.
+
+### Demo Walkthrough
+
+- [ ] Log in as admin and explain that access roles are separate from staff business roles.
+- [ ] Create/link a staff account and assign a teacher role.
+- [ ] Create a lesson type and plan with separate school and teacher amounts.
+- [ ] Create per-lesson and plan-based students assigned to a teacher.
+- [ ] Log in as teacher and enter lesson counts only for assigned students.
+- [ ] Preview and close a selected month; inspect generated student charges and salary source details.
+- [ ] Adjust and validate one student charge and one salary or manual expense.
+- [ ] Record a student payment draft, verify it does not reduce debt, then validate it and verify that it does.
+- [ ] Reopen the month with a reason, show the lifecycle audit, then reclose and verify validated records are unchanged.
+- [ ] Confirm a teacher cannot access administrator finance or account-management pages.
+
+### Operational Understanding
+
+- A student charge is what the school expects to receive for a month.
+- A payment is separate evidence of money received; it affects debt only after validation.
+- Salary drafts and manual expenses become business records only after validation.
+- Closing snapshots operational inputs into drafts. Reopening unlocks correction work but does not erase history.
+- Validated records are immutable. Corrections must be represented as attributed adjustments or future reversal records.
+
 ## Next Controlled Steps
 
-1. Add student payment entry and validation workflows.
-2. Add explicit, auditable administrator reopen behavior without overwriting validated records.
-3. Add monthly finance summaries for charges, validated payments, salaries, and manual expenses.
+1. Merge the tested release candidate into protected `main` through a pull request and tag the deployed commit as `v1.0.0`.
+2. The project owner will configure and operate the VPS, including secrets, HTTPS, backups, deployment, and rollback.
+3. Continue new work on short-lived `feature/<topic>`, `fix/<topic>`, or `docs/<topic>` branches created from current `main`.
+4. Resolve the final product decisions above, especially bank reconciliation and expense-category management.
+5. Perform the full desktop/mobile browser walkthrough against the production-like deployment.
 
 ## Step Review Template
 

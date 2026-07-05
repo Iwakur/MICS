@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS test coverage: tests Feature Admin CatalogManagementTest. See docs/file-reference.md for protected behavior.
+ */
+
 namespace Tests\Feature\Admin;
 
 use App\Models\LessonType;

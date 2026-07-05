@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Enums StudentStatus. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Enums;
 
 enum StudentStatus: string

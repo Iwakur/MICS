@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Requests SaveStudentRequest. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Requests;
 
 use App\Enums\StudentBillingType;
@@ -19,13 +23,13 @@ class SaveStudentRequest extends FormRequest
 
     public function rules(): array
     {
-        $isAdminRoute = $this->routeIs('admin.*');
-        $statuses = $isAdminRoute
+        $isAdmin = $this->user()?->isAdmin() === true;
+        $statuses = $isAdmin
             ? array_column(StudentStatus::cases(), 'value')
             : [StudentStatus::Active->value, StudentStatus::Paused->value];
 
         return [
-            'staff_id' => [Rule::requiredIf($isAdminRoute), 'nullable', 'exists:staff,id'],
+            'staff_id' => [Rule::requiredIf($isAdmin), 'nullable', 'exists:staff,id'],
             'first_name' => ['required', 'string', 'max:100'],
             'family_name' => ['nullable', 'string', 'max:100'],
             'father_name' => ['nullable', 'string', 'max:100'],
@@ -76,7 +80,7 @@ class SaveStudentRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
-                if (! $this->routeIs('admin.*') || ! $this->filled('staff_id')) {
+                if (! $this->user()?->isAdmin() || ! $this->filled('staff_id')) {
                     return;
                 }
 

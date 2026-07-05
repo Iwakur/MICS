@@ -1,3 +1,4 @@
+{{-- MICS Blade view: teacher dashboard. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Teacher Dashboard | MICS')

@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin expenses index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 @section('title', 'Expenses & Salaries | MICS')
 @section('eyebrow', 'Administrator · Finance')
@@ -16,5 +17,6 @@
         @empty<tr><td colspan="6" class="px-4 py-10 text-center text-shell-muted">No expense or salary records.</td></tr>@endforelse
         </tbody></table>
     </div>
+    <div class="mt-6">{{ $expenses->links() }}</div>
 </section>
 @endsection

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Controllers Admin StaffController. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -22,7 +26,7 @@ class StaffController extends Controller
                 ->withCount('students')
                 ->orderByDesc('is_active')
                 ->orderBy('first_name')
-                ->get(),
+                ->paginate(25),
         ]);
     }
 

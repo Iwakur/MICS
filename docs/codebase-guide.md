@@ -1,126 +1,211 @@
-# MICS Codebase Guide
+# MICS Laravel Architecture Guide
 
-## Purpose
+## Purpose and Scope
 
-This guide explains the current source structure of the Laravel rebuild in practical terms. It exists to help the project owner study the repository without having to infer each folder's role from framework conventions alone.
+This guide explains how Laravel works in this repository and how MICS uses it. It covers maintained application code and the framework concepts needed to understand it. Generated dependencies in `vendor/`, compiled files in `public/build/`, runtime files in `storage/`, and historical code in `legacy(self-created)/` are not maintained application source and are not documented line by line.
 
-## Root and Project Setup
+For a path-by-path inventory, see `docs/file-reference.md`. For production operations, see `docs/deployment.md`. Product rules live in `README.md`; current work and release gates live in `PLAN.md`.
 
-- `README.md`: durable product truth, current product direction, UI direction, and development entrypoints.
-- `PLAN.md`: latest active work only. This is the short living plan, not the full project history.
-- `AGENTS.md`: collaboration and implementation rules for coding agents working in this repo.
-- `composer.json`: PHP package manifest plus project scripts such as `setup`, `dev`, and `test`.
-- `package.json`: frontend package manifest. Right now the frontend entrypoints are Vite build and dev.
-- `vite.config.js`: Vite dev/build configuration, including the secure DDEV hot-reload origin.
-- `phpunit.xml`: PHPUnit test configuration.
-- `boost.json`: Laravel Boost configuration used by the local agent tooling.
+## Laravel in One Request
 
-## Application Code (`app/`)
+Laravel is the application framework. It supplies the HTTP kernel, service container, router, middleware pipeline, authentication, validation, database ORM, views, console commands, and testing integration. MICS adds school-specific rules on top.
 
-### Models and enums
+A browser request follows this sequence:
 
-- `app/Models/User.php`: the authenticated user model. It holds login account fields, role helpers, casts, and default attribute values.
-- `app/Enums/UserRole.php`: role enum for authenticated users. Current values are `admin` and `teacher`.
-- `app/UserRole.php`: currently duplicates the enum namespace/path idea and should be treated as a stray legacy file until explicitly cleaned up in a future maintenance pass.
+1. The web server sends the request to `public/index.php`.
+2. `bootstrap/app.php` creates the Laravel `Application`, registers route files, replaces trusted-proxy handling, aliases MICS middleware, and defines exception rendering.
+3. Laravel loads providers from `bootstrap/providers.php`; `AppServiceProvider` is the MICS extension point for application-wide boot logic.
+4. The router matches a declaration in `routes/web.php`.
+5. Global and route middleware run. Authentication resolves the current `User`; `EnsureUserIsActive` revokes inactive sessions; `EnsureUserIsAdmin` protects the admin area.
+6. Route model binding converts identifiers such as `{payment}` into Eloquent models such as `Payment`.
+7. A Form Request authorizes and validates mutation input when the controller method type-hints one.
+8. Laravel’s service container constructs the controller and injects services such as `MonthClosingService`.
+9. The controller coordinates the use case and returns a redirect, JSON response, or Blade view.
+10. Eloquent executes parameterized SQL through the configured database connection.
+11. Blade escapes `{{ }}` output and renders HTML; Vite-built Tailwind assets provide styling.
+12. Session and cookie middleware persist flash messages, validation errors, and authentication state in the response.
 
-### Controllers
+## Service Container and Dependency Injection
 
-- `app/Http/Controllers/Auth/AuthenticatedSessionController.php`: shows the login form, starts the session after successful auth, and logs users out.
-- `app/Http/Controllers/DashboardController.php`: shared dashboard entrypoint. It redirects users to the correct role-specific dashboard.
-- `app/Http/Controllers/Admin/AdminDashboardController.php`: feeds the admin dashboard summary counts.
-- `app/Http/Controllers/Teacher/TeacherDashboardController.php`: returns the teacher dashboard.
-- `app/Http/Controllers/Admin/UserController.php`: first real admin CRUD controller. Manages users and protects last-admin safety rules.
-- `app/Http/Controllers/Controller.php`: base Laravel controller.
+Laravel’s container creates classes from controller method signatures. For example, `FinanceSummaryController` requests `FinanceSummaryService`; no manual `new` call is required because the service has resolvable dependencies. This keeps controllers focused on HTTP concerns and makes domain behavior independently testable.
 
-### Form requests and middleware
+MICS currently uses convention-based automatic injection. No custom binding is needed in `AppServiceProvider` because services are concrete classes without interfaces.
 
-- `app/Http/Requests/Auth/LoginRequest.php`: validates login input and performs the login attempt, including the inactive-account rule.
-- `app/Http/Requests/Admin/StoreUserRequest.php`: validates new users created by admins.
-- `app/Http/Requests/Admin/UpdateUserRequest.php`: validates user edits and allows blank password to mean "keep current password".
-- `app/Http/Middleware/EnsureUserIsAdmin.php`: blocks non-admin users from reaching admin-only routes.
+## Routing and Middleware
 
-### Providers
+`routes/web.php` defines the browser surface:
 
-- `app/Providers/AppServiceProvider.php`: standard Laravel provider placeholder. It currently has no custom boot logic.
+- guest-only login routes use `guest`;
+- all application routes use `auth` and `active`;
+- the `/dashboard` dispatcher selects the role-specific home;
+- `/admin/*` additionally uses `admin`;
+- `/teacher/*` relies on controller-level ownership checks for assigned students;
+- `/up` is Laravel’s liveness route and `/ready` checks database connectivity.
 
-## Routes and Bootstrap
+Resource routes generate conventional CRUD names and URLs. Explicit routes handle non-CRUD transitions such as payment validation, payment reversal, month closing, and month reopening.
 
-- `routes/web.php`: browser routes for login, logout, dashboard dispatch, admin dashboard, teacher dashboard, and admin user CRUD.
-- `routes/console.php`: console route definitions.
-- `bootstrap/app.php`: Laravel 13 bootstrap file. Registers routing, middleware aliases, and API exception rendering behavior.
+Middleware answers cross-cutting access questions before controllers run:
 
-## Views and Frontend
+- Laravel `auth` requires a resolvable authenticated user;
+- `EnsureUserIsActive` logs out accounts deactivated after login;
+- `EnsureUserIsAdmin` requires the system access role `admin`;
+- `TrustProxies` reads configured proxy addresses so HTTPS and client metadata are interpreted safely behind a load balancer.
 
-### Blade views (`resources/views/`)
+System access roles and staff business roles are separate. `User.role` controls authorization; `StaffRole` describes organizational responsibility and whether that staff member may teach.
 
-- `resources/views/layouts/app.blade.php`: shared authenticated shell with header, sidebar, flash messages, and content region.
-- `resources/views/auth/login.blade.php`: guest login page.
-- `resources/views/admin/dashboard.blade.php`: admin home screen.
-- `resources/views/teacher/dashboard.blade.php`: teacher home screen.
-- `resources/views/admin/users/index.blade.php`: admin user list and management table.
-- `resources/views/admin/users/create.blade.php`: admin create-user form.
-- `resources/views/admin/users/edit.blade.php`: admin edit-user form.
-- `resources/views/dashboard.blade.php`: older temporary dashboard file. The active route flow now prefers role-specific dashboards.
-- `resources/views/welcome.blade.php`: default Laravel welcome screen, not part of the active app flow right now.
+## Authentication and Sessions
 
-### Frontend assets
+Laravel’s session guard authenticates `User` records. `LoginRequest` validates credentials, blocks inactive accounts, calls `Auth::attempt`, and rate-limits repeated failures through the login route middleware. Successful login regenerates the session identifier to prevent session fixation. Logout invalidates the session and regenerates the CSRF token.
 
-- `resources/css/app.css`: Tailwind v4 entry file plus the shared blue-dark tokens and component classes used across the visible app.
-- `resources/js/app.js`: JavaScript entrypoint. It is intentionally minimal right now.
+Production uses secure, encrypted, HTTP-only cookies and database-backed sessions. The readiness command verifies the security-sensitive settings.
 
-## Database Layer (`database/`)
+## Controllers
 
-- `database/migrations/0001_01_01_000000_create_users_table.php`: current users, password reset, and sessions schema.
-- `database/migrations/0001_01_01_000001_create_cache_table.php`: Laravel cache schema.
-- `database/migrations/0001_01_01_000002_create_jobs_table.php`: Laravel queue/jobs schema.
-- `database/factories/UserFactory.php`: generates users for tests and development, including admin/teacher/inactive states.
-- `database/seeders/DatabaseSeeder.php`: seeds the default local `admin` account.
+Controllers translate HTTP requests into application actions:
 
-## Tests (`tests/`)
+- CRUD controllers load form options, call validated model operations, and redirect with flash messages;
+- role-specific student controllers enforce teacher ownership;
+- invokable dashboard, readiness, and finance controllers each handle one GET endpoint;
+- financial transitions delegate calculations to services and use database transactions where several rows must change atomically.
 
-- `tests/TestCase.php`: shared Laravel test base.
-- `tests/Feature/Auth/AuthenticationTest.php`: login/logout feature tests.
-- `tests/Feature/DashboardAccessTest.php`: role-aware dashboard redirect and admin access tests.
-- `tests/Feature/Admin/UserManagementTest.php`: admin CRUD behavior and safety-rule tests.
-- `tests/Feature/ExampleTest.php`, `tests/Unit/ExampleTest.php`: default Laravel starter tests, useful as references until replaced.
+Controllers should not contain reusable accounting calculations. Those belong in `app/Services`.
 
-## Configuration (`config/`)
+## Form Requests
 
-Important files in the current app:
+Form Requests combine authorization and validation:
 
-- `config/auth.php`: authentication guards/providers.
-- `config/session.php`: session storage behavior. The current app uses the database session driver.
-- `config/database.php`: PostgreSQL and test database configuration.
-- `config/app.php`, `config/cache.php`, `config/queue.php`, `config/mail.php`, `config/logging.php`, `config/filesystems.php`, `config/services.php`: standard Laravel environment-backed configuration.
+- `authorize()` decides whether the current account and current model state permit the action;
+- `rules()` describes accepted fields, types, ranges, enums, and foreign keys;
+- `after()` performs relational checks that cannot be expressed as a simple field rule;
+- helper methods such as `studentData()` return normalized data for the controller.
 
-These files are mostly framework defaults right now, but they still matter because they describe runtime behavior even before business modules grow.
+Controllers consume `$request->validated()` or safe helper methods, never unrestricted request input. Conditional rules enforce the difference between per-lesson and plan-based students, fixed and dynamic compensation, and draft versus validated financial records.
 
-## Infrastructure and Local Environment
+## Eloquent Models and Relationships
 
-- `.ddev/`: local environment definition for PHP, PostgreSQL, webserver, and tooling.
-- `.agents/skills/`: project-local agent guidance used during implementation.
+Eloquent maps database tables to PHP classes. MICS models use:
 
-The DDEV files are infrastructure, not application logic, but they are worth maintaining because local runtime consistency matters in this repo.
+- `#[Fillable]` to define mass-assignable fields;
+- `casts()` for enums, booleans, dates, datetimes, and fixed-decimal strings;
+- `belongsTo`, `hasOne`, and `hasMany` relationships;
+- local scopes such as `validated()` for reusable query constraints;
+- domain methods such as `StudentMonth::closingBalance()`.
 
-## Current Request Flow Study Guide
+Relationships describe both navigation and query intent. Examples:
 
-1. A guest requests `/login`.
-2. `AuthenticatedSessionController@create` returns the login Blade view.
-3. The login form posts to `login.store`.
-4. `LoginRequest` validates input, blocks inactive users, and calls `Auth::attempt(...)`.
-5. `AuthenticatedSessionController@store` regenerates the session and redirects to `/dashboard`.
-6. `DashboardController` checks the authenticated user role.
-7. Admins are redirected to `/admin/dashboard`; teachers are redirected to `/teacher/dashboard`.
-8. Admin routes also pass through `EnsureUserIsAdmin`.
-9. Admin user CRUD uses Form Requests for field validation and `UserController` for high-level safety rules.
+- a `User` optionally belongs to one `Staff` record;
+- a `Student` belongs to one assigned teacher/staff member;
+- a `StudentMonth` owns payments;
+- a generated salary `Expense` owns preserved `SalaryDraftSource` rows;
+- a payment reversal belongs to its immutable original payment.
 
-## UI Study Guide
+Views never perform database queries. Controllers and services eager-load relationships to avoid N+1 query behavior.
 
-The visible app currently follows one design system:
+## Enums
 
-- a shared authenticated shell
-- blue-dark background and surface palette
-- token-based component classes from `resources/css/app.css`
-- Blade templates choose page structure; `app.css` now provides the consistent visual language
+Backed enums constrain persisted string states while remaining portable between PostgreSQL and SQLite tests. MICS uses enums for user role, student status, billing type, staff compensation mode, financial review status, and billing-month status. Database columns stay strings so migrations remain portable; model casts expose enum instances in PHP.
 
-If Vite or npm assets are down, the repo intentionally does not add rescue CSS inside Blade. That is a real asset-pipeline issue to solve, not a UI fallback case.
+## Database Transactions and Locks
+
+Financial state transitions use `DB::transaction()` so all writes succeed or all roll back. Row locks protect transitions that could otherwise race:
+
+- month closing locks the billing-month row;
+- lesson-count updates lock the month lifecycle row;
+- payment validation locks the draft payment;
+- payment reversal locks the original payment.
+
+Unique constraints provide a second line of defense for one student row per month, one generated salary per staff/month key, one lifecycle month record, and one reversal per payment.
+
+## Monthly Accounting Model
+
+MICS is operational accounting, not a general ledger.
+
+Student balance formula:
+
+```text
+closing balance = opening balance + generated charge + manual adjustment - validated payments
+```
+
+Only validated payments affect debt. A reversal is a linked negative validated payment, so it restores the original debt without changing history. Student credits are reported separately from positive debt so one overpayment cannot hide another student’s receivable.
+
+Month closing is manual and selected by month. It:
+
+1. calculates per-lesson and plan charges;
+2. creates or refreshes draft student charges;
+3. creates fixed or dynamic salary drafts;
+4. snapshots salary source rows;
+5. carries closing balances forward;
+6. marks the month closed and records a lifecycle event.
+
+Reopening requires a reason. Reclosing may refresh drafts but skips validated student charges and salary expenses.
+
+## Services
+
+`MonthClosingService` owns charge/salary preview and transactional generation. `StudentBalanceService` creates missing monthly balance rows from prior history and propagates corrections through existing future rows. `FinanceSummaryService` builds read-only monthly totals and the student debt ledger.
+
+These classes are domain services: they contain behavior shared by multiple HTTP actions and make accounting invariants visible outside controllers.
+
+## Migrations and Schema History
+
+Migrations are ordered schema changes. Laravel records applied filenames in the `migrations` table. Existing migrations are historical records and should not be edited after production deployment; future changes require new forward migrations.
+
+Before the first production deployment, MICS consolidated its domain history into two commented baseline migrations: school structure and monthly finance structure. Together with Laravel's three framework migrations, a fresh installation runs five migrations. After the first production deployment these baseline files become immutable history; all later changes must use new migrations.
+
+Foreign-key deletion behavior is intentional:
+
+- student-owned months and payments cascade when a student is intentionally deleted;
+- staff references in financial history become null where history must survive;
+- catalog and assignment references restrict deletion and use application-level archiving;
+- payment originals cannot be deleted while a reversal points to them.
+
+Indexes cover foreign keys, statuses, dates, unique business keys, and common compound filters.
+
+## Factories and Seeders
+
+Factories create valid isolated records for tests and development. Factory states such as `admin()`, `teacher()`, and `validated()` make intent explicit.
+
+`DatabaseSeeder` always creates reference catalogs. Outside production it also creates connected demo people and finance records through `DemoDataSeeder`. Demo users are `admin` / `password` and `teacher` / `password`; production never receives those credentials.
+
+Seeders are idempotent: repeated runs update or reuse known records rather than duplicating them.
+
+## Blade, Tailwind, and Vite
+
+Blade templates define server-rendered pages. `layouts/app.blade.php` owns the authenticated shell, grouped navigation, flash messages, and validation summaries. Feature views provide page-specific tables and forms. Shared form partials reduce repeated field markup.
+
+`resources/css/app.css` imports Tailwind CSS 4 and defines MICS theme tokens plus reusable component classes such as surfaces, inputs, buttons, badges, and navigation links. `resources/js/app.js` is the Vite JavaScript entrypoint and is intentionally minimal.
+
+Vite compiles assets into ignored `public/build/` output. Blade uses `@vite`; there is intentionally no fallback CSS when assets are missing.
+
+## Testing
+
+PHPUnit feature tests boot Laravel and exercise routes, middleware, validation, Eloquent persistence, transactions, and rendered views. Unit tests are reserved for framework-independent logic. The suite uses SQLite in memory for speed; PostgreSQL migration status and production-like checks are separate deployment gates.
+
+`LazilyRefreshDatabase` resets schema state only when a test touches the database. Tests cover authentication, role boundaries, CRUD, teacher scoping, month calculations, draft/validated transitions, reversals, lifecycle audits, finance totals, seeds, schema constraints, readiness, and production configuration validation.
+
+## Console and Deployment
+
+Artisan is Laravel’s CLI. Important commands are:
+
+```bash
+php artisan migrate --force
+php artisan app:check-production-readiness
+php artisan optimize
+php artisan route:list
+php artisan schedule:list
+```
+
+The custom readiness command rejects unsafe production environment, URL, key, database, session-cookie, encryption, and proxy configuration. It also tests the live database unless explicitly skipped.
+
+The current release has no scheduled task and no queued business job. Do not run infrastructure merely for appearance; add supervised queue/scheduler processes when features actually use them.
+
+## Source-of-Truth Boundaries
+
+Use this authority order:
+
+1. current migrations, models, services, routes, and tests;
+2. `README.md` for durable product decisions;
+3. `PLAN.md` for release blockers and next work;
+4. this architecture guide and `docs/file-reference.md` for learning;
+5. `legacy(self-created)/` only for historical terminology and workflow research.
+
+Never copy framework internals from `vendor/` into application code. Extend Laravel through controllers, middleware, requests, services, providers, configuration, and documented public APIs.

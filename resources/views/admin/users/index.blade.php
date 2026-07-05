@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin users index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'User Management | MICS')
@@ -72,5 +73,6 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-6">{{ $users->links() }}</div>
     </section>
 @endsection

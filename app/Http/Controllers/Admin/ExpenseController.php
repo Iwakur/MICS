@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Controllers Admin ExpenseController. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ReviewStatus;
@@ -19,7 +23,7 @@ class ExpenseController extends Controller
         return view('admin.expenses.index', [
             'expenses' => Expense::query()->with(['category', 'staffMember'])->withCount('salarySources')
                 ->when($request->filled('month'), fn ($query) => $query->whereDate('month_date', $request->string('month').'-01'))
-                ->orderByDesc('month_date')->orderByDesc('id')->get(),
+                ->orderByDesc('month_date')->orderByDesc('id')->paginate(25)->withQueryString(),
         ]);
     }
 
@@ -30,21 +34,21 @@ class ExpenseController extends Controller
 
     public function store(SaveExpenseRequest $request): RedirectResponse
     {
-        Expense::query()->create($request->validated() + ['is_auto_generated' => false]);
+        Expense::query()->create($this->auditedData($request) + ['is_auto_generated' => false]);
 
         return to_route('admin.expenses.index')->with('status', 'Expense created successfully.');
     }
 
     public function edit(Expense $expense): View
     {
-        $expense->load(['salarySources.student', 'category', 'staffMember']);
+        $expense->load(['salarySources.student', 'category', 'staffMember', 'validatedBy']);
 
         return view('admin.expenses.edit', ['expense' => $expense] + $this->formOptions());
     }
 
     public function update(SaveExpenseRequest $request, Expense $expense): RedirectResponse
     {
-        $expense->update($request->validated());
+        $expense->update($this->auditedData($request));
 
         return to_route('admin.expenses.index')->with('status', 'Expense updated successfully.');
     }
@@ -63,5 +67,17 @@ class ExpenseController extends Controller
             'categories' => ExpenseCategory::query()->orderBy('name')->get(),
             'staffMembers' => Staff::query()->orderBy('first_name')->get(),
         ];
+    }
+
+    private function auditedData(SaveExpenseRequest $request): array
+    {
+        $data = $request->validated();
+
+        if ($data['status'] === ReviewStatus::Validated->value) {
+            $data['validated_by_user_id'] = $request->user()->id;
+            $data['validated_at'] = now();
+        }
+
+        return $data;
     }
 }

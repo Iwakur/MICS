@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Models SalaryDraftSource. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;

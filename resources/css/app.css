@@ -1,3 +1,4 @@
+/* MICS Tailwind theme and reusable UI components; see docs/file-reference.md. */
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

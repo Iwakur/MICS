@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS test coverage: tests Feature Domain DatabaseSchemaTest. See docs/file-reference.md for protected behavior.
+ */
+
 namespace Tests\Feature\Domain;
 
 use App\Enums\ReviewStatus;

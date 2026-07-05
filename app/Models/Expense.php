@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'staff_id', 'expense_category_id', 'month_date', 'amount', 'status',
-    'is_auto_generated', 'generation_key', 'note',
+    'validated_by_user_id', 'validated_at', 'is_auto_generated', 'generation_key', 'note',
 ])]
 class Expense extends Model
 {
@@ -29,6 +29,7 @@ class Expense extends Model
             'month_date' => 'date',
             'amount' => 'decimal:2',
             'status' => ReviewStatus::class,
+            'validated_at' => 'datetime',
             'is_auto_generated' => 'boolean',
         ];
     }
@@ -46,6 +47,11 @@ class Expense extends Model
     public function salarySources(): HasMany
     {
         return $this->hasMany(SalaryDraftSource::class);
+    }
+
+    public function validatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by_user_id');
     }
 
     #[Scope]

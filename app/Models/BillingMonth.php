@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['month_date', 'status', 'closed_by_user_id', 'closed_at'])]
 class BillingMonth extends Model
@@ -29,5 +30,10 @@ class BillingMonth extends Model
     public function closedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'closed_by_user_id');
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(BillingMonthEvent::class)->latest('occurred_at');
     }
 }

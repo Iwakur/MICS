@@ -1,3 +1,4 @@
+{{-- MICS Blade view: admin staff edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Edit Staff | MICS')

@@ -1,3 +1,4 @@
+{{-- MICS Blade view: students partials form. Full responsibility is documented in docs/file-reference.md. --}}
 @if ($canAssignTeacher)
     <div class="space-y-2">
         <label for="staff_id" class="text-sm font-medium text-shell-text">Assigned Teacher</label>

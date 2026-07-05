@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Controllers Admin LessonTypeController. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -13,7 +17,7 @@ class LessonTypeController extends Controller
     public function index(): View
     {
         return view('admin.lesson-types.index', [
-            'lessonTypes' => LessonType::query()->withCount('students')->orderBy('name')->get(),
+            'lessonTypes' => LessonType::query()->withCount('students')->orderBy('name')->paginate(25),
         ]);
     }
 

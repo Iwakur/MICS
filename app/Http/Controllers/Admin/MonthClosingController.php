@@ -1,9 +1,14 @@
 <?php
 
+/**
+ * MICS source: app Http Controllers Admin MonthClosingController. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CloseBillingMonthRequest;
+use App\Http\Requests\Admin\ReopenBillingMonthRequest;
 use App\Models\BillingMonth;
 use App\Services\MonthClosingService;
 use Carbon\CarbonImmutable;
@@ -19,9 +24,21 @@ class MonthClosingController extends Controller
 
         return view('admin.month-closing.index', [
             'month' => $month,
-            'billingMonth' => BillingMonth::query()->whereDate('month_date', $month)->with('closedBy')->first(),
+            'billingMonth' => BillingMonth::query()->whereDate('month_date', $month)->with(['closedBy', 'events.user'])->first(),
             'preview' => $closing->preview($month),
         ]);
+    }
+
+    public function reopen(ReopenBillingMonthRequest $request, MonthClosingService $closing): RedirectResponse
+    {
+        $closing->reopen(
+            CarbonImmutable::createFromFormat('!Y-m', $request->string('month')->toString()),
+            $request->user(),
+            $request->string('reason')->toString(),
+        );
+
+        return to_route('admin.month-closing.index', ['month' => $request->string('month')->toString()])
+            ->with('status', 'Month reopened. Validated financial records remain unchanged.');
     }
 
     public function store(CloseBillingMonthRequest $request, MonthClosingService $closing): RedirectResponse

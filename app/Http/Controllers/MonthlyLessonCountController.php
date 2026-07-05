@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS source: app Http Controllers MonthlyLessonCountController. See docs/file-reference.md for its full responsibility.
+ */
+
 namespace App\Http\Controllers;
 
 use App\Enums\BillingMonthStatus;

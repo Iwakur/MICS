@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * MICS test coverage: tests Feature MonthlyLessonCountTest. See docs/file-reference.md for protected behavior.
+ */
+
 namespace Tests\Feature;
 
 use App\Enums\BillingMonthStatus;

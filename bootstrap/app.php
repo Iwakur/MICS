@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\TrustProxies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,11 +25,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->replace(Illuminate\Http\Middleware\TrustProxies::class, TrustProxies::class);
+
         /*
          * The admin alias protects the admin dashboard and user-management
          * routes without hardcoding controller checks into every action.
          */
         $middleware->alias([
+            'active' => EnsureUserIsActive::class,
             'admin' => EnsureUserIsAdmin::class,
         ]);
     })

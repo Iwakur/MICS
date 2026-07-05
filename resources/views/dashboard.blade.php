@@ -1,3 +1,4 @@
+{{-- MICS Blade view: dashboard. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
 @section('title', 'Legacy Dashboard | MICS')
