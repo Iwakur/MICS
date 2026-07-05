@@ -30,7 +30,7 @@ class PaymentController extends Controller
         return view('admin.payments.index', [
             'month' => $month,
             'payments' => Payment::query()
-                ->with(['studentMonth.student', 'validatedBy', 'reversalOf', 'reversal'])
+                ->with(['studentMonth.student', 'validatedBy', 'reversalOf', 'refunds'])
                 ->whereHas('studentMonth', fn ($query) => $query->whereDate('month_date', $month.'-01'))
                 ->latest('paid_at')
                 ->latest('id')
@@ -61,7 +61,7 @@ class PaymentController extends Controller
 
     public function edit(Payment $payment): View
     {
-        $payment->load(['studentMonth.student', 'validatedBy', 'reversalOf', 'reversal']);
+        $payment->load(['studentMonth.student', 'validatedBy', 'reversalOf', 'refunds']);
 
         return view('admin.payments.edit', $this->formOptions() + [
             'payment' => $payment,
@@ -114,13 +114,14 @@ class PaymentController extends Controller
         $reversal = DB::transaction(function () use ($request, $payment, $balances): Payment {
             Student::query()->whereKey($payment->studentMonth->student_id)->lockForUpdate()->firstOrFail();
             $original = Payment::query()->lockForUpdate()->findOrFail($payment->id);
-            abort_if($original->reversal()->exists(), 422, 'This payment has already been reversed.');
+            $refundCents = Money::cents($request->input('amount'));
+            abort_if($refundCents > $original->refundableCents(), 422, 'The refund exceeds the remaining refundable amount.');
 
             $reversal = $original->studentMonth->payments()->create([
                 'reversal_of_payment_id' => $original->id,
                 'paid_at' => now(),
-                'amount' => Money::decimal(-abs(Money::cents($original->amount))),
-                'payment_method' => 'reversal',
+                'amount' => Money::decimal(-$refundCents),
+                'payment_method' => 'refund',
                 'status' => ReviewStatus::Validated,
                 'validated_by_user_id' => $request->user()->id,
                 'validated_at' => now(),
@@ -133,7 +134,7 @@ class PaymentController extends Controller
         }, 3);
 
         return to_route('admin.payments.edit', $reversal)
-            ->with('status', 'Payment reversed. Record a new payment if a corrected amount was received.');
+            ->with('status', 'Refund recorded and propagated through the student balance.');
     }
 
     private function formOptions(): array

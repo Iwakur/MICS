@@ -14,6 +14,7 @@
             @method('PUT')
 
             <div class="grid gap-6 md:grid-cols-2">
+                <div class="space-y-2 md:col-span-2"><label for="staff_id" class="text-sm font-medium text-shell-text">Linked staff profile</label><select id="staff_id" name="staff_id" class="app-select"><option value="">Select staff</option>@foreach($staffMembers as $staff)<option value="{{ $staff->id }}" @selected((string)old('staff_id', $managedUser->staff_id) === (string)$staff->id)>{{ trim($staff->first_name.' '.$staff->family_name) }} · {{ $staff->role->name }}{{ $staff->role->can_teach ? ' · can teach' : '' }}</option>@endforeach</select><p class="text-xs text-shell-muted">Required for active accounts. Teacher accounts require a teaching-capable profile.</p></div>
                 <div class="space-y-2">
                     <label for="username" class="text-sm font-medium text-shell-text">Username</label>
                     <input id="username" name="username" type="text" value="{{ old('username', $managedUser->username) }}" required class="app-input">

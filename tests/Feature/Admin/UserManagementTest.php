@@ -3,6 +3,8 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\UserRole;
+use App\Models\Staff;
+use App\Models\StaffRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -20,8 +22,10 @@ class UserManagementTest extends TestCase
     public function test_admin_can_create_a_user(): void
     {
         $admin = User::factory()->admin()->create();
+        $staff = Staff::factory()->for(StaffRole::factory()->state(['can_teach' => true]), 'role')->create();
 
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
+            'staff_id' => $staff->id,
             'username' => 'new-teacher',
             'email' => 'new-teacher@example.com',
             'password' => 'password123',
@@ -45,6 +49,7 @@ class UserManagementTest extends TestCase
         $teacher = User::factory()->teacher()->create();
 
         $response = $this->actingAs($admin)->put(route('admin.users.update', $teacher), [
+            'staff_id' => $teacher->staff_id,
             'username' => 'updated-teacher',
             'email' => 'updated-teacher@example.com',
             'password' => '',

@@ -66,6 +66,10 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `docs/file-reference.md`: this path-by-path maintained-source inventory.
 - `docs/deployment.md`: production environment, release sequence, rollback, health checks, and PostgreSQL backup/restore runbook.
 - `docs/development-conventions.md`: safe change workflow, code placement, money, locking, authorization, migrations, testing, and production maintenance rules.
+- `docs/commands.md`: supported local, database, quality, diagnostic, Git, and release commands with safety notes.
+- `docs/testing.md`: PHPUnit, PostgreSQL, Playwright, static-analysis, audit, and CI learning guide.
+- `docs/product-workflows.md`: initial setup, monthly operations, corrections, reconciliation, and three-month example.
+- `docs/troubleshooting.md`: local, CI, finance, database, deployment, restore, and incident recovery guide.
 
 ## Bootstrap and Public Entry
 
@@ -80,6 +84,7 @@ Each entry describes one maintained source file or one intentionally grouped gen
 ## Console
 
 - `app/Console/Commands/CheckProductionReadiness.php`: validates production environment, HTTPS, key, database, secure sessions, encryption, trusted proxies, and live DB connectivity.
+- `app/Console/Commands/BootstrapAdministrator.php`: one-time interactive, validated, atomic creation of the first linked production administrator.
 - `routes/console.php`: closure-command and scheduler registration; currently contains only Laravel’s example quote command and no scheduled business task.
 
 ## Enums
@@ -98,26 +103,32 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `app/Models/StaffRole.php`: editable organizational role with active and teaching-capability flags.
 - `app/Models/Student.php`: non-authenticated student identity, teacher assignment, status, billing mode, offering selection, discount, and monthly history.
 - `app/Models/LessonType.php`: per-lesson catalog item containing duration, school price, teacher share, archive flag, and assigned students.
+- `app/Models/LessonTypeRate.php`: effective-dated school and teacher per-lesson prices.
 - `app/Models/Plan.php`: recurring plan containing lesson metadata, school monthly price, teacher monthly amount, archive flag, and assigned students.
+- `app/Models/PlanRate.php`: effective-dated plan prices and teacher monthly amount.
+- `app/Models/StudentConfiguration.php`: effective-dated student assignment, status, billing, catalog, start, and discount snapshot.
 - `app/Models/StudentMonth.php`: one student/month snapshot with lesson count, opening balance, charge, adjustment, validation state, payments, and closing-balance calculation.
-- `app/Models/Payment.php`: draft/validated student payment, validation attribution, original/reversal relationships, and validated query scope.
+- `app/Models/Payment.php`: draft/validated payment, original/refund relationships, refundable totals, and validated query scope.
 - `app/Models/ExpenseCategory.php`: stable category for irregular expenses and salary drafts.
 - `app/Models/Expense.php`: manual expense or generated salary, review state, generation key, staff/category links, and salary source details.
 - `app/Models/SalaryDraftSource.php`: immutable calculation detail for each fixed, per-lesson, or plan salary contribution.
 - `app/Models/BillingMonth.php`: month lock state, closer attribution, close timestamp, and lifecycle event history.
 - `app/Models/BillingMonthEvent.php`: append-only close/reopen audit event with actor, reason, and timestamp.
-- `app/Models/BankMonth.php`: simple monthly bank opening/closing snapshot; persisted and seeded but not yet connected to an admin reconciliation workflow.
+- `app/Models/BankMonth.php`: expected/actual bank close, reconciliation attribution, status, and audit history.
+- `app/Models/BankMonthEvent.php`: append-only reconcile/reopen audit event.
 
 ## Policies and Support
 
 - `app/Policies/StudentPolicy.php`: record-level student update access for administrators and the assigned active teacher.
 - `app/Support/Money.php`: exact conversion between decimal database amounts, integer cents used for arithmetic, and display values.
+- `app/Support/EffectiveMonth.php`: selects the earliest month in which mutable configuration may safely take effect.
 
 ## Domain Services
 
 - `app/Services/MonthClosingService.php`: previews and transactionally generates charges, salary drafts, source snapshots, next balances, and lifecycle changes while protecting validated records.
 - `app/Services/StudentBalanceService.php`: transactionally creates missing months from prior closing balance and propagates corrections through locked future months.
 - `app/Services/FinanceSummaryService.php`: exact-cent monthly aggregation for charges, validated payments, positive debt, student credit, salaries, manual expenses, and student ledger rows.
+- `app/Services/BankReconciliationService.php`: calculates expected bank balance and transactionally reconciles/reopens audited bank months.
 
 ## Base and Shared Controllers
 
@@ -141,9 +152,11 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `app/Http/Controllers/Admin/PlanController.php`: recurring-plan catalog CRUD and archive-by-flag behavior.
 - `app/Http/Controllers/Admin/MonthClosingController.php`: selected-month preview plus close/reopen HTTP actions delegated to the closing service.
 - `app/Http/Controllers/Admin/StudentChargeController.php`: monthly charge review, attributed adjustment, validation, and balance propagation.
-- `app/Http/Controllers/Admin/PaymentController.php`: payment draft CRUD, atomic validation, immutable full reversal, and balance propagation.
+- `app/Http/Controllers/Admin/PaymentController.php`: payment draft CRUD, atomic validation, immutable partial/full refunds, and balance propagation.
 - `app/Http/Controllers/Admin/ExpenseController.php`: manual expense CRUD and generated salary review, with validated/generated deletion protections.
 - `app/Http/Controllers/Admin/FinanceSummaryController.php`: selected-month parser and read-only finance summary endpoint.
+- `app/Http/Controllers/Admin/ExpenseCategoryController.php`: category CRUD with archive-on-use deletion behavior.
+- `app/Http/Controllers/Admin/BankMonthController.php`: bank reconciliation preview, reconcile, and reopen HTTP actions.
 
 ## Teacher Controllers
 
@@ -178,12 +191,15 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `app/Http/Requests/Admin/ReopenBillingMonthRequest.php`: admin authorization plus mandatory meaningful audit reason.
 - `app/Http/Requests/Admin/UpdateStudentChargeRequest.php`: permits draft-only charge adjustment/validation and requires an adjustment reason.
 - `app/Http/Requests/Admin/SavePaymentRequest.php`: permits draft-only payment create/edit and validates student, month, receipt date, positive amount, method, and note.
-- `app/Http/Requests/Admin/ReversePaymentRequest.php`: permits one reversal of a validated non-reversal payment and requires a meaningful reason.
+- `app/Http/Requests/Admin/ReversePaymentRequest.php`: validates attributed partial/full refunds and prevents cumulative over-refund.
 - `app/Http/Requests/Admin/SaveExpenseRequest.php`: permits draft-only expense/salary edits and validates category, optional staff, month, amount, status, and note.
+- `app/Http/Requests/Admin/SaveExpenseCategoryRequest.php`: validates unique category metadata and active state.
+- `app/Http/Requests/Admin/ReconcileBankMonthRequest.php`: validates selected month, actual close, variance reason, and note.
+- `app/Http/Requests/Admin/ReopenBankMonthRequest.php`: requires an administrator and meaningful bank-reopen reason.
 
 ## Provider
 
-- `app/Providers/AppServiceProvider.php`: application-wide registration/boot extension point; currently retains Laravel defaults and no custom binding.
+- `app/Providers/AppServiceProvider.php`: application boot extension point; prevents accidental lazy loading locally.
 
 ## Route Files
 
@@ -249,7 +265,6 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `resources/views/layouts/app.blade.php`: authenticated layout, responsive sidebar, grouped navigation, user state, logout, flash messages, and validation summary.
 - `resources/views/auth/login.blade.php`: guest credential form with CSRF protection and validation display.
 - `resources/views/dashboard.blade.php`: inactive starter dashboard retained as a harmless reference; active flow redirects to role dashboards.
-- `resources/views/welcome.blade.php`: inactive Laravel starter welcome view; `/` redirects and does not render it.
 - `resources/views/lesson-counts/index.blade.php`: shared admin/teacher selected-month lesson-count table and closed-month lock state.
 - `resources/views/students/partials/form.blade.php`: shared conditional student fields for admin and teacher create/edit pages.
 
@@ -282,9 +297,9 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `resources/views/admin/plans/partials/form.blade.php`: shared plan metadata and rate fields.
 - `resources/views/admin/student-charges/index.blade.php`: selected-month generated charge review table.
 - `resources/views/admin/student-charges/edit.blade.php`: adjustment reason, note, and validation transition.
-- `resources/views/admin/payments/index.blade.php`: selected-month payment/reversal table and status/type indicators.
+- `resources/views/admin/payments/index.blade.php`: selected-month payment/refund table and status/type indicators.
 - `resources/views/admin/payments/create.blade.php`: payment draft creation wrapper.
-- `resources/views/admin/payments/edit.blade.php`: draft review, validation, immutable detail, linked reversal, and full-reversal controls.
+- `resources/views/admin/payments/edit.blade.php`: draft review, validation, immutable detail, and partial/full refund controls.
 - `resources/views/admin/payments/partials/form.blade.php`: shared student, month, date, amount, method, and evidence fields.
 - `resources/views/admin/expenses/index.blade.php`: salary/manual expense list, status, source count, filters, and actions.
 - `resources/views/admin/expenses/create.blade.php`: manual expense creation wrapper.
@@ -301,9 +316,7 @@ Each entry describes one maintained source file or one intentionally grouped gen
 ## Test Infrastructure and Tests
 
 - `tests/TestCase.php`: shared Laravel application test base.
-- `tests/Unit/ExampleTest.php`: minimal PHPUnit unit-test wiring check; replace when framework-independent domain logic appears.
 - `tests/Unit/MoneyTest.php`: exact decimal-to-cent conversion, database formatting, negative values, and invalid-precision coverage.
-- `tests/Feature/ExampleTest.php`: root redirect/application boot smoke test.
 - `tests/Feature/ApplicationWorkflowSmokeTest.php`: renders every maintained admin and teacher workflow page against connected seeded data to catch route/controller/Blade contract failures.
 - `tests/Feature/Auth/AuthenticationTest.php`: login page, guest redirect, success, bad password, inactivity, and logout.
 - `tests/Feature/DashboardAccessTest.php`: role dispatch, admin denial, and immediate deactivated-session revocation.
@@ -315,12 +328,24 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `tests/Feature/MonthlyLessonCountTest.php`: admin/teacher scope, eligibility, persistence, and closed-month locking.
 - `tests/Feature/Admin/MonthClosingTest.php`: generated charges/salaries/balances, idempotency, authorization, lifecycle audit, reopen/reclose, and validated-record protection.
 - `tests/Feature/Admin/StudentChargeReviewTest.php`: attributed adjustments, validation, reason requirement, immutability, and carry-forward.
-- `tests/Feature/Admin/PaymentManagementTest.php`: draft CRUD, validation, immutability, authorization, reversal, reason, future propagation, and prior-balance carry.
+- `tests/Feature/Admin/PaymentManagementTest.php`: draft CRUD, validation, immutability, authorization, multiple refunds, over-refund protection, propagation, and prior-balance carry.
 - `tests/Feature/Admin/ExpenseManagementTest.php`: manual expense and generated salary review, validation, correction, and delete protection.
 - `tests/Feature/Admin/FinanceSummaryTest.php`: separation of drafts/validated values, positive debt, student credit, expense classes, rendering, and authorization.
 - `tests/Feature/DatabaseSeederTest.php`: connected idempotent reference/demo seeds.
 - `tests/Feature/Domain/DatabaseSchemaTest.php`: relationships, constraints, balance semantics, cascades, preservation, and unique keys.
 - `tests/Feature/DeploymentReadinessTest.php`: database readiness route and safe/unsafe production command configuration.
+- `tests/Feature/Admin/BankReconciliationTest.php`: expected/actual totals, attribution, variance requirements, audit reopen, and authorization.
+- `tests/Feature/Admin/ExpenseCategoryManagementTest.php`: category CRUD, archive/delete behavior, and authorization.
+- `tests/Feature/LongitudinalWorkflowTest.php`: deterministic three-month effective-rate, debt, refund, salary, reconciliation, and reopen regression.
+- `tests/Browser/core-workflows.spec.js`: real Chromium admin, teacher, finance navigation, and mobile smoke checks.
+
+## Operational Scripts
+
+- `scripts/deploy.sh`: guarded immutable release creation, migration, atomic switch, and verification.
+- `scripts/backup-database.sh`: permission-restricted PostgreSQL custom-format backup plus archive verification.
+- `scripts/restore-database.sh`: explicitly confirmed PostgreSQL restore command.
+- `scripts/verify-release.sh`: production configuration and HTTP health verification.
+- `scripts/rollback.sh`: atomic application-code rollback without blind migration reversal.
 
 ## Generated and Third-Party Areas
 

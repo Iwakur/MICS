@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReviewStatus;
+use App\Support\Money;
 use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'student_month_id', 'reversal_of_payment_id', 'paid_at', 'amount', 'payment_method', 'status',
@@ -48,9 +49,21 @@ class Payment extends Model
         return $this->belongsTo(self::class, 'reversal_of_payment_id');
     }
 
-    public function reversal(): HasOne
+    public function refunds(): HasMany
     {
-        return $this->hasOne(self::class, 'reversal_of_payment_id');
+        return $this->hasMany(self::class, 'reversal_of_payment_id');
+    }
+
+    public function refundedCents(): int
+    {
+        return abs((int) $this->refunds()->where('status', ReviewStatus::Validated)->pluck('amount')->sum(
+            fn (string $amount): int => Money::cents($amount),
+        ));
+    }
+
+    public function refundableCents(): int
+    {
+        return max(0, Money::cents($this->amount) - $this->refundedCents());
     }
 
     public function isReversal(): bool

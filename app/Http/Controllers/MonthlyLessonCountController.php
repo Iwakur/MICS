@@ -12,11 +12,12 @@ use App\Enums\StudentStatus;
 use App\Http\Requests\SaveMonthlyLessonCountsRequest;
 use App\Models\BillingMonth;
 use App\Models\Student;
+use App\Models\StudentConfiguration;
 use App\Models\StudentMonth;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -30,7 +31,7 @@ class MonthlyLessonCountController extends Controller
         return view('lesson-counts.index', [
             'month' => $month,
             'billingMonth' => BillingMonth::query()->whereDate('month_date', $month)->first(),
-            'students' => $this->eligibleStudents($request, $month)->get(),
+            'students' => $this->eligibleStudents($request, $month),
             'routePrefix' => $request->user()->isAdmin() ? 'admin' : 'teacher',
         ]);
     }
@@ -61,17 +62,27 @@ class MonthlyLessonCountController extends Controller
         });
     }
 
-    private function eligibleStudents(Request $request, CarbonImmutable $month): Builder
+    private function eligibleStudents(Request $request, CarbonImmutable $month): Collection
     {
         return Student::query()
-            ->with(['teacher:id,first_name,family_name', 'lessonType:id,name,lesson_price,teacher_share_per_lesson'])
+            ->with(['configurations' => fn ($query) => $query->whereDate('effective_from', '<=', $month)->with(['teacher', 'lessonType'])->latest('effective_from')])
             ->with(['months' => fn ($query) => $query->whereDate('month_date', $month)])
-            ->where('status', StudentStatus::Active)
-            ->where('billing_type', StudentBillingType::PerLesson)
             ->whereDate('joined_at', '<=', $month->endOfMonth())
-            ->when(! $request->user()->isAdmin(), fn (Builder $query) => $query->where('staff_id', $request->user()->staff_id))
             ->orderBy('first_name')
-            ->orderBy('family_name');
+            ->orderBy('family_name')
+            ->get()
+            ->filter(function (Student $student) use ($request): bool {
+                $configuration = $student->configurations->first();
+                if (! $configuration instanceof StudentConfiguration || $configuration->status !== StudentStatus::Active || $configuration->billing_type !== StudentBillingType::PerLesson) {
+                    return false;
+                }
+
+                $student->setRelation('teacher', $configuration->teacher);
+                $student->setRelation('lessonType', $configuration->lessonType);
+
+                return $request->user()->isAdmin() || $configuration->staff_id === $request->user()->staff_id;
+            })
+            ->values();
     }
 
     private function selectedMonth(Request $request): CarbonImmutable

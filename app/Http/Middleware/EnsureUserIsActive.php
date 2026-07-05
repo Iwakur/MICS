@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Staff;
+use App\Models\StaffRole;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,13 +21,26 @@ class EnsureUserIsActive
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()?->is_active === false) {
+        $user = $request->user();
+        $staff = $user?->staffMember?->loadMissing('role');
+        $invalidProfile = false;
+        if ($user?->is_active === true) {
+            $invalidProfile = ! $staff instanceof Staff
+                || ! $staff->is_active
+                || ! $staff->role instanceof StaffRole
+                || ! $staff->role->is_active
+                || ($user->isTeacher() && ! $staff->role->can_teach);
+        }
+
+        if ($user?->is_active === false || $invalidProfile) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             return to_route('login')->withErrors([
-                'username' => 'This account is inactive.',
+                'username' => $invalidProfile
+                    ? 'This active account requires a valid active staff profile.'
+                    : 'This account is inactive.',
             ]);
         }
 

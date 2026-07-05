@@ -97,48 +97,6 @@ parameters:
 			path: app/Services/MonthClosingService.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$lesson_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/MonthClosingService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Services/MonthClosingService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$plan_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/MonthClosingService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$teacher_monthly_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/MonthClosingService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$teacher_share_per_lesson\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/MonthClosingService.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Student\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: app/Services/MonthClosingService.php
-
-		-
-			message: '#^Ternary operator condition is always false\.$#'
-			identifier: ternary.alwaysFalse
-			count: 4
-			path: app/Services/MonthClosingService.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>lesson_count" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1

@@ -86,7 +86,7 @@ class PaymentManagementTest extends TestCase
         $this->actingAs($teacher)->get(route('admin.payments.index'))->assertForbidden();
     }
 
-    public function test_admin_reverses_validated_payment_once_and_restores_future_balances(): void
+    public function test_admin_records_multiple_partial_refunds_without_exceeding_original(): void
     {
         $admin = User::factory()->admin()->create();
         $student = Student::factory()->create();
@@ -103,21 +103,29 @@ class PaymentManagementTest extends TestCase
         ]);
 
         $this->actingAs($admin)->post(route('admin.payments.reverse', $payment), [
-            'reason' => 'Payment was assigned to the wrong student.',
+            'amount' => 15,
+            'reason' => 'First documented partial refund to the student.',
         ])->assertRedirect();
 
         $reversal = Payment::query()->where('reversal_of_payment_id', $payment->id)->firstOrFail();
-        $this->assertSame('-40.00', $reversal->amount);
+        $this->assertSame('-15.00', $reversal->amount);
         $this->assertSame(ReviewStatus::Validated, $reversal->status);
         $this->assertSame($admin->id, $reversal->validated_by_user_id);
-        $this->assertSame('Payment was assigned to the wrong student.', $reversal->note);
-        $this->assertSame(100.0, $month->closingBalance());
-        $this->assertSame('100.00', $nextMonth->refresh()->opening_balance);
+        $this->assertSame('First documented partial refund to the student.', $reversal->note);
+        $this->assertSame(75.0, $month->closingBalance());
+        $this->assertSame('75.00', $nextMonth->refresh()->opening_balance);
 
         $this->actingAs($admin)->get(route('admin.payments.edit', $reversal))
-            ->assertOk()->assertSee('Payment Reversal')->assertSee('wrong student');
+            ->assertOk()->assertSee('Payment Refund')->assertSee('partial refund');
         $this->actingAs($admin)->post(route('admin.payments.reverse', $payment), [
-            'reason' => 'Trying to reverse the same payment again.',
+            'amount' => 25,
+            'reason' => 'Final documented partial refund to the student.',
+        ])->assertRedirect();
+        $this->assertSame(100.0, $month->refresh()->closingBalance());
+        $this->assertSame(2, $payment->refunds()->count());
+        $this->actingAs($admin)->post(route('admin.payments.reverse', $payment), [
+            'amount' => 1,
+            'reason' => 'Attempting to exceed the fully refunded payment.',
         ])->assertForbidden();
     }
 
@@ -126,7 +134,7 @@ class PaymentManagementTest extends TestCase
         $admin = User::factory()->admin()->create();
         $payment = Payment::factory()->validated()->create();
 
-        $this->actingAs($admin)->post(route('admin.payments.reverse', $payment), ['reason' => 'wrong'])
+        $this->actingAs($admin)->post(route('admin.payments.reverse', $payment), ['amount' => 10, 'reason' => 'wrong'])
             ->assertSessionHasErrors('reason');
 
         $this->assertDatabaseMissing('payments', ['reversal_of_payment_id' => $payment->id]);

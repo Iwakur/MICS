@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\StudentBillingType;
 use App\Enums\StudentStatus;
+use App\Support\EffectiveMonth;
+use Carbon\CarbonImmutable;
 use Database\Factories\StudentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,5 +55,46 @@ class Student extends Model
     public function months(): HasMany
     {
         return $this->hasMany(StudentMonth::class);
+    }
+
+    public function configurations(): HasMany
+    {
+        return $this->hasMany(StudentConfiguration::class)->orderBy('effective_from');
+    }
+
+    public function configurationFor(\DateTimeInterface $month): StudentConfiguration
+    {
+        $configuration = $this->configurations()
+            ->with(['teacher', 'lessonType', 'plan'])
+            ->whereDate('effective_from', '<=', $month)
+            ->latest('effective_from')
+            ->firstOrFail();
+        assert($configuration instanceof StudentConfiguration);
+
+        return $configuration;
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (self $student): void {
+            $tracked = [
+                'staff_id', 'status', 'billing_type', 'lesson_type_id', 'lesson_amount',
+                'plan_id', 'plan_start_at', 'discount_amount',
+            ];
+
+            if (! $student->wasRecentlyCreated && ! $student->wasChanged($tracked)) {
+                return;
+            }
+
+            $effectiveFrom = $student->wasRecentlyCreated
+                ? CarbonImmutable::parse($student->joined_at)->startOfMonth()
+                : EffectiveMonth::nextEditable();
+
+            $configuration = $student->configurations()->whereDate('effective_from', $effectiveFrom)->first();
+            $values = $student->only($tracked);
+            $configuration
+                ? $configuration->update($values)
+                : $student->configurations()->create($values + ['effective_from' => $effectiveFrom]);
+        });
     }
 }

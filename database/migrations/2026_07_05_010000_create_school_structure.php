@@ -94,10 +94,56 @@ return new class extends Migration
 
             $table->index(['staff_id', 'status']);
         });
+
+        Schema::create('lesson_type_rates', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('lesson_type_id')->constrained()->cascadeOnDelete();
+            $table->date('effective_from');
+            $table->decimal('lesson_price', 10, 2);
+            $table->decimal('teacher_share_per_lesson', 10, 2)->default(0);
+            $table->timestamps();
+
+            $table->unique(['lesson_type_id', 'effective_from']);
+            $table->index('effective_from');
+        });
+
+        Schema::create('plan_rates', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('plan_id')->constrained()->cascadeOnDelete();
+            $table->date('effective_from');
+            $table->decimal('lesson_price', 10, 2);
+            $table->decimal('plan_price', 10, 2);
+            $table->decimal('teacher_monthly_amount', 10, 2)->default(0);
+            $table->timestamps();
+
+            $table->unique(['plan_id', 'effective_from']);
+            $table->index('effective_from');
+        });
+
+        Schema::create('student_configurations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
+            $table->date('effective_from');
+            $table->foreignId('staff_id')->constrained()->restrictOnDelete();
+            $table->string('status', 20)->default('active')->index();
+            $table->string('billing_type', 20)->index();
+            $table->foreignId('lesson_type_id')->nullable()->constrained()->restrictOnDelete();
+            $table->unsignedInteger('lesson_amount')->nullable();
+            $table->foreignId('plan_id')->nullable()->constrained()->restrictOnDelete();
+            $table->date('plan_start_at')->nullable();
+            $table->decimal('discount_amount', 10, 2)->default(0);
+            $table->timestamps();
+
+            $table->unique(['student_id', 'effective_from']);
+            $table->index(['effective_from', 'status']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('student_configurations');
+        Schema::dropIfExists('plan_rates');
+        Schema::dropIfExists('lesson_type_rates');
         Schema::dropIfExists('students');
         Schema::dropIfExists('plans');
         Schema::dropIfExists('lesson_types');

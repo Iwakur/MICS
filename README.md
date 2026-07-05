@@ -1,218 +1,68 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MICS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+MICS is a Laravel 13 school-operations application for staff access, assigned students, lesson catalogs, monthly charges, payments/refunds, salaries, expenses, and bank reconciliation. It targets PHP 8.4, PostgreSQL 17, Tailwind CSS 4, and Vite.
 
-## About Laravel
+## What the Product Does
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Administrators manage users, staff, roles, students, lesson types, plans, payments, expenses, and monthly finance.
+- Teachers manage only assigned students and their monthly lesson counts.
+- Billing and catalog changes are effective-dated, so later edits do not rewrite earlier months.
+- Month closing snapshots charges and salary drafts. Validated financial records are immutable.
+- Student debt is derived from monthly charges, adjustments, validated payments, and linked refunds.
+- Bank reconciliation compares expected cash movement with the actual closing balance and records variances.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Five-Minute Local Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Prerequisites: Docker, DDEV, Git, and an available local port range for DDEV.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
----
-
-# MICS Project
-
-## Current Status
-
-MICS is a school and academy operations system being rebuilt cleanly on Laravel 13, PHP 8.4, PostgreSQL 17, Tailwind CSS 4, and Vite. The repository now contains:
-
-- username/password authentication
-- role-aware dashboard routing
-- separate admin and teacher dashboard surfaces
-- staff, role, student, lesson-type, plan, and user management
-- teacher-scoped student and monthly lesson-count workflows
-- manual month closing with generated student charges and salary drafts
-- payment, charge, salary, and manual-expense review workflows
-- auditable month reopening with validated-record protection
-
-The previous project and its database designs are retained locally under `legacy(self-created)/` as product research. They describe intended behavior, but they are not code to port directly and are not the source of truth for the running Laravel application.
-
-## Product Direction
-
-MICS should support straightforward school operations without becoming a full accounting platform. Its planned areas are:
-
-- staff, teacher, user, and access management
-- student records and teacher assignment
-- lesson types and student plans
-- monthly student charges and balance tracking
-- payment and expense review
-- simple monthly bank closing
-- separate admin and teacher workflows
-
-Students are tracked business records and do not receive login accounts. Every administrator is also a teacher: administrators receive the full operational dashboard, while standard teachers use a separate dashboard where they can maintain their own profile and manage only their assigned students. Non-teaching staff and balances owed to or by them are part of the longer-term product scope, but their workflows are deferred from the first release.
-
-The rebuild should favor Laravel conventions, direct CRUD workflows, explicit business services, and testable behavior. Avoid reproducing the legacy application's custom framework, automatic bootstrap provisioning, SQL console, deep repository layering, or debit/credit journal unless a later requirement explicitly calls for them.
-
-Production setup is documented in `docs/deployment.md`. The `/up` endpoint reports process liveness, `/ready` confirms database readiness, and `php artisan app:check-production-readiness` rejects unsafe production configuration before migration or traffic cutover.
-
-Developers studying the application should use `docs/codebase-guide.md` for the Laravel/MICS architecture and `docs/file-reference.md` for the maintained path-by-path source inventory.
-
-## Project Structure Walkthrough
-
-High-level source layout:
-
-- `app/`: controllers, form requests, middleware, models, enums, and providers.
-- `routes/`: browser and console route definitions.
-- `resources/views/`: Blade templates for guest, admin, teacher, and shared layout UI.
-- `resources/css/`: Tailwind v4 entry file plus shared blue-dark design tokens and component classes.
-- `resources/js/`: JavaScript entry file, currently minimal.
-- `database/`: migrations, factories, and seeders.
-- `tests/`: feature and unit tests.
-- `bootstrap/`: Laravel 13 application bootstrap and middleware alias registration.
-- `config/`: runtime configuration for auth, session, database, queue, cache, and related services.
-- `.ddev/`: local development environment definition.
-- `docs/codebase-guide.md`: deeper codebase walkthrough for studying the repo file-by-file.
-
-If you are learning the codebase, start with:
-
-1. `routes/web.php`
-2. `app/Http/Requests/Auth/LoginRequest.php`
-3. `app/Http/Controllers/DashboardController.php`
-4. `resources/views/layouts/app.blade.php`
-5. `app/Http/Controllers/Admin/UserController.php`
-6. `tests/Feature/Auth/AuthenticationTest.php`
-7. `tests/Feature/Admin/UserManagementTest.php`
-
-## Developer Study Guide
-
-### Current browser request flow
-
-1. A guest visits `/login`.
-2. `AuthenticatedSessionController@create` returns the login page.
-3. The login form posts to `login.store`.
-4. `LoginRequest` validates the input, checks the inactive-user rule, and performs the auth attempt.
-5. `AuthenticatedSessionController@store` regenerates the session and redirects to `/dashboard`.
-6. `DashboardController` sends the user to the admin or teacher dashboard depending on role.
-7. Admin pages are additionally protected by the `admin` middleware alias from `bootstrap/app.php`.
-8. Admin user management uses Form Requests for field validation and `UserController` for higher-level safety rules.
-
-### Current admin user-management rules
-
-The first CRUD surface in the rebuild manages users safely:
-
-- `username` must stay unique.
-- `email` must stay unique.
-- a blank password on edit means "keep the current password".
-- an admin cannot delete their own account.
-- the last active administrator cannot be demoted, deactivated, or deleted.
-
-## Implemented Data Model
-
-The simplified legacy DBML has been translated into Laravel migrations, Eloquent models, factories, and feature tests. Its principal entities are:
-
-- `staff` and `staff_roles` for business identities and responsibilities
-- `users` for login accounts and system access roles
-- `students` for identity, assignment, status, and billing configuration
-- `lesson_types` and `plans` for billable offerings
-- `student_months` for one balance record per student per month
-- `payments` linked to a specific student month
-- `expenses` and `expense_categories` for reviewed outgoings
-- `bank_months` for simple monthly opening and closing snapshots
-- `billing_months` and lifecycle events for auditable close/reopen history
-
-Access role and business role are separate concepts: a user's role controls authorization, while a staff role describes their function in the organization. Student debt must not be stored as a mutable total on `students`; it is derived from monthly history.
-
-Staff compensation is explicit: fixed staff use a configured salary amount, while dynamic staff later receive a monthly calculation from their assigned students. Lesson types store both the student's per-lesson price and the teacher's per-lesson earning. Plans store the student's recurring monthly price and the teacher's recurring monthly earning. Administrators maintain both catalogs through archive-safe CRUD screens; rate changes are intended for future month closing and must not rewrite historical snapshots.
-
-Student profiles use one billing mode at a time. Administrators may assign, edit, pause, reactivate, or archive any student. Teachers may create and edit only students assigned to their linked active staff profile and cannot reassign or archive them. Per-lesson counts are not stored on the student profile because they belong to a specific billing month.
-
-Staff roles are editable business metadata, separate from login access roles. Every staff role has explicit active and teaching-capability flags. The default `Teacher` role is seeded idempotently, and only active staff with a teaching-capable role may receive student assignments.
-
-The non-production seeder provides connected reference and demo data for every implemented domain area. Run `ddev exec php artisan db:seed` repeatedly without creating duplicates. Local demo logins are reset to `admin` / `password` and `teacher` / `password`. Production seeding creates reference catalogs only, never demo people or financial records.
-
-The current user-management screen predates staff management, so `users.staff_id` is temporarily nullable. When present it is unique, preserving a one-to-one staff/login relationship. It should become required only after account creation can select or create the corresponding staff record.
-
-The intended monthly calculation is:
-
-```text
-closing_balance = opening_balance + charge_amount + manual_adjustment - validated_payments
-```
-
-Only validated payments and expenses count as real financial activity. Draft records remain reviewable without affecting totals. A month's closing student balance becomes the next month's opening balance.
-
-Payments use an explicit review transition: administrators record and edit a draft, then validate it after checking evidence. Validation records the administrator and timestamp, makes the payment immutable, and propagates its balance effect through existing future student months. Month reopening requires an attributed reason; reclosing may refresh drafts but never overwrites validated charges or salary records.
-
-A validated payment is never edited to correct a mistake. An administrator instead creates one linked full reversal with a required reason; the negative validated record restores the debt and preserves both sides of the audit trail. A corrected payment can then be entered through the normal draft and validation workflow.
-
-## Implementation Source of Truth
-
-During development, use this order of authority:
-
-1. Current Laravel migrations, models, tests, and application code describe what exists.
-2. This README describes the agreed product direction.
-3. `docs/codebase-guide.md` explains the current codebase layout in more detail.
-4. `docs/schema.dbml` is a generated visual snapshot of the current application schema.
-5. Deleted legacy material remains available through Git history as historical evidence only.
-
-Before implementing another legacy idea, translate it into Laravel terminology, confirm its business rule, and cover it with migrations and feature tests. Do not assume that historical tables, statuses, or workflows are final requirements.
-
-## Frontend UI Direction
-
-The UI direction for MICS should stay intentionally restrained:
-
-- modern minimal layout
-- dark-blue primary visual direction
-- low-noise surfaces and simple hierarchy
-- consistency across admin and teacher areas
-- no decorative fallback styling when Vite or npm assets are unavailable
-
-If the frontend asset pipeline is down, the interface may render raw or partially unstyled. Treat that as a real asset-pipeline problem to fix, not a case for extra Blade-level rescue CSS.
-
-## Local Development
-
-```bash
+git clone git@github.com:Iwakur/MICS.git
+cd MICS
 ddev start
 ddev composer setup
-ddev composer dev
+ddev exec php artisan db:seed
 ```
 
-Run the test suite with `ddev composer test`, format PHP with `ddev exec ./vendor/bin/pint`, and build production assets with `ddev npm run build`.
+`ddev start` creates the PHP/nginx/PostgreSQL containers. `ddev composer setup` installs PHP and JavaScript dependencies, creates local environment configuration, migrates the database, and builds frontend assets. Seeding is safe to repeat locally.
+
+Open `https://mics.ddev.site`. Demo accounts are `admin` / `password` and `teacher` / `password`; they are never created in production.
+
+## Daily Development
+
+```bash
+ddev composer dev
+ddev composer check
+```
+
+The first command runs the application, logs, and Vite watcher. The second is the required release gate: Pint formatting check, Larastan analysis, PHPUnit, dependency audits, and production asset build.
+
+Use `ddev composer test:workflow` for the three-month finance regression and `ddev npm run test:e2e` for browser smoke tests after installing Chromium with `ddev npm run playwright:install`.
+
+## Source of Truth
+
+1. Migrations, models, services, policies, and tests define implemented behavior.
+2. This README records durable product direction.
+3. [PLAN.md](PLAN.md) records active work and unresolved decisions.
+4. [docs/schema.dbml](docs/schema.dbml) is a generated diagram snapshot; migrations remain authoritative.
+
+Students are business records, not login accounts. Every active login links to active staff. An administrator may hold any staff role; a teacher login requires teaching-capable staff.
+
+## Documentation Map
+
+- [Architecture guide](docs/codebase-guide.md): Laravel request flow, domain services, database history, and source boundaries.
+- [Product workflows](docs/product-workflows.md): operational steps for setup and a complete monthly cycle.
+- [Command reference](docs/commands.md): what every supported command does and when to use it.
+- [Testing guide](docs/testing.md): PHPUnit, PostgreSQL, Playwright, static analysis, audits, and CI.
+- [Development guide](docs/development-conventions.md): safe feature and bug-fix workflow.
+- [Deployment runbook](docs/deployment.md): Ubuntu/nginx/PHP-FPM/PostgreSQL releases, backup, verification, and rollback.
+- [Troubleshooting](docs/troubleshooting.md): common local, CI, database, asset, finance, and deployment failures.
+- [Maintained file reference](docs/file-reference.md): ownership of project paths.
+
+## Release Workflow
+
+- `main` is production and deploys only after CI succeeds.
+- `feature` carries one coherent new feature at a time and reaches `main` through a pull request.
+- `fix` carries one regression-tested correction at a time and reaches `main` through a pull request.
+- Annotated semantic tags such as `v1.1.0` identify immutable releases.
+
+Never edit code directly on the VPS, commit `.env`, rewrite validated finance records, or run `migrate:fresh` against a database containing real data.

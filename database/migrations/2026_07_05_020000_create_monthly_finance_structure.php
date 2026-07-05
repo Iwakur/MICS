@@ -36,8 +36,8 @@ return new class extends Migration
 
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            // A unique self-reference permits one immutable full reversal per payment.
-            $table->foreignId('reversal_of_payment_id')->nullable()->unique()
+            // Multiple immutable partial refunds may reference one original payment.
+            $table->foreignId('reversal_of_payment_id')->nullable()->index()
                 ->constrained('payments')->restrictOnDelete();
             $table->foreignId('student_month_id')->constrained()->cascadeOnDelete();
             $table->timestamp('paid_at')->index();
@@ -56,6 +56,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 100)->unique();
             $table->text('note')->nullable();
+            $table->boolean('is_active')->default(true)->index();
             $table->timestamps();
         });
 
@@ -117,13 +118,31 @@ return new class extends Migration
             $table->date('month_date')->unique();
             $table->decimal('opening_balance', 10, 2)->default(0);
             $table->decimal('closing_balance', 10, 2)->default(0);
+            $table->decimal('expected_closing_balance', 10, 2)->default(0);
+            $table->string('status', 20)->default('draft')->index();
+            $table->text('variance_reason')->nullable();
+            $table->foreignId('reconciled_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('reconciled_at')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
+        });
+
+        Schema::create('bank_month_events', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('bank_month_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('action', 20);
+            $table->text('reason')->nullable();
+            $table->timestamp('occurred_at');
+            $table->timestamps();
+
+            $table->index(['bank_month_id', 'occurred_at']);
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('bank_month_events');
         Schema::dropIfExists('billing_month_events');
         Schema::dropIfExists('billing_months');
         Schema::dropIfExists('salary_draft_sources');

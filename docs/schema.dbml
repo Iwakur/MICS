@@ -104,6 +104,46 @@ Table students {
   }
 }
 
+Table lesson_type_rates {
+  id bigint [pk, increment]
+  lesson_type_id bigint [not null]
+  effective_from date [not null]
+  lesson_price decimal(10,2) [not null]
+  teacher_share_per_lesson decimal(10,2) [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+  indexes { (lesson_type_id, effective_from) [unique] }
+}
+
+Table plan_rates {
+  id bigint [pk, increment]
+  plan_id bigint [not null]
+  effective_from date [not null]
+  lesson_price decimal(10,2) [not null]
+  plan_price decimal(10,2) [not null]
+  teacher_monthly_amount decimal(10,2) [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+  indexes { (plan_id, effective_from) [unique] }
+}
+
+Table student_configurations {
+  id bigint [pk, increment]
+  student_id bigint [not null]
+  effective_from date [not null]
+  staff_id bigint [not null]
+  status varchar(20) [not null, default: 'active']
+  billing_type varchar(20) [not null]
+  lesson_type_id bigint
+  lesson_amount integer
+  plan_id bigint
+  plan_start_at date
+  discount_amount decimal(10,2) [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+  indexes { (student_id, effective_from) [unique] }
+}
+
 Table student_months {
   id bigint [pk, increment]
   student_id bigint [not null]
@@ -128,7 +168,7 @@ Table student_months {
 
 Table payments {
   id bigint [pk, increment]
-  reversal_of_payment_id bigint [unique]
+  reversal_of_payment_id bigint
   student_month_id bigint [not null]
   paid_at timestamp [not null]
   amount decimal(10,2) [not null]
@@ -149,6 +189,7 @@ Table expense_categories {
   id bigint [pk, increment]
   name varchar(100) [not null, unique]
   note text
+  is_active boolean [not null, default: true]
   created_at timestamp
   updated_at timestamp
 }
@@ -220,9 +261,26 @@ Table bank_months {
   month_date date [not null, unique]
   opening_balance decimal(10,2) [not null, default: 0]
   closing_balance decimal(10,2) [not null, default: 0]
+  expected_closing_balance decimal(10,2) [not null, default: 0]
+  status varchar(20) [not null, default: 'draft']
+  variance_reason text
+  reconciled_by_user_id bigint
+  reconciled_at timestamp
   note text
   created_at timestamp
   updated_at timestamp
+}
+
+Table bank_month_events {
+  id bigint [pk, increment]
+  bank_month_id bigint [not null]
+  user_id bigint
+  action varchar(20) [not null]
+  reason text
+  occurred_at timestamp [not null]
+  created_at timestamp
+  updated_at timestamp
+  indexes { (bank_month_id, occurred_at) }
 }
 
 Ref: users.staff_id > staff.id [delete: set null]
@@ -230,6 +288,12 @@ Ref: staff.staff_role_id > staff_roles.id [delete: restrict]
 Ref: students.staff_id > staff.id [delete: restrict]
 Ref: students.lesson_type_id > lesson_types.id [delete: restrict]
 Ref: students.plan_id > plans.id [delete: restrict]
+Ref: lesson_type_rates.lesson_type_id > lesson_types.id [delete: cascade]
+Ref: plan_rates.plan_id > plans.id [delete: cascade]
+Ref: student_configurations.student_id > students.id [delete: cascade]
+Ref: student_configurations.staff_id > staff.id [delete: restrict]
+Ref: student_configurations.lesson_type_id > lesson_types.id [delete: restrict]
+Ref: student_configurations.plan_id > plans.id [delete: restrict]
 Ref: student_months.student_id > students.id [delete: cascade]
 Ref: student_months.validated_by_user_id > users.id [delete: set null]
 Ref: student_months.adjusted_by_user_id > users.id [delete: set null]
@@ -244,3 +308,6 @@ Ref: salary_draft_sources.student_id > students.id [delete: set null]
 Ref: billing_months.closed_by_user_id > users.id [delete: set null]
 Ref: billing_month_events.billing_month_id > billing_months.id [delete: cascade]
 Ref: billing_month_events.user_id > users.id [delete: set null]
+Ref: bank_months.reconciled_by_user_id > users.id [delete: set null]
+Ref: bank_month_events.bank_month_id > bank_months.id [delete: cascade]
+Ref: bank_month_events.user_id > users.id [delete: set null]

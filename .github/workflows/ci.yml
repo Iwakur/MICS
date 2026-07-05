@@ -47,3 +47,84 @@ jobs:
 
       - name: Build production assets
         run: npm run build
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: mics_browser
+          POSTGRES_USER: mics
+          POSTGRES_PASSWORD: mics
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mics -d mics_browser"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: local
+      APP_KEY: base64:YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=
+      APP_URL: http://127.0.0.1:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: mics_browser
+      DB_USERNAME: mics
+      DB_PASSWORD: mics
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_pgsql
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: npm ci
+      - run: npm run build
+      - run: php artisan migrate:fresh --seed --force
+      - run: npx playwright install --with-deps chromium
+      - name: Start application
+        run: php artisan serve --host=127.0.0.1 --port=8000 > /tmp/mics-server.log 2>&1 &
+      - run: npm run test:e2e
+      - name: Show application log after failure
+        if: failure()
+        run: cat /tmp/mics-server.log
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [quality, browser-smoke]
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: mics-production
+      cancel-in-progress: false
+    steps:
+      - name: Configure SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - name: Deploy tested commit
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          APP_ROOT: ${{ secrets.APP_ROOT }}
+          APP_URL: ${{ vars.APP_URL }}
+        run: >-
+          ssh "$DEPLOY_USER@$DEPLOY_HOST"
+          "cd '$APP_ROOT/current' && APP_ROOT='$APP_ROOT' APP_URL='$APP_URL' RELEASE_TAG='${{ github.sha }}' scripts/deploy.sh"

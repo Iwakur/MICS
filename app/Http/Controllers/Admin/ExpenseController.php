@@ -64,7 +64,7 @@ class ExpenseController extends Controller
     private function formOptions(): array
     {
         return [
-            'categories' => ExpenseCategory::query()->orderBy('name')->get(),
+            'categories' => ExpenseCategory::query()->where('is_active', true)->orderBy('name')->get(),
             'staffMembers' => Staff::query()->orderBy('first_name')->get(),
         ];
     }

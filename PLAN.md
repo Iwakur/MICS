@@ -12,18 +12,17 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Complete maintainability hardening, then resolve final product/hosting decisions and execute production browser, backup, and restore acceptance.
+Complete first-deployment hardening: effective-dated configuration, partial refunds, bank reconciliation, expense-category management, linked active accounts, longitudinal/browser coverage, release automation, UI consistency, and beginner-first documentation.
 
 ### Current Known Facts
 
 - The DBML defines staff, offerings, students, monthly billing, payments, expenses, and bank snapshots.
-- Existing authentication requires the current `users` fields and permits account creation before staff management exists.
-- `users.staff_id` is therefore nullable but unique; all linked accounts remain one-to-one with staff.
+- `users.staff_id` remains database-nullable for safe bootstrap/inactive drafts, but every active account requires active staff and the link remains one-to-one.
 - Student debt is derived from monthly rows and validated payments, never persisted on `students`.
-- Accounts are created independently in User Management and linked from the staff form; only unlinked accounts are selectable.
-- Staff compensation has two modes: fixed salary and a dynamic amount calculated on a configured date near month end.
-- Per-lesson students are charged from lesson type price multiplied by teacher-entered lesson count.
-- Plan-based students receive a draft charge on a configured billing date.
+- Accounts can be linked from User Management or Staff Management. Active teachers require teaching-capable staff; administrators may link to any active staff role.
+- Staff compensation has fixed and dynamic modes; dynamic amounts are derived from effective student/catalog configuration at manual month closing.
+- Per-lesson students are charged from the effective lesson rate multiplied by teacher-entered lesson count.
+- Plan-based students receive a draft charge during manual month closing using the effective plan rate.
 - Month closing is an explicit administrator action for a selected month, not an automatic scheduled process.
 - Lesson counts remain editable by the assigned teacher and administrators until that month is closed. Closing uses the count as it exists at execution time.
 - Every active plan-based student contributes the plan's school charge and teacher earning for each applicable month after the plan start date.
@@ -68,13 +67,13 @@ The translated schema layer is in place. Administrators and teachers can enter s
 
 ### Schema and Legacy Consistency Review
 
-- **Staff compensation mode: requires an extension.** The simplified DBML and current Laravel schema have only `staff.salary_amount`; they do not explicitly distinguish fixed and dynamic compensation. The older application used nullable `fixed_salary_amount`, where teachers were calculated dynamically. The agreed implementation should add an explicit `fixed`/`dynamic` mode rather than a boolean so its meaning stays clear and can be extended later.
+- **Staff compensation mode: implemented.** Staff records explicitly distinguish `fixed` and `dynamic` compensation; fixed salaries use the staff amount while dynamic salaries use effective lesson and plan earning rates.
 - **Student billing mode: already consistent.** Both the simplified DBML and current Laravel schema define `students.billing_type` with `per_lesson` and `plan_based`, plus conditional lesson-type and plan fields.
-- **Changing student billing mode: structurally possible but needs effective-period rules.** Updating the student row can change future behavior, while `student_months` preserves already-created monthly amounts. The application must prevent a mode change from rewriting an existing draft or validated month.
-- **Lesson-type amounts: requires an extension.** Current `lesson_types.lesson_price` can represent the school's per-lesson charge, but a separate per-lesson teacher earning amount is missing.
-- **Plan monthly amounts: requires clearer fields.** Current `plans.plan_price` can represent the school's monthly plan charge, but a separate monthly teacher earning amount is missing. These should be named explicitly so they are not confused with lesson metadata.
+- **Changing student billing mode: implemented with effective periods.** `student_configurations` records future-effective billing changes while existing monthly records remain historical snapshots.
+- **Lesson-type amounts: implemented with effective periods.** `lesson_type_rates` stores separate school charge and teacher earning amounts by effective month.
+- **Plan monthly amounts: implemented with effective periods.** `plan_rates` stores separate monthly school charge and teacher earning amounts by effective month.
 - **Plan repetition: compatible with the student record.** `students.plan_start_at` determines the first applicable month; while the student remains active and plan-based, the selected plan contributes its school and teacher monthly amounts on every close.
-- **Manual closing: requires a month lifecycle record.** `student_months` provides per-student history, but the schema does not currently record whether the whole month is open or closed, who closed it, or whether it was reopened.
+- **Manual closing: implemented and audited.** Billing-month state and lifecycle events record closing, reopening, actors, timestamps, and reasons.
 - **Expenses: already broadly consistent.** The DBML has stable `expense_categories` and manual `expenses` with draft/validated states. No recurring-expense scheduler is required.
 
 ### Proposed Operational Split
@@ -115,7 +114,7 @@ The translated schema layer is in place. Administrators and teachers can enter s
 - Feature tests cover payment authorization, validation, immutability, reopen auditing, and protected records.
 - The monthly finance summary separates charges, validated payments, outstanding debt, validated/draft salaries, and validated/draft manual expenses.
 - The student debt ledger explains each selected month's opening balance, charges, validated payments, and closing balance.
-- Validated payment mistakes are corrected with one immutable full reversal linked to the original payment.
+- Validated payment mistakes are corrected with one or more immutable partial/full refunds linked to the original payment.
 - Reversals require an administrator reason, restore student debt, and propagate corrected balances through existing future months.
 - Production deployments have a secret-free environment template, explicit trusted-proxy configuration, liveness/readiness endpoints, and a configuration gate command.
 - `docs/deployment.md` defines deployment order, PostgreSQL backup/restore testing, process requirements, rollback boundaries, and release verification.
@@ -143,7 +142,7 @@ The translated schema layer is in place. Administrators and teachers can enter s
 
 ### Verification Evidence (2026-07-05)
 
-- [x] Full PHPUnit suite: 82 tests, 374 assertions.
+- [x] PHPUnit covers role boundaries, CRUD, finance transitions, reconciliation, and a deterministic three-month workflow.
 - [x] Larastan level 5 passes with no new findings outside the reviewed initial Laravel inference baseline.
 - [x] The unified `ddev composer check` gate passes formatting, static analysis, tests, and production asset build.
 - [x] Seeded route-render smoke coverage for every maintained admin and teacher page.
@@ -159,9 +158,9 @@ The translated schema layer is in place. Administrators and teachers can enter s
 ### Final Product Decisions
 
 - [ ] Decide whether the seeded stable expense categories are sufficient or administrators need expense-category CRUD before launch.
-- [ ] Decide whether the existing `bank_months` data model needs an administrator reconciliation screen for the first release.
+- [x] Bank reconciliation compares expected and actual close, carries actual close, and audits reopen events.
 - [ ] Decide whether every admin account must be forced to link to an active teaching staff profile at creation time; the current workflow permits temporary unlinked admin accounts.
-- [ ] Decide whether partial refunds need a separate workflow; current correction uses full reversal followed by a replacement payment.
+- [x] Partial/full refunds are immutable linked negative payments with cumulative over-refund protection.
 
 ### Demo Walkthrough
 
@@ -182,7 +181,7 @@ The translated schema layer is in place. Administrators and teachers can enter s
 - A payment is separate evidence of money received; it affects debt only after validation.
 - Salary drafts and manual expenses become business records only after validation.
 - Closing snapshots operational inputs into drafts. Reopening unlocks correction work but does not erase history.
-- Validated records are immutable. Corrections must be represented as attributed adjustments or future reversal records.
+- Validated records are immutable. Corrections use attributed adjustments or linked refunds.
 
 ## Next Controlled Steps
 

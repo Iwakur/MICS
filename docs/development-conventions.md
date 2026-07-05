@@ -13,6 +13,8 @@ This is the practical decision guide for changing MICS after deployment. Read `d
 5. Run `ddev composer check`. Review the diff and migration SQL before committing.
 6. Deploy through a release artifact and migration process. Never edit tracked application files directly on the live server.
 
+Use `feature` for new behavior and `fix` for defects. A defect starts with a failing regression test. Every schema or workflow change updates tests, DBML, relevant guides, and `PLAN.md` in the same pull request. Exact commands are in `docs/commands.md`.
+
 Small and large changes use the same process. Large changes should be split into compatible releases so the old and new application can temporarily operate against the same database schema.
 
 ## Where Code Belongs
@@ -31,7 +33,7 @@ Small and large changes use the same process. Large changes should be split into
 
 - Database money columns remain `decimal(12, 2)` strings. Calculations must use `App\Support\Money` integer cents, never PHP float arithmetic.
 - A student charge is an amount owed. A payment is separate evidence of receipt and affects debt only after validation.
-- Validated financial records are immutable. Correct them through an attributed adjustment or linked reversal, not an overwrite.
+- Validated financial records are immutable. Correct them through an attributed adjustment or linked refund, not an overwrite.
 - Student debt is derived from monthly snapshots and validated payments. Never add a mutable `students.debt` column.
 - Closing a month snapshots current inputs. It must be transactional, idempotent, and preserve validated records when a month is reopened.
 
@@ -70,6 +72,8 @@ Use the expand-and-contract pattern for risky changes:
 
 Never mix irreversible data correction with an unrelated schema migration. Back up PostgreSQL and test restoration before a financial-schema release.
 
+Effective-dated student configuration and catalog rates preserve historical calculations. New period rows begin in an open month after the latest closed month. Month closing must never read only the latest mutable catalog/student values.
+
 ## Tests and Quality Gates
 
 Run the complete local gate:
@@ -79,6 +83,8 @@ ddev composer check
 ```
 
 It checks Pint formatting, Larastan static analysis, PHPUnit behavior, and the production Vite build. GitHub Actions repeats these checks for pushes and pull requests.
+
+Use `ddev composer test:workflow` after changes to closing, balances, effective configuration, payments/refunds, expenses, or reconciliation. Playwright verifies real-browser smoke behavior; PHPUnit remains the detailed business-rule suite.
 
 `phpstan-baseline.neon` contains reviewed Laravel dynamic-property inference debt present when static analysis was introduced. Do not add entries casually. Fix the type or relationship annotation first; if an exception is unavoidable, document why and keep it narrowly matched. Reduce the baseline over time.
 

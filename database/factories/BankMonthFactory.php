@@ -21,6 +21,8 @@ class BankMonthFactory extends Factory
             'month_date' => fake()->unique()->dateTimeBetween('-5 years', '+2 years')->format('Y-m-01'),
             'opening_balance' => fake()->randomFloat(2, 0, 10000),
             'closing_balance' => fake()->randomFloat(2, 0, 10000),
+            'expected_closing_balance' => 0,
+            'status' => 'draft',
             'note' => fake()->optional()->sentence(),
         ];
     }

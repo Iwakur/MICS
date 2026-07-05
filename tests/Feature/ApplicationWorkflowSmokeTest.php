@@ -57,6 +57,9 @@ class ApplicationWorkflowSmokeTest extends TestCase
             route('admin.expenses.index', ['month' => '2026-07']),
             route('admin.expenses.create'),
             route('admin.expenses.edit', Expense::query()->firstOrFail()),
+            route('admin.expense-categories.index'),
+            route('admin.expense-categories.create'),
+            route('admin.bank-months.index', ['month' => '2026-07']),
             route('admin.finance-summary', ['month' => '2026-07']),
         ];
 

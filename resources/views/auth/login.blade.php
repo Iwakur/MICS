@@ -74,7 +74,7 @@
                 </form>
 
                 <p class="mt-5 text-xs text-shell-muted">
-                    Default seeded account: <strong>admin</strong> / <strong>admin</strong>. Change it later through the UI once that screen exists.
+                    Local demo account: <strong>admin</strong> / <strong>password</strong>. Demo credentials are never seeded in production.
                 </p>
             </div>
         </main>

@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\StaffCompensationMode;
 use App\Enums\UserRole;
+use App\Models\Staff;
+use App\Models\StaffRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +29,9 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'staff_id' => Staff::factory()
+                ->state(['compensation_mode' => StaffCompensationMode::Dynamic, 'salary_amount' => null])
+                ->for(StaffRole::factory()->state(['can_teach' => true, 'is_active' => true]), 'role'),
             'username' => Str::lower(fake()->unique()->bothify('user_####_????')),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),

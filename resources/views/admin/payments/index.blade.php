@@ -23,7 +23,7 @@
                     @forelse ($payments as $payment)
                         <tr>
                             <td class="px-4 py-4 font-medium text-shell-text">{{ trim($payment->studentMonth->student->first_name.' '.$payment->studentMonth->student->family_name) }}</td>
-                            <td class="px-4 py-4"><span class="{{ $payment->isReversal() ? 'app-badge-inactive' : 'app-badge-teacher' }}">{{ $payment->isReversal() ? 'reversal' : ($payment->reversal ? 'reversed' : 'payment') }}</span></td>
+                            <td class="px-4 py-4"><span class="{{ $payment->isReversal() ? 'app-badge-inactive' : 'app-badge-teacher' }}">{{ $payment->isReversal() ? 'refund' : ($payment->refunds->isNotEmpty() ? 'partly refunded' : 'payment') }}</span></td>
                             <td class="px-4 py-4 text-shell-muted">{{ $payment->paid_at->format('d M Y H:i') }}</td>
                             <td class="px-4 py-4">{{ str($payment->payment_method)->replace('_', ' ')->title() }}</td>
                             <td class="px-4 py-4 font-semibold">{{ number_format((float) $payment->amount, 2) }}</td>

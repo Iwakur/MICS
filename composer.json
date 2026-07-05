@@ -51,10 +51,17 @@
             "@php artisan test"
         ],
         "analyse": "phpstan analyse --memory-limit=1G",
+        "test:workflow": "@php artisan test tests/Feature/LongitudinalWorkflowTest.php tests/Feature/Admin/BankReconciliationTest.php tests/Feature/Admin/PaymentManagementTest.php",
+        "audit:security": [
+            "composer audit --locked --no-interaction",
+            "npm audit --omit=dev"
+        ],
+        "check:production": "@php artisan app:check-production-readiness",
         "check": [
             "@php vendor/bin/pint --test",
             "@analyse",
             "@test",
+            "@audit:security",
             "npm run build"
         ],
         "post-autoload-dump": [

@@ -1,0 +1,8 @@
+@extends('layouts.app')
+@section('title', 'Expense Categories | MICS')
+@section('eyebrow', 'Administrator · Finance Setup')
+@section('page-title', 'Expense Categories')
+@section('page-description', 'Maintain the stable classification list used by expense records.')
+@section('content')
+<section class="app-surface p-6"><div class="flex justify-end"><a class="app-button-primary" href="{{ route('admin.expense-categories.create') }}">Add Category</a></div><div class="mt-6 overflow-x-auto rounded-2xl border border-shell-border"><table class="min-w-full divide-y divide-shell-border text-sm"><thead class="bg-brand-950/70 text-left text-shell-muted"><tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Usage</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Actions</th></tr></thead><tbody class="divide-y divide-shell-border">@forelse($categories as $category)<tr><td class="px-4 py-4 font-medium">{{ $category->name }}</td><td class="px-4 py-4">{{ $category->expenses_count }} expenses</td><td class="px-4 py-4"><span class="{{ $category->is_active ? 'app-badge-active' : 'app-badge-inactive' }}">{{ $category->is_active ? 'active' : 'archived' }}</span></td><td class="flex gap-2 px-4 py-4"><a class="app-button-secondary px-3 py-2" href="{{ route('admin.expense-categories.edit', $category) }}">Edit</a><form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}">@csrf @method('DELETE')<button class="app-button-danger">{{ $category->expenses_count ? 'Archive' : 'Delete' }}</button></form></td></tr>@empty<tr><td colspan="4" class="px-4 py-10 text-center text-shell-muted">No expense categories exist.</td></tr>@endforelse</tbody></table></div><div class="mt-6">{{ $categories->links() }}</div></section>
+@endsection

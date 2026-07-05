@@ -7,6 +7,7 @@ use App\Enums\StudentBillingType;
 use App\Enums\StudentStatus;
 use App\Models\BillingMonth;
 use App\Models\Student;
+use App\Models\StudentConfiguration;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -55,12 +56,18 @@ class SaveMonthlyLessonCountsRequest extends FormRequest
 
             $studentIds = array_map('intval', array_keys($this->input('counts', [])));
             $eligibleCount = Student::query()
+                ->with(['configurations' => fn ($query) => $query->whereDate('effective_from', '<=', $this->monthDate())->latest('effective_from')])
                 ->whereKey($studentIds)
-                ->where('status', StudentStatus::Active)
-                ->where('billing_type', StudentBillingType::PerLesson)
                 ->whereDate('joined_at', '<=', $this->monthDate()->endOfMonth())
-                ->when(! $this->user()->isAdmin(), fn ($query) => $query->where('staff_id', $this->user()->staff_id))
-                ->count();
+                ->get()
+                ->filter(function (Student $student): bool {
+                    $configuration = $student->configurations->first();
+
+                    return $configuration instanceof StudentConfiguration
+                        && $configuration->status === StudentStatus::Active
+                        && $configuration->billing_type === StudentBillingType::PerLesson
+                        && ($this->user()->isAdmin() || $configuration->staff_id === $this->user()->staff_id);
+                })->count();
 
             if ($eligibleCount !== count($studentIds)) {
                 $validator->errors()->add('counts', 'One or more students are not available for lesson entry.');

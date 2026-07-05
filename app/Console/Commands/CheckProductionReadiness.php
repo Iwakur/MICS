@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -20,6 +22,7 @@ class CheckProductionReadiness extends Command
         if (! $this->option('skip-database')) {
             try {
                 DB::connection()->getPdo();
+                $errors = [...$errors, ...$this->databaseIntegrityErrors()];
             } catch (Throwable $exception) {
                 $errors[] = 'Database connection failed: '.$exception->getMessage();
             }
@@ -73,5 +76,31 @@ class CheckProductionReadiness extends Command
         }
 
         return $warnings;
+    }
+
+    /** @return list<string> */
+    private function databaseIntegrityErrors(): array
+    {
+        $invalidActiveLinks = User::query()
+            ->where('is_active', true)
+            ->where(function ($query): void {
+                $query->whereDoesntHave('staffMember')
+                    ->orWhereHas('staffMember', fn ($staff) => $staff->where('is_active', false));
+            })->count();
+        $invalidTeachers = User::query()
+            ->where('is_active', true)
+            ->where('role', UserRole::Teacher)
+            ->whereDoesntHave('staffMember.role', fn ($role) => $role->where('is_active', true)->where('can_teach', true))
+            ->count();
+        $errors = [];
+
+        if ($invalidActiveLinks > 0) {
+            $errors[] = "{$invalidActiveLinks} active account(s) lack an active staff profile.";
+        }
+        if ($invalidTeachers > 0) {
+            $errors[] = "{$invalidTeachers} active teacher account(s) lack a teaching-capable staff role.";
+        }
+
+        return $errors;
     }
 }

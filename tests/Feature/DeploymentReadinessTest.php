@@ -6,6 +6,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -45,5 +46,22 @@ class DeploymentReadinessTest extends TestCase
         $this->artisan('app:check-production-readiness', ['--skip-database' => true])
             ->expectsOutputToContain('Production configuration and database readiness checks passed.')
             ->assertSuccessful();
+    }
+
+    public function test_first_administrator_is_bootstrapped_with_linked_staff_once(): void
+    {
+        $this->artisan('app:bootstrap-administrator')
+            ->expectsQuestion('Administrator username', 'owner')
+            ->expectsQuestion('Administrator email', 'owner@example.com')
+            ->expectsQuestion('Staff first name', 'Project')
+            ->expectsQuestion('Staff family name (optional)', 'Owner')
+            ->expectsQuestion('Password (minimum 12 characters)', 'StrongPassword123')
+            ->expectsOutputToContain('Linked administrator and staff profile created.')
+            ->assertSuccessful();
+
+        $admin = User::query()->where('username', 'owner')->firstOrFail();
+        $this->assertTrue($admin->isAdmin());
+        $this->assertTrue($admin->staffMember->is_active);
+        $this->artisan('app:bootstrap-administrator')->assertFailed();
     }
 }

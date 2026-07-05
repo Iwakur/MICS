@@ -29,6 +29,7 @@
                         <th class="px-4 py-3 font-medium">Username</th>
                         <th class="px-4 py-3 font-medium">Email</th>
                         <th class="px-4 py-3 font-medium">Role</th>
+                        <th class="px-4 py-3 font-medium">Staff</th>
                         <th class="px-4 py-3 font-medium">Status</th>
                         <th class="px-4 py-3 font-medium">Actions</th>
                     </tr>
@@ -48,6 +49,7 @@
                                     {{ $user->role->value }}
                                 </span>
                             </td>
+                            <td class="px-4 py-4 text-shell-muted">{{ $user->staffMember ? trim($user->staffMember->first_name.' '.$user->staffMember->family_name) : 'Not linked' }}</td>
                             <td class="px-4 py-4">
                                 <span class="{{ $user->is_active ? 'app-badge-active' : 'app-badge-inactive' }}">
                                     {{ $user->is_active ? 'active' : 'inactive' }}

@@ -42,7 +42,7 @@ MICS currently uses convention-based automatic injection. No custom binding is n
 - `/teacher/*` relies on controller-level ownership checks for assigned students;
 - `/up` is Laravel’s liveness route and `/ready` checks database connectivity.
 
-Resource routes generate conventional CRUD names and URLs. Explicit routes handle non-CRUD transitions such as payment validation, payment reversal, month closing, and month reopening.
+Resource routes generate conventional CRUD names and URLs. Explicit routes handle non-CRUD transitions such as payment validation/refund, month closing/reopening, and bank reconciliation/reopening.
 
 Middleware answers cross-cutting access questions before controllers run:
 
@@ -97,7 +97,7 @@ Relationships describe both navigation and query intent. Examples:
 - a `Student` belongs to one assigned teacher/staff member;
 - a `StudentMonth` owns payments;
 - a generated salary `Expense` owns preserved `SalaryDraftSource` rows;
-- a payment reversal belongs to its immutable original payment.
+- a payment refund belongs to its immutable original payment; an original may have multiple refunds.
 
 Views never perform database queries. Controllers and services eager-load relationships to avoid N+1 query behavior.
 
@@ -112,9 +112,9 @@ Financial state transitions use `DB::transaction()` so all writes succeed or all
 - month closing locks the billing-month row;
 - lesson-count updates lock the month lifecycle row;
 - payment validation locks the draft payment;
-- payment reversal locks the original payment.
+- payment refund locks the original payment and rejects cumulative refunds above the received amount.
 
-Unique constraints provide a second line of defense for one student row per month, one generated salary per staff/month key, one lifecycle month record, and one reversal per payment.
+Unique constraints provide a second line of defense for one student row per month, one effective configuration/rate per owner/month, one generated salary per staff/month key, and one lifecycle month record.
 
 ## Monthly Accounting Model
 
@@ -126,7 +126,7 @@ Student balance formula:
 closing balance = opening balance + generated charge + manual adjustment - validated payments
 ```
 
-Only validated payments affect debt. A reversal is a linked negative validated payment, so it restores the original debt without changing history. Student credits are reported separately from positive debt so one overpayment cannot hide another student’s receivable.
+Only validated payments affect debt. A refund is a linked negative validated payment, so it restores debt without changing history. Student credits are reported separately from positive debt so one overpayment cannot hide another student’s receivable.
 
 Month closing is manual and selected by month. It:
 
@@ -156,7 +156,7 @@ Foreign-key deletion behavior is intentional:
 - student-owned months and payments cascade when a student is intentionally deleted;
 - staff references in financial history become null where history must survive;
 - catalog and assignment references restrict deletion and use application-level archiving;
-- payment originals cannot be deleted while a reversal points to them.
+- payment originals cannot be deleted while a refund points to them.
 
 Indexes cover foreign keys, statuses, dates, unique business keys, and common compound filters.
 
@@ -180,7 +180,7 @@ Vite compiles assets into ignored `public/build/` output. Blade uses `@vite`; th
 
 PHPUnit feature tests boot Laravel and exercise routes, middleware, validation, Eloquent persistence, transactions, and rendered views. Unit tests are reserved for framework-independent logic. The suite uses SQLite in memory for speed; PostgreSQL migration status and production-like checks are separate deployment gates.
 
-`LazilyRefreshDatabase` resets schema state only when a test touches the database. Tests cover authentication, role boundaries, CRUD, teacher scoping, month calculations, draft/validated transitions, reversals, lifecycle audits, finance totals, seeds, schema constraints, readiness, and production configuration validation.
+`LazilyRefreshDatabase` resets schema state only when a test touches the database. Tests cover authentication, role boundaries, CRUD, teacher scoping, effective dating, three-month calculations, refunds, lifecycle audits, reconciliation, seeds, schema constraints, readiness, and production configuration.
 
 ## Console and Deployment
 

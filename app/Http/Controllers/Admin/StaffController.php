@@ -76,11 +76,15 @@ class StaffController extends Controller
             $selectedUserId = $request->linkedUserId();
 
             if ($staff->user && $staff->user->id !== $selectedUserId) {
-                $staff->user->update(['staff_id' => null]);
+                $staff->user->update(['staff_id' => null, 'is_active' => false]);
             }
 
             if ($selectedUserId) {
                 User::query()->findOrFail($selectedUserId)->update(['staff_id' => $staff->id]);
+            }
+
+            if (! $staff->is_active) {
+                User::query()->where('staff_id', $staff->id)->update(['is_active' => false]);
             }
         });
 
@@ -91,7 +95,10 @@ class StaffController extends Controller
 
     public function destroy(Staff $staff): RedirectResponse
     {
-        $staff->update(['is_active' => false]);
+        DB::transaction(function () use ($staff): void {
+            $staff->update(['is_active' => false]);
+            User::query()->where('staff_id', $staff->id)->update(['is_active' => false]);
+        });
 
         return redirect()
             ->route('admin.staff.index')

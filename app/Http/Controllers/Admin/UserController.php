@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class UserController extends Controller
     public function index(): View
     {
         return view('admin.users.index', [
-            'users' => User::query()
+            'users' => User::query()->with('staffMember')
                 ->orderByRaw('case when role = ? then 0 else 1 end', [UserRole::Admin->value])
                 ->orderBy('username')
                 ->paginate(25),
@@ -39,7 +40,7 @@ class UserController extends Controller
      */
     public function create(): View
     {
-        return view('admin.users.create');
+        return view('admin.users.create', ['staffMembers' => $this->availableStaff()]);
     }
 
     /**
@@ -61,6 +62,7 @@ class UserController extends Controller
     {
         return view('admin.users.edit', [
             'managedUser' => $user,
+            'staffMembers' => $this->availableStaff($user),
         ]);
     }
 
@@ -155,5 +157,18 @@ class UserController extends Controller
                 'danger' => 'You cannot delete the last active administrator.',
             ]);
         }
+    }
+
+    private function availableStaff(?User $user = null)
+    {
+        return Staff::query()->with('role')
+            ->where('is_active', true)
+            ->where(function ($query) use ($user): void {
+                $query->whereDoesntHave('user');
+                if ($user?->staff_id) {
+                    $query->orWhere('id', $user->staff_id);
+                }
+            })
+            ->orderBy('first_name')->orderBy('family_name')->get();
     }
 }

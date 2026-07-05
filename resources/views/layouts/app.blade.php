@@ -11,6 +11,7 @@
         @endif
     </head>
     <body class="app-page">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 app-button-primary">Skip to content</a>
         @php($user = auth()->user())
 
         <div class="app-shell">
@@ -50,6 +51,8 @@
                                     <a href="{{ route('admin.student-charges.index') }}" class="app-nav-link {{ request()->routeIs('admin.student-charges.*') ? 'app-nav-link-active' : '' }}">Student Charges</a>
                                     <a href="{{ route('admin.payments.index') }}" class="app-nav-link {{ request()->routeIs('admin.payments.*') ? 'app-nav-link-active' : '' }}">Student Payments</a>
                                     <a href="{{ route('admin.expenses.index') }}" class="app-nav-link {{ request()->routeIs('admin.expenses.*') ? 'app-nav-link-active' : '' }}">Expenses & Salaries</a>
+                                    <a href="{{ route('admin.expense-categories.index') }}" class="app-nav-link {{ request()->routeIs('admin.expense-categories.*') ? 'app-nav-link-active' : '' }}">Expense Categories</a>
+                                    <a href="{{ route('admin.bank-months.index') }}" class="app-nav-link {{ request()->routeIs('admin.bank-months.*') ? 'app-nav-link-active' : '' }}">Bank Reconciliation</a>
                                     <a href="{{ route('admin.lesson-types.index') }}" class="app-nav-link {{ request()->routeIs('admin.lesson-types.*') ? 'app-nav-link-active' : '' }}">Lesson Types</a>
                                     <a href="{{ route('admin.plans.index') }}" class="app-nav-link {{ request()->routeIs('admin.plans.*') ? 'app-nav-link-active' : '' }}">Plans</a>
                                 </div>
@@ -105,7 +108,7 @@
                     </div>
                 </header>
 
-                <main class="px-6 py-6 lg:px-8 lg:py-8">
+                <main id="main-content" class="px-4 py-6 sm:px-6 lg:px-8 lg:py-8" tabindex="-1">
                     {{-- Shared flash area for success messages coming from CRUD actions. --}}
                     @if (session('status'))
                         <div class="app-flash-success">

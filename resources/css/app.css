@@ -76,23 +76,23 @@
     }
 
     .app-input {
-        @apply w-full rounded-2xl border border-shell-border bg-brand-950/70 px-4 py-3 text-shell-text placeholder:text-shell-muted focus:border-shell-accent focus:outline-none;
+        @apply w-full rounded-2xl border border-shell-border bg-brand-950/70 px-4 py-3 text-shell-text placeholder:text-shell-muted focus:border-shell-accent focus:ring-2 focus:ring-shell-accent/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
     }
 
     .app-select {
-        @apply w-full rounded-2xl border border-shell-border bg-brand-950/70 px-4 py-3 text-shell-text focus:border-shell-accent focus:outline-none;
+        @apply w-full rounded-2xl border border-shell-border bg-brand-950/70 px-4 py-3 text-shell-text focus:border-shell-accent focus:ring-2 focus:ring-shell-accent/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
     }
 
     .app-button-primary {
-        @apply inline-flex items-center justify-center rounded-2xl bg-shell-accent px-5 py-3 text-sm font-semibold text-brand-950 transition hover:bg-shell-accent-strong;
+        @apply inline-flex items-center justify-center rounded-2xl bg-shell-accent px-5 py-3 text-sm font-semibold text-brand-950 transition hover:bg-shell-accent-strong focus-visible:ring-2 focus-visible:ring-brand-200 focus-visible:ring-offset-2 focus-visible:ring-offset-shell-bg focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
     }
 
     .app-button-secondary {
-        @apply inline-flex items-center justify-center rounded-2xl border border-shell-border px-5 py-3 text-sm font-semibold text-shell-text transition hover:border-brand-500 hover:text-brand-50;
+        @apply inline-flex items-center justify-center rounded-2xl border border-shell-border px-5 py-3 text-sm font-semibold text-shell-text transition hover:border-brand-500 hover:text-brand-50 focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
     }
 
     .app-button-danger {
-        @apply inline-flex items-center justify-center rounded-xl border border-red-400/35 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition hover:border-red-300 hover:text-red-50;
+        @apply inline-flex items-center justify-center rounded-xl border border-red-400/35 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition hover:border-red-300 hover:text-red-50 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
     }
 
     .app-badge-admin {

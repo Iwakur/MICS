@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\BankMonthController;
+use App\Http\Controllers\Admin\ExpenseCategoryController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\FinanceSummaryController;
 use App\Http\Controllers\Admin\LessonTypeController;
@@ -100,6 +102,10 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         Route::post('payments/{payment}/reverse', [PaymentController::class, 'reverse'])->name('payments.reverse');
         Route::resource('payments', PaymentController::class)->except('show');
         Route::resource('expenses', ExpenseController::class)->except('show');
+        Route::resource('expense-categories', ExpenseCategoryController::class)->except('show');
+        Route::get('bank-months', [BankMonthController::class, 'index'])->name('bank-months.index');
+        Route::post('bank-months', [BankMonthController::class, 'store'])->name('bank-months.store');
+        Route::post('bank-months/{bankMonth}/reopen', [BankMonthController::class, 'reopen'])->name('bank-months.reopen');
         Route::get('finance-summary', FinanceSummaryController::class)->name('finance-summary');
         Route::get('student-charges', [StudentChargeController::class, 'index'])->name('student-charges.index');
         Route::get('student-charges/{studentMonth}/edit', [StudentChargeController::class, 'edit'])->name('student-charges.edit');

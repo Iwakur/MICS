@@ -21,7 +21,7 @@ class StaffManagementTest extends TestCase
     public function test_admin_can_create_a_staff_member_and_link_an_existing_user(): void
     {
         $admin = User::factory()->admin()->create();
-        $teacherAccount = User::factory()->teacher()->create();
+        $teacherAccount = User::factory()->teacher()->inactive()->create(['staff_id' => null]);
         $role = StaffRole::factory()->create();
 
         $response = $this->actingAs($admin)->post(route('admin.staff.store'), [
@@ -55,7 +55,7 @@ class StaffManagementTest extends TestCase
         $admin = User::factory()->admin()->create();
         $staff = Staff::factory()->create();
         $user = User::factory()->for($staff, 'staffMember')->create();
-        $replacementUser = User::factory()->teacher()->create();
+        $replacementUser = User::factory()->teacher()->inactive()->create(['staff_id' => null]);
         $role = StaffRole::factory()->create();
 
         $response = $this->actingAs($admin)->put(route('admin.staff.update', $staff), [
@@ -111,6 +111,7 @@ class StaffManagementTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $staff = Staff::factory()->create(['is_active' => true]);
+        $linkedUser = User::factory()->for($staff, 'staffMember')->create();
 
         $response = $this->actingAs($admin)
             ->from(route('admin.staff.index'))
@@ -119,6 +120,7 @@ class StaffManagementTest extends TestCase
         $response->assertRedirect(route('admin.staff.index'));
 
         $this->assertFalse($staff->refresh()->is_active);
+        $this->assertFalse($linkedUser->refresh()->is_active);
     }
 
     public function test_fixed_compensation_requires_a_salary_amount(): void
