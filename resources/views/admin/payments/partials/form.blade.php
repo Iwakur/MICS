@@ -1,4 +1,4 @@
-{{-- MICS Blade view: admin payments partials form. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin payments partials form. Full responsibility is documented in docs/file-reference.md. --}}
 @php($locked = $payment?->status === \App\Enums\ReviewStatus::Validated)
 <div class="grid gap-6 md:grid-cols-2">
     <div><label for="student_id" class="text-sm text-shell-muted">Student</label><select id="student_id" name="student_id" class="app-select mt-2" required @disabled($locked)>@foreach($students as $student)<option value="{{ $student->id }}" @selected((string) old('student_id', $payment?->studentMonth->student_id) === (string) $student->id)>{{ trim($student->first_name.' '.$student->family_name) }}</option>@endforeach</select></div>

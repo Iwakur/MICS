@@ -21,7 +21,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * These are the two credential fields currently supported by MICS.
+     * These are the two credential fields currently supported by MICS HUB.
      *
      * @return array<string, array<int, string>>
      */

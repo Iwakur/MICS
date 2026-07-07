@@ -1,4 +1,4 @@
-{{-- MICS Blade view: admin staff-roles partials form. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff-roles partials form. Full responsibility is documented in docs/file-reference.md. --}}
 <div class="space-y-2">
     <label for="name" class="text-sm font-medium text-shell-text">Role Name</label>
     <input id="name" name="name" type="text" value="{{ old('name', $staffRole?->name) }}" required class="app-input">

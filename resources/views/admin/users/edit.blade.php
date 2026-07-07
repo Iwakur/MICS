@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin users edit. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin users edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Edit User | MICS')
+@section('title', 'Edit User | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Edit User')
 @section('page-description', 'Update an existing user while keeping usernames and emails unique and preserving at least one active administrator.')

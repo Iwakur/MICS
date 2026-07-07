@@ -1,6 +1,6 @@
-{{-- MICS Blade view: admin payments create. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin payments create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
-@section('title', 'Record Payment | MICS')
+@section('title', 'Record Payment | MICS HUB')
 @section('eyebrow', 'Administrator · Finance')
 @section('page-title', 'Record Payment Draft')
 @section('page-description', 'The payment does not affect debt until an administrator validates it.')

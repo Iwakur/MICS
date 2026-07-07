@@ -1,7 +1,7 @@
-{{-- MICS Blade view: dashboard. Full responsibility is documented in docs/file-reference.md. --}}
+<!-- {{-- MICS HUB Blade view: dashboard. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Legacy Dashboard | MICS')
+@section('title', 'Legacy Dashboard | MICS HUB')
 @section('eyebrow', 'Reference')
 @section('page-title', 'Legacy Temporary Dashboard')
 @section('page-description', 'This view is no longer the active dashboard route. It remains only as a reference point from the earlier auth phase, while the real flow now redirects to role-specific dashboards.')
@@ -29,4 +29,4 @@
             </div>
         </dl>
     </section>
-@endsection
+@endsection -->

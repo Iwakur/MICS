@@ -1,4 +1,4 @@
-{{-- MICS Blade view: admin expenses partials form. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin expenses partials form. Full responsibility is documented in docs/file-reference.md. --}}
 @php($locked = isset($expense) && $expense->status === \App\Enums\ReviewStatus::Validated)
 @php($generated = isset($expense) && $expense->is_auto_generated)
 <div class="grid gap-6 md:grid-cols-2">

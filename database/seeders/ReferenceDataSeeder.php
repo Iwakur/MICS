@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS source: database seeders ReferenceDataSeeder. See docs/file-reference.md for its full responsibility.
+ * MICS HUB source: database seeders ReferenceDataSeeder. See docs/file-reference.md for its full responsibility.
  */
 
 namespace Database\Seeders;
@@ -36,37 +36,40 @@ class ReferenceDataSeeder extends Seeder
     private function staffRoles(): array
     {
         return [
-            ['name' => 'Teacher', 'can_teach' => true, 'is_active' => true, 'note' => 'Standard teaching role.'],
-            ['name' => 'Manager', 'can_teach' => false, 'is_active' => true, 'note' => 'School operations and administration.'],
-            ['name' => 'Assistant', 'can_teach' => false, 'is_active' => true, 'note' => 'Operational support role.'],
+            ['name' => 'Викладач', 'can_teach' => true, 'is_active' => true, 'note' => 'Викладання та ведення призначених учнів.'],
         ];
     }
 
     private function lessonTypes(): array
     {
         return [
-            ['name' => 'Standard 45', 'duration_minutes' => 45, 'lesson_price' => 35, 'teacher_share_per_lesson' => 20, 'is_assignable' => true, 'note' => 'Standard individual lesson.'],
-            ['name' => 'Extended 60', 'duration_minutes' => 60, 'lesson_price' => 45, 'teacher_share_per_lesson' => 27, 'is_assignable' => true, 'note' => 'Extended individual lesson.'],
-            ['name' => 'Intensive 90', 'duration_minutes' => 90, 'lesson_price' => 65, 'teacher_share_per_lesson' => 40, 'is_assignable' => true, 'note' => 'Long intensive lesson.'],
+            ['name' => 'Індивідуальний урок 300 ₴', 'duration_minutes' => 60, 'lesson_price' => 300, 'teacher_share_per_lesson' => 150, 'is_assignable' => true, 'note' => 'Тариф із джерела «Травень26».'],
+            ['name' => 'Індивідуальний урок 350 ₴', 'duration_minutes' => 60, 'lesson_price' => 350, 'teacher_share_per_lesson' => 175, 'is_assignable' => true, 'note' => 'Тариф із джерела «Травень26».'],
         ];
     }
 
     private function plans(): array
     {
         return [
-            ['name' => 'Starter Monthly', 'duration_minutes' => 45, 'lesson_count' => 4, 'lesson_price' => 35, 'plan_price' => 130, 'teacher_monthly_amount' => 75, 'is_assignable' => true, 'note' => 'Four lessons per month.'],
-            ['name' => 'Standard Monthly', 'duration_minutes' => 60, 'lesson_count' => 8, 'lesson_price' => 45, 'plan_price' => 330, 'teacher_monthly_amount' => 195, 'is_assignable' => true, 'note' => 'Eight lessons per month.'],
-            ['name' => 'Intensive Monthly', 'duration_minutes' => 90, 'lesson_count' => 8, 'lesson_price' => 65, 'plan_price' => 480, 'teacher_monthly_amount' => 290, 'is_assignable' => true, 'note' => 'Eight intensive lessons per month.'],
+            ['name' => 'Базовий', 'duration_minutes' => 60, 'lesson_count' => 9, 'lesson_price' => 438.89, 'plan_price' => 3950, 'teacher_monthly_amount' => 1750, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
+            ['name' => 'Прогресивний', 'duration_minutes' => 60, 'lesson_count' => 13, 'lesson_price' => 430.77, 'plan_price' => 5600, 'teacher_monthly_amount' => 2300, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
+            ['name' => 'Базовий-350', 'duration_minutes' => 60, 'lesson_count' => 9, 'lesson_price' => 340, 'plan_price' => 3060, 'teacher_monthly_amount' => 1530, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
+            ['name' => 'Прогресивний-350', 'duration_minutes' => 60, 'lesson_count' => 13, 'lesson_price' => 353.85, 'plan_price' => 4600, 'teacher_monthly_amount' => 2300, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
+            ['name' => 'Базовий-300', 'duration_minutes' => 60, 'lesson_count' => 9, 'lesson_price' => 291.67, 'plan_price' => 2625, 'teacher_monthly_amount' => 1530, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
+            ['name' => 'Прогресивний-300', 'duration_minutes' => 60, 'lesson_count' => 13, 'lesson_price' => 303.85, 'plan_price' => 3950, 'teacher_monthly_amount' => 2300, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
+            ['name' => 'Стартовий-45', 'duration_minutes' => 45, 'lesson_count' => 4.5, 'lesson_price' => 243.75, 'plan_price' => 975, 'teacher_monthly_amount' => 570, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
+            ['name' => 'Стартовий-30', 'duration_minutes' => 30, 'lesson_count' => 4.5, 'lesson_price' => 162.50, 'plan_price' => 650, 'teacher_monthly_amount' => 380, 'is_assignable' => true, 'note' => 'Повна місячна ціна з каталогу «Травень26».'],
         ];
     }
 
     private function expenseCategories(): array
     {
         return [
-            ['name' => 'Salary', 'note' => 'Generated staff salary drafts.'],
-            ['name' => 'Rent', 'note' => 'Premises and classroom rent.'],
-            ['name' => 'Utilities', 'note' => 'Electricity, internet, and other utilities.'],
-            ['name' => 'Supplies', 'note' => 'Teaching and office supplies.'],
+            ['name' => 'Зарплата', 'note' => 'Автоматично сформовані чернетки зарплат.'],
+            ['name' => 'Реклама', 'note' => 'Реклама, зокрема витрати Facebook.'],
+            ['name' => 'Податки', 'note' => 'Податкові платежі.'],
+            ['name' => 'CRM', 'note' => 'Сервіси керування клієнтами, зокрема Keepin CRM.'],
+            ['name' => 'Відеомонтаж', 'note' => 'Сервіси створення та монтажу відео, зокрема Canvas.'],
         ];
     }
 }

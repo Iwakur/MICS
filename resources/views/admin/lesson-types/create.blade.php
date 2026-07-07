@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin lesson-types create. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin lesson-types create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Create Lesson Type | MICS')
+@section('title', 'Create Lesson Type | MICS HUB')
 @section('eyebrow', 'Administrator · Catalog')
 @section('page-title', 'Create Lesson Type')
 @section('page-description', 'Define the per-lesson amounts for the school and dynamic teacher.')

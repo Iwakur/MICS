@@ -1,4 +1,4 @@
-{{-- MICS Blade view: admin lesson-types partials form. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin lesson-types partials form. Full responsibility is documented in docs/file-reference.md. --}}
 <div class="grid gap-6 md:grid-cols-2">
     <div class="space-y-2">
         <label for="name" class="text-sm font-medium text-shell-text">Name</label>

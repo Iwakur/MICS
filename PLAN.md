@@ -1,4 +1,4 @@
-# MICS Development Plan
+# MICS HUB Development Plan
 
 ## Purpose
 
@@ -12,14 +12,52 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Confirm first-deployment school data, package metadata, administrator bootstrap, and bank-account scope using `docs/SEEDING-DECISIONS.md`, then implement only the approved seed/import behavior.
+Provide a reviewed, idempotent fresh-install seed derived from private school source documents while preserving Ukrainian names and excluding sensitive or ambiguous financial data.
 
-### Current Decision Gate
+### Language and Regional Presentation
+
+- `users.locale` stores each authenticated user's `en` or `uk` preference; English is the database and application default.
+- One shared Blade layout is used for both languages. Navigation, account controls, and the teacher dashboard use Laravel translation keys rather than duplicated language-specific templates.
+- The complete teacher workflow is localized: dashboard, assigned-student listing, create/edit form, lesson-count entry, flash messages, validation errors, pagination, and shared error pages.
+- The authenticated account box contains the language selector. A validated endpoint updates only the current user's preference.
+- Web middleware applies the saved locale on every request before controllers and views render.
+- `LocalizedFormat` centralizes human-readable dates, date-times, months, and decimal numbers through PHP Intl.
+- Database dates, billing month identifiers, form values, enum values, calculations, and audit data remain locale-neutral.
+- All users share `Europe/Kyiv`; timezone is not a user preference.
+- Remaining feature-screen copy can move incrementally to translation keys without changing routes or business logic.
+
+### Official Application Name
+
+- User-facing product name: `MICS HUB`.
+- Database-safe identifier: `mics_hub`.
+- DDEV project and hostname slug: `mics-hub`.
+- Existing database table names and PHP namespaces remain unchanged because they are domain structures, not product branding.
+
+### Removed Operations Scope
+
+- Removed deployment, rollback, backup, restore, and release-verification scripts.
+- Removed the production environment template, readiness endpoint/command/tests, trusted-proxy override, and CI deployment job.
+- Removed or rewrote documentation that referenced the deleted operations tooling.
+- Retained the seeder safety boundary: demo credentials and data run only in `local` and `testing` environments.
+
+### Dashboard Month Analytics
+
+- The selected month is carried as a `YYYY-MM` query parameter and defaults to the current month in the configured school timezone.
+- Previous, next, and current-month controls change only the reporting period; they do not change or close billing months.
+- Student totals use the latest `student_configurations` row effective on or before the selected month and exclude students who had not joined yet.
+- The snapshot reports total, active, paused, archived, per-lesson, and plan-based students.
+
+### Deferred Seeding Decision Gate
 
 - Package prices are complete monthly charges; they are not calculated from lesson averages or suffixes.
 - Values such as `4.5` and package per-lesson suffixes are reporting metadata only.
-- The local customer CSV is source material, not a production seeder, and remains excluded from Git.
-- Implementation waits for the remaining answers in `docs/SEEDING-DECISIONS.md`.
+- The local customer ODS and BDB files are private source material, remain excluded from Git, and are never read at runtime.
+- The reviewed first seed is implemented; remaining source ambiguities are recorded in `docs/SEEDING-DECISIONS.md`.
+- `docs/SEEDING-CATALOG.md` is the current correction surface for the next seed rewrite pass.
+- `plans.lesson_count` is now a decimal field so the source `4.5` monthly lesson average can be stored without affecting billing calculations.
+- Global reference data contains one Ukrainian teaching role, two lesson rates, eight plans, and five expense categories.
+- Local/testing school data contains exactly one administrator account, one teacher account for Максим Гузьо, and twelve pupils assigned to that teacher.
+- Payment confirmations, card numbers, historical payments, expenses, debt, and bank snapshots are intentionally not seeded.
 
 ### Current Known Facts
 
@@ -111,7 +149,7 @@ The translated schema layer is in place. Administrators and teachers can enter s
 - Student balance propagation uses transactions and deterministic PostgreSQL row locking to protect concurrent corrections.
 - Student record ownership is centralized in `StudentPolicy`, while validation depends on user capabilities rather than route naming.
 - Larastan level 5, a reviewed initial baseline, a unified `composer check` command, and GitHub Actions enforce static analysis, formatting, tests, and asset builds.
-- `docs/development-conventions.md` teaches safe code placement, financial invariants, lock ordering, migration evolution, testing, and atomic release practices.
+- `docs/development-conventions.md` teaches safe code placement, financial invariants, lock ordering, migration evolution, and testing.
 
 - Payments follow an explicit draft-to-validated workflow. Only validated payments reduce student debt.
 - Validation records the administrator and timestamp. Validated payments cannot be edited or deleted.
@@ -123,44 +161,37 @@ The translated schema layer is in place. Administrators and teachers can enter s
 - The student debt ledger explains each selected month's opening balance, charges, validated payments, and closing balance.
 - Validated payment mistakes are corrected with one or more immutable partial/full refunds linked to the original payment.
 - Reversals require an administrator reason, restore student debt, and propagate corrected balances through existing future months.
-- Production deployments have a secret-free environment template, explicit trusted-proxy configuration, liveness/readiness endpoints, and a configuration gate command.
-- `docs/deployment.md` defines deployment order, PostgreSQL backup/restore testing, process requirements, rollback boundaries, and release verification.
-- The pre-release schema is consolidated into two commented MICS domain migrations plus Laravel's three framework migrations; future post-launch changes must use new migrations.
+- The baseline schema is consolidated into two commented MICS HUB domain migrations plus Laravel's three framework migrations; future changes must use new migrations.
 - Inactive authenticated accounts are logged out immediately instead of retaining access until their session expires.
 - Missing payment months inherit prior closing debt, paused students carry existing debt without receiving new charges, and student credits no longer hide other students' positive debt.
 - Student charges, salaries, and expenses record validator identity and validation time; generated salary corrections require an explanation.
-- `docs/codebase-guide.md` explains Laravel and MICS architecture; `docs/file-reference.md` documents every maintained source file and generated/third-party boundary.
-- Every maintained path is mechanically verified against the file reference; folders have an ownership map, Blade files have purpose headers, and undocumented MICS PHP/test files have concise source-purpose comments.
+- `docs/codebase-guide.md` explains Laravel and MICS HUB architecture; `docs/file-reference.md` documents every maintained source file and generated/third-party boundary.
+- Every maintained path is mechanically verified against the file reference; folders have an ownership map, Blade files have purpose headers, and undocumented MICS HUB PHP/test files have concise source-purpose comments.
 
-## Deployment Readiness Checklist
-
-### Required Before Production
+## Quality Checklist
 
 - [x] Add a monthly finance summary showing generated charges, validated payments, outstanding debt, validated salaries, and validated manual expenses.
 - [x] Correct validated payment mistakes with linked reversal records rather than editing history.
 - [x] Propagate carried student balances across existing consecutive months when a late payment is validated or a charge is adjusted.
-- [ ] Add production environment values for `APP_URL`, database, mail, queue, cache, session, and trusted proxy settings without committing secrets.
-- [ ] Configure HTTPS, secure cookies, database backups, retention, and a tested restore procedure.
 - [x] Document that workers and scheduler processes are not required until queued or scheduled workflows are introduced.
-- [ ] Run migrations against a production-like PostgreSQL copy and verify rollback/restore strategy.
+- [ ] Run migrations against a PostgreSQL copy and verify the restore strategy.
 - [ ] Run `ddev composer test`, `ddev npm run build`, and `ddev exec ./vendor/bin/pint --test` from a clean checkout.
 - [ ] Perform browser acceptance tests on desktop and mobile for admin and teacher roles.
-- [ ] Replace demo passwords and confirm seeders cannot create known credentials in production.
+- [ ] Replace demo passwords and confirm seeders cannot create known credentials outside local environments.
 
 ### Verification Evidence (2026-07-05)
 
 - [x] PHPUnit covers role boundaries, CRUD, finance transitions, reconciliation, and a deterministic three-month workflow.
 - [x] Larastan level 5 passes with no new findings outside the reviewed initial Laravel inference baseline.
-- [x] The unified `ddev composer check` gate passes formatting, static analysis, tests, and production asset build.
+- [x] The unified `ddev composer check` gate passes formatting, static analysis, tests, and the asset build.
 - [x] Seeded route-render smoke coverage for every maintained admin and teacher page.
 - [x] Pint passes on application, database, route, bootstrap, and test PHP files.
-- [x] Production Vite build succeeds.
+- [x] Vite build succeeds.
 - [x] Composer manifest validates strictly.
 - [x] Composer audit reports no known PHP dependency advisories.
-- [x] npm production audit reports zero known vulnerabilities.
+- [x] npm dependency audit reports zero known vulnerabilities.
 - [x] Laravel configuration, event, route, and view optimization succeeds.
 - [x] A clean local PostgreSQL 17 database builds and seeds successfully from all five consolidated migrations.
-- [x] `/up`, `/ready`, and the production-readiness command have automated coverage.
 
 ### Final Product Decisions
 
@@ -192,11 +223,9 @@ The translated schema layer is in place. Administrators and teachers can enter s
 
 ## Next Controlled Steps
 
-1. Keep `main` protected as the deployment branch and retain `v1.0.0` as the first immutable release marker.
-2. The project owner will configure and operate the VPS, including secrets, HTTPS, backups, deployment, and rollback.
-3. Use the persistent `feature` branch for one new-functionality change at a time and the persistent `fix` branch for one regression-tested correction at a time; merge either into `main` only through a passing pull request.
-4. Resolve the final product decisions above, especially bank reconciliation and expense-category management.
-5. Perform the full desktop/mobile browser walkthrough against the production-like deployment.
+1. Use the persistent `feature` branch for one new-functionality change at a time and the persistent `fix` branch for one regression-tested correction at a time; merge either into `main` only through a passing pull request.
+2. Resolve the final product decisions above, especially bank reconciliation and expense-category management.
+3. Perform the full desktop/mobile browser walkthrough locally.
 
 ## Step Review Template
 
@@ -215,6 +244,6 @@ After each completed step, explain:
 - Explain the Laravel concept before editing application code.
 - Prefer one small change over one large batch.
 - Name the Laravel concept explicitly, not just the file name.
-- Connect each code change to a MICS business rule.
+- Connect each code change to a MICS HUB business rule.
 - Challenge fragile or un-Laravel designs.
 - Keep the code understandable enough that the owner can explain it afterward.

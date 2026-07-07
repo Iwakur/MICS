@@ -1,4 +1,4 @@
-# MICS Product Workflows
+# MICS HUB Product Workflows
 
 ## Initial Setup
 

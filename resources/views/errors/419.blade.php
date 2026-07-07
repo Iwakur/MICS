@@ -1,1 +1,1 @@
-<x-error-page code="419" title="Session expired" message="Reload the form and submit it again. No change was saved." />
+<x-error-page code="419" :title="__('messages.error_419_title')" :message="__('messages.error_419_message')" />

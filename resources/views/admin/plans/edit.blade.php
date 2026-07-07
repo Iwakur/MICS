@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin plans edit. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin plans edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Edit Plan | MICS')
+@section('title', 'Edit Plan | MICS HUB')
 @section('eyebrow', 'Administrator · Catalog')
 @section('page-title', 'Edit Plan')
 @section('page-description', 'Amount changes affect future month closing only; historical snapshots remain unchanged.')

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Expense Categories | MICS')
+@section('title', 'Expense Categories | MICS HUB')
 @section('eyebrow', 'Administrator · Finance Setup')
 @section('page-title', 'Expense Categories')
 @section('page-description', 'Maintain the stable classification list used by expense records.')

@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin students index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin students index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Students | MICS')
+@section('title', 'Students | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Students')
 @section('page-description', 'Manage student ownership and future billing configuration. Monthly charges remain historical snapshots.')

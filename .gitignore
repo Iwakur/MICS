@@ -17,6 +17,8 @@
 /playwright-report
 /test-results
 /docs/Customers DB*.csv
+/docs/Customers DB.ods
+/docs/BDB.txt
 /public/build
 /public/fonts-manifest.dev.json
 /public/hot

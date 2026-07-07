@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin month-closing index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin month-closing index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Month Closing | MICS')
+@section('title', 'Month Closing | MICS HUB')
 @section('eyebrow', 'Administrator · Billing')
 @section('page-title', 'Manual Month Closing')
 @section('page-description', 'Review the selected month, then generate student charges, salary drafts, and next-month opening balances in one transaction.')

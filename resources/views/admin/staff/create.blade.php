@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin staff create. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Create Staff | MICS')
+@section('title', 'Create Staff | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Create Staff')
 @section('page-description', 'Create a staff profile, choose fixed or dynamic compensation, and optionally link an existing account.')

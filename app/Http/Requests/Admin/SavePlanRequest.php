@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS source: app Http Requests Admin SavePlanRequest. See docs/file-reference.md for its full responsibility.
+ * MICS HUB source: app Http Requests Admin SavePlanRequest. See docs/file-reference.md for its full responsibility.
  */
 
 namespace App\Http\Requests\Admin;
@@ -32,7 +32,7 @@ class SavePlanRequest extends FormRequest
                 Rule::unique((new Plan)->getTable(), 'name')->ignore($this->route('plan')),
             ],
             'duration_minutes' => ['required', 'integer', 'min:1'],
-            'lesson_count' => ['required', 'integer', 'min:1'],
+            'lesson_count' => ['required', 'numeric', 'min:0.1'],
             'lesson_price' => ['required', 'numeric', 'min:0'],
             'plan_price' => ['required', 'numeric', 'min:0'],
             'teacher_monthly_amount' => ['required', 'numeric', 'min:0'],

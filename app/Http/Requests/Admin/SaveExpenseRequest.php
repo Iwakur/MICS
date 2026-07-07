@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS source: app Http Requests Admin SaveExpenseRequest. See docs/file-reference.md for its full responsibility.
+ * MICS HUB source: app Http Requests Admin SaveExpenseRequest. See docs/file-reference.md for its full responsibility.
  */
 
 namespace App\Http\Requests\Admin;

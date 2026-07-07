@@ -1,4 +1,4 @@
-name: MICS
+name: mics-hub
 type: laravel
 docroot: public
 php_version: "8.4"

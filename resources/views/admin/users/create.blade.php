@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin users create. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin users create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Create User | MICS')
+@section('title', 'Create User | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Create User')
 @section('page-description', 'Create a new staff account without bypassing the current username, email, role, password, and activation rules.')

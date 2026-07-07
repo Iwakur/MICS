@@ -1,4 +1,4 @@
-{{-- MICS Blade view: admin staff partials form. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff partials form. Full responsibility is documented in docs/file-reference.md. --}}
 @php($staffRoleId = old('staff_role_id', $staffMember?->staff_role_id))
 @php($linkedUser = $staffMember?->user)
 

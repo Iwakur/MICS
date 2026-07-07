@@ -1,12 +1,12 @@
-{{-- MICS Blade view: admin payments edit. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin payments edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
-@section('title', 'Review Payment | MICS')
+@section('title', 'Review Payment | MICS HUB')
 @section('eyebrow', 'Administrator · Finance')
 @section('page-title', $payment->isReversal() ? 'Payment Refund' : ($payment->status === \App\Enums\ReviewStatus::Draft ? 'Review Payment Draft' : 'Validated Payment'))
 @section('page-description', 'Validated records stay immutable. Partial or full refunds are stored as linked negative payments.')
 @section('content')
     <section class="grid gap-6">
-        @if($payment->status === \App\Enums\ReviewStatus::Validated)<div class="app-surface-strong p-5 text-sm text-shell-muted">Validated {{ $payment->validated_at?->format('d M Y H:i') }} by <span class="font-semibold text-shell-text">{{ $payment->validatedBy?->username ?? 'deleted user' }}</span>.</div>@endif
+        @if($payment->status === \App\Enums\ReviewStatus::Validated)<div class="app-surface-strong p-5 text-sm text-shell-muted">Validated {{ \App\Support\LocalizedFormat::dateTime($payment->validated_at) }} by <span class="font-semibold text-shell-text">{{ $payment->validatedBy?->username ?? 'deleted user' }}</span>.</div>@endif
         @if($payment->isReversal())<div class="app-flash-error">This record refunds part or all of <a class="font-semibold underline" href="{{ route('admin.payments.edit', $payment->reversalOf) }}">payment #{{ $payment->reversal_of_payment_id }}</a>. Reason: {{ $payment->note }}</div>@endif
         @if(!$payment->isReversal() && $payment->refunds->isNotEmpty())<div class="app-flash-error">Refunded {{ number_format($payment->refundedCents() / 100, 2) }}; {{ number_format($payment->refundableCents() / 100, 2) }} remains refundable.</div>@endif
         <div class="app-surface p-6">

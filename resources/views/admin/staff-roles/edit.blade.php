@@ -1,6 +1,6 @@
-{{-- MICS Blade view: admin staff-roles edit. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff-roles edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
-@section('title', 'Edit Staff Role | MICS')
+@section('title', 'Edit Staff Role | MICS HUB')
 @section('eyebrow', 'Administrator · Staff')
 @section('page-title', 'Edit Staff Role')
 @section('page-description', 'Existing staff retain this role if archived; it simply stops appearing for new assignments.')

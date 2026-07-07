@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Create Expense Category | MICS')
+@section('title', 'Create Expense Category | MICS HUB')
 @section('eyebrow', 'Administrator · Finance Setup')
 @section('page-title', 'Create Expense Category')
 @section('page-description', 'Categories organize manual and generated expenses without changing financial history.')

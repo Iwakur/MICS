@@ -1,4 +1,4 @@
-# MICS Testing Guide
+# MICS HUB Testing Guide
 
 ## Test Layers
 
@@ -38,7 +38,7 @@ ddev exec php artisan serve --host=0.0.0.0 --port=8000
 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 ddev npm run test:e2e
 ```
 
-`migrate:fresh` deletes the selected database; confirm it is local before running it. In normal DDEV use, prefer testing against the existing `https://mics.ddev.site` by setting `PLAYWRIGHT_BASE_URL` accordingly. Browser system libraries installed inside DDEV disappear when its web container is rebuilt; rerun `install-deps` when Chromium reports a missing shared library. CI installs both browser and libraries automatically.
+`migrate:fresh` deletes the selected database; confirm it is local before running it. In normal DDEV use, prefer testing against the existing `https://mics-hub.ddev.site` by setting `PLAYWRIGHT_BASE_URL` accordingly. Browser system libraries installed inside DDEV disappear when its web container is rebuilt; rerun `install-deps` when Chromium reports a missing shared library. CI installs both browser and libraries automatically.
 
 ## Failure Interpretation
 

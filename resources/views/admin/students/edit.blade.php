@@ -1,6 +1,6 @@
-{{-- MICS Blade view: admin students edit. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin students edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
-@section('title', 'Edit Student | MICS')
+@section('title', 'Edit Student | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Edit Student')
 @section('page-description', 'Changes configure future month closing and do not rewrite historical monthly rows.')

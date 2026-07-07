@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin lesson-types edit. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin lesson-types edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Edit Lesson Type | MICS')
+@section('title', 'Edit Lesson Type | MICS HUB')
 @section('eyebrow', 'Administrator · Catalog')
 @section('page-title', 'Edit Lesson Type')
 @section('page-description', 'Rate changes affect future month closing only; historical snapshots remain unchanged.')

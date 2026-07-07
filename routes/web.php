@@ -16,14 +16,12 @@ use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MonthlyLessonCountController;
-use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/ready', ReadinessController::class)->name('ready');
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +69,9 @@ Route::middleware('guest')->group(function (): void {
 |
 */
 Route::middleware(['auth', 'active'])->group(function (): void {
+    Route::post('/locale', LocaleController::class)
+        ->name('locale.update');
+
     Route::get('/dashboard', DashboardController::class)
         ->name('dashboard');
 

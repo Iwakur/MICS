@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin payments index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin payments index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Student Payments | MICS')
+@section('title', 'Student Payments | MICS HUB')
 @section('eyebrow', 'Administrator · Finance')
 @section('page-title', 'Student Payments')
 @section('page-description', 'Record payment evidence as a draft, then validate it before it reduces student debt.')
@@ -24,7 +24,7 @@
                         <tr>
                             <td class="px-4 py-4 font-medium text-shell-text">{{ trim($payment->studentMonth->student->first_name.' '.$payment->studentMonth->student->family_name) }}</td>
                             <td class="px-4 py-4"><span class="{{ $payment->isReversal() ? 'app-badge-inactive' : 'app-badge-teacher' }}">{{ $payment->isReversal() ? 'refund' : ($payment->refunds->isNotEmpty() ? 'partly refunded' : 'payment') }}</span></td>
-                            <td class="px-4 py-4 text-shell-muted">{{ $payment->paid_at->format('d M Y H:i') }}</td>
+                            <td class="px-4 py-4 text-shell-muted">{{ \App\Support\LocalizedFormat::dateTime($payment->paid_at) }}</td>
                             <td class="px-4 py-4">{{ str($payment->payment_method)->replace('_', ' ')->title() }}</td>
                             <td class="px-4 py-4 font-semibold">{{ number_format((float) $payment->amount, 2) }}</td>
                             <td class="px-4 py-4"><span class="{{ $payment->status === \App\Enums\ReviewStatus::Validated ? 'app-badge-active' : 'app-badge-inactive' }}">{{ $payment->status->value }}</span></td>

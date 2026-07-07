@@ -1,7 +1,7 @@
-{{-- MICS Blade view: monthly student-charge review and navigation. --}}
+{{-- MICS HUB Blade view: monthly student-charge review and navigation. --}}
 @extends('layouts.app')
 
-@section('title', 'Student Charges | MICS')
+@section('title', 'Student Charges | MICS HUB')
 @section('eyebrow', 'Administrator · Finance')
 @section('page-title', 'Student Charge Review')
 @section('page-description', 'Review closed-month charges, apply auditable adjustments, and validate final records.')

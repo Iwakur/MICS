@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin lesson-types index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin lesson-types index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Lesson Types | MICS')
+@section('title', 'Lesson Types | MICS HUB')
 @section('eyebrow', 'Administrator · Catalog')
 @section('page-title', 'Lesson Types')
 @section('page-description', 'Configure what students pay and what dynamic teachers earn for each completed lesson.')

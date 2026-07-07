@@ -1,8 +1,8 @@
-# MICS Development Conventions
+# MICS HUB Development Conventions
 
 ## Why This File Exists
 
-This is the practical decision guide for changing MICS after deployment. Read `docs/codebase-guide.md` first to understand Laravel's request lifecycle, then use this file while implementing a change. `README.md` remains the product truth and `PLAN.md` remains the active work list.
+This is the practical decision guide for changing MICS HUB. Read `docs/codebase-guide.md` first to understand Laravel's request lifecycle, then use this file while implementing a change. `README.md` remains the product truth and `PLAN.md` remains the active work list.
 
 ## Safe Change Workflow
 
@@ -11,11 +11,10 @@ This is the practical decision guide for changing MICS after deployment. Read `d
 3. Add or update a failing test that describes externally visible behavior.
 4. Make the smallest implementation that passes the test. Keep request coordination in controllers and reusable business calculations in services or small domain methods.
 5. Run `ddev composer check`. Review the diff and migration SQL before committing.
-6. Deploy through a release artifact and migration process. Never edit tracked application files directly on the live server.
 
 Use `feature` for new behavior and `fix` for defects. A defect starts with a failing regression test. Every schema or workflow change updates tests, DBML, relevant guides, and `PLAN.md` in the same pull request. Exact commands are in `docs/commands.md`.
 
-Small and large changes use the same process. Large changes should be split into compatible releases so the old and new application can temporarily operate against the same database schema.
+Small and large changes use the same process. Split large changes into compatible steps.
 
 ## Where Code Belongs
 
@@ -45,7 +44,7 @@ Use a database transaction when multiple writes must succeed or fail together. F
 2. Related `student_months` rows in month order.
 3. Related payment or expense row when required.
 
-`StudentBalanceService` is the single place for creating missing student months and propagating opening balances. Do not manually update a later opening balance from a controller. PostgreSQL enforces these locks in production; SQLite tests verify behavior but cannot fully simulate concurrent requests.
+`StudentBalanceService` is the single place for creating missing student months and propagating opening balances. Do not manually update a later opening balance from a controller. PostgreSQL enforces these locks; SQLite tests verify behavior but cannot fully simulate concurrent requests.
 
 ## Authorization
 
@@ -60,13 +59,13 @@ Access role and staff role are intentionally separate. `users.role` controls app
 
 ## Database Migrations
 
-The two consolidated MICS migrations are a pre-production baseline. After the first production deployment, never edit an already deployed migration. Create a new migration for every schema change.
+The two consolidated MICS HUB migrations are the baseline. Never edit an already-applied migration. Create a new migration for every schema change.
 
 Use the expand-and-contract pattern for risky changes:
 
 1. Add a nullable column/table/index without removing the old structure.
-2. Deploy code that understands both structures.
-3. Backfill and verify production data.
+2. Update code to understand both structures.
+3. Backfill and verify existing data.
 4. Switch all reads and writes to the new structure.
 5. Remove the old structure in a later release only after rollback is no longer required.
 
@@ -82,7 +81,7 @@ Run the complete local gate:
 ddev composer check
 ```
 
-It checks Pint formatting, Larastan static analysis, PHPUnit behavior, and the production Vite build. GitHub Actions repeats these checks for pushes and pull requests.
+It checks Pint formatting, Larastan static analysis, PHPUnit behavior, and the Vite build. GitHub Actions repeats these checks for pushes and pull requests.
 
 Use `ddev composer test:workflow` after changes to closing, balances, effective configuration, payments/refunds, expenses, or reconciliation. Playwright verifies real-browser smoke behavior; PHPUnit remains the detailed business-rule suite.
 
@@ -100,26 +99,14 @@ Update documentation as part of the same change:
 - `PLAN.md` for active work and unresolved decisions.
 - `docs/schema.dbml` after a migration changes the application schema; migrations remain authoritative.
 - `docs/file-reference.md` when files are added, removed, or responsibilities change.
-- `docs/deployment.md` when runtime processes, environment variables, or release steps change.
-
-## Production Changes
-
-- Build and test a versioned release from Git; never patch production files by hand.
-- Store `.env`, uploads, and runtime storage outside the release directory.
-- Take a release-tagged database backup before migrations.
-- Put the application in maintenance mode only for incompatible migration windows.
-- Run migrations once, optimize Laravel caches, switch the release symlink, and verify `/up`, `/ready`, login, admin finance, and teacher scoping.
-- Roll application code back by switching to the previous release. Prefer a forward-fix migration or tested database restore over blind migration rollback after business data has changed.
 
 ## Git and Release Workflow
 
-- `main` contains production-ready code and is the only deployment branch. Protect it, require CI, and update it only through reviewed pull requests from `feature` or `fix`.
+- `main` contains reviewed code. Protect it, require CI, and update it only through reviewed pull requests from `feature` or `fix`.
 - `feature` contains new functionality that is not yet released. Start feature work here, keep it synchronized with `main`, and open a pull request from `feature` into `main` when the complete change passes the quality gate.
 - `fix` contains corrections to existing behavior. Start bug-fix work here, add a regression test, keep it synchronized with `main`, and open a pull request from `fix` into `main` when the correction passes the quality gate.
 - After merging either working branch, update it from `main` before beginning unrelated work. Do not merge `feature` into `fix` or `fix` into `feature`; `main` is their shared integration point.
 - Only one coherent change should be active on each working branch at a time. If concurrent feature or fix work becomes necessary, replace this three-branch model with short-lived topic branches such as `feature/<topic>` and `fix/<topic>`.
-- Mark deployed releases with annotated semantic-version tags such as `v1.0.0`, `v1.0.1`, and `v1.1.0`. A tag identifies an immutable release; it is not a working branch.
-- Keep VPS-specific secrets and deployment configuration outside Git. VPS deployment and rollback execution are the project owner's responsibility.
 
 ## Learning Checklist
 
@@ -131,4 +118,4 @@ Before implementing a feature, be able to answer:
 4. Is historical data mutable, draft-only, or immutable?
 5. Does the change require a transaction or row lock?
 6. Which feature test proves the result and which denied test proves security?
-7. Can old code and new code coexist during deployment?
+7. Can the change be delivered in smaller compatible steps?

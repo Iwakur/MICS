@@ -1,1 +1,1 @@
-<x-error-page code="500" title="Application error" message="The action could not be completed. The failure was logged for investigation." />
+<x-error-page code="500" :title="__('messages.error_500_title')" :message="__('messages.error_500_message')" />

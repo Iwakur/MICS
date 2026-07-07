@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin users index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin users index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'User Management | MICS')
+@section('title', 'User Management | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'User Management')
 @section('page-description', 'Administrators can create, edit, activate, deactivate, and selectively delete user accounts here. Safety rules still protect the last active admin and the current administrator account.')

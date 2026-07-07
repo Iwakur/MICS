@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Edit Expense Category | MICS')
+@section('title', 'Edit Expense Category | MICS HUB')
 @section('eyebrow', 'Administrator · Finance Setup')
 @section('page-title', 'Edit Expense Category')
 @section('page-description', 'Archive a used category to preserve history while removing it from new expense forms.')

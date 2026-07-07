@@ -73,9 +73,9 @@ Use the documentation with these roles:
 - Do not use temporary handoff documents such as `hash.md`; fold anything still relevant into `PLAN.md` or `README.md`.
 - Do not add fallback or rescue styling for cases where Vite, npm, or the asset pipeline is down. If frontend assets are unavailable, the UI may render raw; fix the asset pipeline instead of covering the failure in Blade views.
 
-## MICS Domain & Legacy Reference
+## MICS HUB Domain & Legacy Reference
 
-MICS is a clean Laravel rebuild of a school operations system.
+MICS HUB is a clean Laravel rebuild of a school operations system.
 
 - The current Laravel code, migrations, and tests are always the implementation source of truth.
 - Product intent and a proposed simplified schema are documented in `legacy(self-created)/README.md` and `legacy(self-created)/database/schema.dbml`.
@@ -101,4 +101,3 @@ Follow the Laravel Boost guidance already installed for this repository.
 - Use `php artisan make:` commands for new Laravel classes when possible.
 - Run Pint on changed PHP files before finalizing PHP edits.
 - Use PHPUnit classes, not Pest.
-

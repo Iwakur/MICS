@@ -1,1 +1,1 @@
-<x-error-page code="503" title="Maintenance in progress" message="MICS is temporarily unavailable during a controlled deployment. Try again shortly." />
+<x-error-page code="503" :title="__('messages.error_503_title')" :message="__('messages.error_503_message')" />

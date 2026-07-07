@@ -1,17 +1,35 @@
-{{-- MICS Blade view: admin dashboard. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin dashboard. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Admin Dashboard | MICS')
+@section('title', 'Admin Dashboard | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Admin Dashboard')
 @section('page-description', 'People, billing setup, and access controls are separated so each part of school operations has a clear home.')
 
 @section('content')
+    <section class="app-surface mb-6 p-5">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div>
+                    <label for="month" class="text-sm font-medium text-shell-text">Dashboard month</label>
+                    <input id="month" name="month" type="month" value="{{ $month->format('Y-m') }}" class="app-input mt-2" required>
+                </div>
+                <button class="app-button-secondary">View month</button>
+            </form>
+            <nav aria-label="Dashboard month navigation" class="flex flex-wrap gap-2">
+                <a href="{{ route('admin.dashboard', ['month' => $month->subMonth()->format('Y-m')]) }}" class="app-button-secondary">Previous</a>
+                <a href="{{ route('admin.dashboard', ['month' => $currentMonth->format('Y-m')]) }}" class="app-button-secondary">Current month</a>
+                <a href="{{ route('admin.dashboard', ['month' => $month->addMonth()->format('Y-m')]) }}" class="app-button-secondary">Next</a>
+            </nav>
+        </div>
+        <p class="mt-4 text-sm text-shell-muted">Showing the student configuration effective in {{ \App\Support\LocalizedFormat::month($month) }}.</p>
+    </section>
+
     <section class="grid gap-4 lg:grid-cols-3">
         <article class="app-surface p-6">
             <p class="text-xs font-semibold uppercase tracking-[0.25em] text-brand-300">People</p>
             <div class="mt-5 grid grid-cols-3 gap-4">
-                <div><p class="text-3xl font-semibold text-shell-text">{{ $totalStudents }}</p><p class="mt-1 text-xs text-shell-muted">Students</p></div>
+                <div><p class="text-3xl font-semibold text-shell-text">{{ $studentStatistics['total'] }}</p><p class="mt-1 text-xs text-shell-muted">Students</p></div>
                 <div><p class="text-3xl font-semibold text-shell-text">{{ $totalStaff }}</p><p class="mt-1 text-xs text-shell-muted">Staff</p></div>
                 <div><p class="text-3xl font-semibold text-shell-text">{{ $totalUsers }}</p><p class="mt-1 text-xs text-shell-muted">Accounts</p></div>
             </div>
@@ -32,6 +50,19 @@
                 <div><p class="text-3xl font-semibold text-shell-text">{{ $totalPlans }}</p><p class="mt-1 text-xs text-shell-muted">Plans</p></div>
             </div>
         </article>
+    </section>
+
+    <section class="app-surface mt-6 p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-brand-300">Student analysis</p>
+        <h3 class="mt-2 text-xl font-semibold text-shell-text">{{ \App\Support\LocalizedFormat::month($month) }} student snapshot</h3>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <div class="app-surface-strong p-4"><p class="text-3xl font-semibold text-shell-text">{{ $studentStatistics['total'] }}</p><p class="mt-1 text-sm text-shell-muted">Total</p></div>
+            <div class="app-surface-strong p-4"><p class="text-3xl font-semibold text-shell-text">{{ $studentStatistics['active'] }}</p><p class="mt-1 text-sm text-shell-muted">Active</p></div>
+            <div class="app-surface-strong p-4"><p class="text-3xl font-semibold text-shell-text">{{ $studentStatistics['paused'] }}</p><p class="mt-1 text-sm text-shell-muted">Paused</p></div>
+            <div class="app-surface-strong p-4"><p class="text-3xl font-semibold text-shell-text">{{ $studentStatistics['archived'] }}</p><p class="mt-1 text-sm text-shell-muted">Archived</p></div>
+            <div class="app-surface-strong p-4"><p class="text-3xl font-semibold text-shell-text">{{ $studentStatistics['per_lesson'] }}</p><p class="mt-1 text-sm text-shell-muted">Per lesson</p></div>
+            <div class="app-surface-strong p-4"><p class="text-3xl font-semibold text-shell-text">{{ $studentStatistics['plan_based'] }}</p><p class="mt-1 text-sm text-shell-muted">Monthly plan</p></div>
+        </div>
     </section>
 
     <section class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_1fr]">

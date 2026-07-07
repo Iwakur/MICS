@@ -1,19 +1,16 @@
 <?php
 
 /**
- * MICS test coverage: tests Feature ApplicationWorkflowSmokeTest. See docs/file-reference.md for protected behavior.
+ * MICS HUB test coverage: tests Feature ApplicationWorkflowSmokeTest. See docs/file-reference.md for protected behavior.
  */
 
 namespace Tests\Feature;
 
-use App\Models\Expense;
 use App\Models\LessonType;
-use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Staff;
 use App\Models\StaffRole;
 use App\Models\Student;
-use App\Models\StudentMonth;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -23,7 +20,7 @@ class ApplicationWorkflowSmokeTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    public function test_all_admin_workflow_pages_render_with_connected_demo_data(): void
+    public function test_all_admin_workflow_pages_render_with_seeded_school_data(): void
     {
         $this->seed(DatabaseSeeder::class);
         $admin = User::query()->where('username', 'admin')->firstOrFail();
@@ -50,13 +47,10 @@ class ApplicationWorkflowSmokeTest extends TestCase
             route('admin.lesson-counts.index', ['month' => '2026-07']),
             route('admin.month-closing.index', ['month' => '2026-07']),
             route('admin.student-charges.index', ['month' => '2026-07']),
-            route('admin.student-charges.edit', StudentMonth::query()->firstOrFail()),
             route('admin.payments.index', ['month' => '2026-07']),
             route('admin.payments.create', ['month' => '2026-07']),
-            route('admin.payments.edit', Payment::query()->firstOrFail()),
             route('admin.expenses.index', ['month' => '2026-07']),
             route('admin.expenses.create'),
-            route('admin.expenses.edit', Expense::query()->firstOrFail()),
             route('admin.expense-categories.index'),
             route('admin.expense-categories.create'),
             route('admin.bank-months.index', ['month' => '2026-07']),
@@ -68,7 +62,7 @@ class ApplicationWorkflowSmokeTest extends TestCase
         }
     }
 
-    public function test_all_teacher_workflow_pages_render_with_scoped_demo_data(): void
+    public function test_all_teacher_workflow_pages_render_with_scoped_seeded_data(): void
     {
         $this->seed(DatabaseSeeder::class);
         $teacher = User::query()->where('username', 'teacher')->firstOrFail();

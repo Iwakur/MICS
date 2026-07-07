@@ -1,4 +1,4 @@
-{{-- MICS Blade view: admin plans partials form. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin plans partials form. Full responsibility is documented in docs/file-reference.md. --}}
 <div class="grid gap-6 md:grid-cols-2">
     <div class="space-y-2">
         <label for="name" class="text-sm font-medium text-shell-text">Name</label>
@@ -13,7 +13,7 @@
 <div class="grid gap-6 md:grid-cols-2">
     <div class="space-y-2">
         <label for="lesson_count" class="text-sm font-medium text-shell-text">Included Lessons</label>
-        <input id="lesson_count" name="lesson_count" type="number" min="1" value="{{ old('lesson_count', $plan?->lesson_count) }}" required class="app-input">
+        <input id="lesson_count" name="lesson_count" type="number" min="0.1" step="0.1" value="{{ old('lesson_count', $plan?->lesson_count) }}" required class="app-input">
     </div>
     <div class="space-y-2">
         <label for="lesson_price" class="text-sm font-medium text-shell-text">Reference Price per Lesson</label>

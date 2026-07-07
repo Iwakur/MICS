@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
 #[Signature('app:bootstrap-administrator')]
-#[Description('Interactively create the first linked production administrator and staff identity')]
+#[Description('Interactively create the first linked administrator and staff identity')]
 class BootstrapAdministrator extends Command
 {
     public function handle(): int

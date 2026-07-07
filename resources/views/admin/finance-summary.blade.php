@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin finance-summary. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin finance-summary. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Finance Summary | MICS')
+@section('title', 'Finance Summary | MICS HUB')
 @section('eyebrow', 'Administrator · Finance')
 @section('page-title', 'Monthly Finance Summary')
 @section('page-description', 'Compare charges, validated cash, outstanding student debt, salaries, and irregular expenses without mixing drafts into confirmed activity.')
@@ -19,7 +19,7 @@
             <article class="app-surface p-5"><p class="text-xs uppercase tracking-[0.2em] text-shell-muted">Monthly Charges</p><p class="mt-2 text-3xl font-semibold text-shell-text">{{ number_format($summary['charges'], 2) }}</p><p class="mt-2 text-sm text-shell-muted">Includes attributed charge adjustments.</p></article>
             <article class="app-surface p-5"><p class="text-xs uppercase tracking-[0.2em] text-shell-muted">Validated Payments</p><p class="mt-2 text-3xl font-semibold text-shell-text">{{ number_format($summary['validated_payments'], 2) }}</p><p class="mt-2 text-sm text-shell-muted">Draft payments are excluded.</p></article>
             <article class="app-surface p-5"><p class="text-xs uppercase tracking-[0.2em] text-shell-muted">Outstanding Debt</p><p class="mt-2 text-3xl font-semibold text-shell-text">{{ number_format($summary['outstanding_debt'], 2) }}</p><p class="mt-2 text-sm text-shell-muted">{{ $summary['students_with_debt'] }} students with a positive balance.</p></article>
-            <article class="app-surface p-5"><p class="text-xs uppercase tracking-[0.2em] text-shell-muted">Opening Debt</p><p class="mt-2 text-3xl font-semibold text-shell-text">{{ number_format($summary['opening_balance'], 2) }}</p><p class="mt-2 text-sm text-shell-muted">Debt carried into {{ $month->format('F Y') }}.</p></article>
+            <article class="app-surface p-5"><p class="text-xs uppercase tracking-[0.2em] text-shell-muted">Opening Debt</p><p class="mt-2 text-3xl font-semibold text-shell-text">{{ \App\Support\LocalizedFormat::number($summary['opening_balance']) }}</p><p class="mt-2 text-sm text-shell-muted">Debt carried into {{ \App\Support\LocalizedFormat::month($month) }}.</p></article>
             <article class="app-surface p-5"><p class="text-xs uppercase tracking-[0.2em] text-shell-muted">Student Credit</p><p class="mt-2 text-3xl font-semibold text-shell-text">{{ number_format($summary['student_credit'], 2) }}</p><p class="mt-2 text-sm text-shell-muted">Credit is shown separately and never hides another student's debt.</p></article>
         </div>
 

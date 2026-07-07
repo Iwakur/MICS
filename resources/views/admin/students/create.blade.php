@@ -1,6 +1,6 @@
-{{-- MICS Blade view: admin students create. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin students create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
-@section('title', 'Create Student | MICS')
+@section('title', 'Create Student | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Create Student')
 @section('page-description', 'Assign the student and choose exactly one billing model.')

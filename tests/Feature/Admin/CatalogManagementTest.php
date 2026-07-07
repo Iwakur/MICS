@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS test coverage: tests Feature Admin CatalogManagementTest. See docs/file-reference.md for protected behavior.
+ * MICS HUB test coverage: tests Feature Admin CatalogManagementTest. See docs/file-reference.md for protected behavior.
  */
 
 namespace Tests\Feature\Admin;
@@ -54,7 +54,7 @@ class CatalogManagementTest extends TestCase
         $this->actingAs($admin)->post(route('admin.plans.store'), [
             'name' => 'Monthly Eight',
             'duration_minutes' => 60,
-            'lesson_count' => 8,
+            'lesson_count' => 8.5,
             'lesson_price' => '40.00',
             'plan_price' => '300.00',
             'teacher_monthly_amount' => '180.00',
@@ -64,6 +64,7 @@ class CatalogManagementTest extends TestCase
 
         $plan = Plan::query()->where('name', 'Monthly Eight')->firstOrFail();
 
+        $this->assertSame('8.5', $plan->lesson_count);
         $this->assertSame('300.00', $plan->plan_price);
         $this->assertSame('180.00', $plan->teacher_monthly_amount);
 

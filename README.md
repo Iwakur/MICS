@@ -1,6 +1,6 @@
-# MICS
+# MICS HUB
 
-MICS is a Laravel 13 school-operations application for staff access, assigned students, lesson catalogs, monthly charges, payments/refunds, salaries, expenses, and bank reconciliation. It targets PHP 8.4, PostgreSQL 17, Tailwind CSS 4, and Vite.
+MICS HUB is a Laravel 13 school-operations application for staff access, assigned students, lesson catalogs, monthly charges, payments/refunds, salaries, expenses, and bank reconciliation. It targets PHP 8.4, PostgreSQL 17, Tailwind CSS 4, and Vite.
 
 ## What the Product Does
 
@@ -25,7 +25,7 @@ ddev exec php artisan db:seed
 
 `ddev start` creates the PHP/nginx/PostgreSQL containers. `ddev composer setup` installs PHP and JavaScript dependencies, creates local environment configuration, migrates the database, and builds frontend assets. Seeding is safe to repeat locally.
 
-Open `https://mics.ddev.site`. Demo accounts are `admin` / `password` and `teacher` / `password`; they are never created in production.
+Open `https://mics-hub.ddev.site`. Demo accounts are `admin` / `password` and `teacher` / `password`; they are created only in local environments.
 
 ## Daily Development
 
@@ -34,7 +34,7 @@ ddev composer dev
 ddev composer check
 ```
 
-The first command runs the application, logs, and Vite watcher. The second is the required release gate: Pint formatting check, Larastan analysis, PHPUnit, dependency audits, and production asset build.
+The first command runs the application, logs, and Vite watcher. The second runs Pint, Larastan, PHPUnit, dependency audits, and the asset build.
 
 Use `ddev composer test:workflow` for the three-month finance regression and `ddev npm run test:e2e` for browser smoke tests after installing Chromium with `ddev npm run playwright:install`.
 
@@ -54,15 +54,7 @@ Students are business records, not login accounts. Every active login links to a
 - [Command reference](docs/commands.md): what every supported command does and when to use it.
 - [Testing guide](docs/testing.md): PHPUnit, PostgreSQL, Playwright, static analysis, audits, and CI.
 - [Development guide](docs/development-conventions.md): safe feature and bug-fix workflow.
-- [Deployment runbook](docs/deployment.md): Ubuntu/nginx/PHP-FPM/PostgreSQL releases, backup, verification, and rollback.
-- [Troubleshooting](docs/troubleshooting.md): common local, CI, database, asset, finance, and deployment failures.
+- [Troubleshooting](docs/troubleshooting.md): common local, CI, database, asset, and finance failures.
 - [Maintained file reference](docs/file-reference.md): ownership of project paths.
 
-## Release Workflow
-
-- `main` is production and deploys only after CI succeeds.
-- `feature` carries one coherent new feature at a time and reaches `main` through a pull request.
-- `fix` carries one regression-tested correction at a time and reaches `main` through a pull request.
-- Annotated semantic tags such as `v1.1.0` identify immutable releases.
-
-Never edit code directly on the VPS, commit `.env`, rewrite validated finance records, or run `migrate:fresh` against a database containing real data.
+Never commit `.env`, rewrite validated finance records, or run `migrate:fresh` against a database containing real data.

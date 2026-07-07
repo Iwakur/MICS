@@ -1,1 +1,1 @@
-<x-error-page code="404" title="Page not found" message="The requested page or record could not be found." />
+<x-error-page code="404" :title="__('messages.error_404_title')" :message="__('messages.error_404_message')" />

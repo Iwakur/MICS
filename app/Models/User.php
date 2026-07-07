@@ -14,11 +14,11 @@ use Illuminate\Notifications\Notifiable;
 /**
  * Authenticated application user.
  *
- * In MICS this model represents login accounts and access control. It does not
+ * In MICS HUB this model represents login accounts and access control. It does not
  * represent every future business identity directly. For example, students are
  * business records, not authenticated users.
  */
-#[Fillable(['staff_id', 'username', 'email', 'password', 'role', 'is_active', 'last_login_at'])]
+#[Fillable(['staff_id', 'username', 'email', 'password', 'role', 'is_active', 'last_login_at', 'locale'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -55,6 +55,7 @@ class User extends Authenticatable
     protected $attributes = [
         'role' => UserRole::Teacher->value,
         'is_active' => true,
+        'locale' => 'en',
     ];
 
     /**

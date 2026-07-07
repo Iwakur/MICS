@@ -1,1 +1,1 @@
-<x-error-page code="429" title="Too many requests" message="Wait briefly before trying this action again." />
+<x-error-page code="429" :title="__('messages.error_429_title')" :message="__('messages.error_429_message')" />

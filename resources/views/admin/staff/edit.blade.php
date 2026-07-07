@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin staff edit. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff edit. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Edit Staff | MICS')
+@section('title', 'Edit Staff | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Edit Staff')
 @section('page-description', 'Update staff identity, active state, and the linked login account if one exists.')

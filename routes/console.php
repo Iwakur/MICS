@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Console closure commands and the future scheduling entrypoint for MICS.
+ * Console closure commands and the future scheduling entrypoint for MICS HUB.
  */
 
 use Illuminate\Foundation\Inspiring;

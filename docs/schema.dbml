@@ -1,10 +1,10 @@
-// Generated documentation snapshot of the MICS application schema.
+// Generated documentation snapshot of the MICS HUB application schema.
 // Source of truth: database/migrations/*.php. Regenerate this file after schema changes.
 // Laravel infrastructure tables (cache, jobs, sessions, and password resets) are omitted.
 
-Project MICS {
+Project mics_hub {
   database_type: "PostgreSQL"
-  Note: "Application schema for the first MICS release"
+  Note: "Application schema for the first MICS HUB release"
 }
 
 Table users {
@@ -67,7 +67,7 @@ Table plans {
   id bigint [pk, increment]
   name varchar(100) [not null, unique]
   duration_minutes integer [not null]
-  lesson_count integer [not null]
+  lesson_count decimal(5,1) [not null]
   lesson_price decimal(10,2) [not null]
   plan_price decimal(10,2) [not null]
   teacher_monthly_amount decimal(10,2) [not null, default: 0]

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS test coverage: tests Feature Admin StaffRoleManagementTest. See docs/file-reference.md for protected behavior.
+ * MICS HUB test coverage: tests Feature Admin StaffRoleManagementTest. See docs/file-reference.md for protected behavior.
  */
 
 namespace Tests\Feature\Admin;
@@ -22,11 +22,11 @@ class StaffRoleManagementTest extends TestCase
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
 
-        $role = StaffRole::query()->where('name', 'Teacher')->firstOrFail();
+        $role = StaffRole::query()->where('name', 'Викладач')->firstOrFail();
 
         $this->assertTrue($role->can_teach);
         $this->assertTrue($role->is_active);
-        $this->assertSame(1, StaffRole::query()->where('name', 'Teacher')->count());
+        $this->assertSame(1, StaffRole::query()->where('name', 'Викладач')->count());
     }
 
     public function test_admin_can_create_and_update_a_staff_role(): void

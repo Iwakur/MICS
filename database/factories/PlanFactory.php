@@ -20,7 +20,7 @@ class PlanFactory extends Factory
         return [
             'name' => fake()->unique()->words(2, true),
             'duration_minutes' => fake()->randomElement([30, 45, 60, 90]),
-            'lesson_count' => fake()->numberBetween(4, 20),
+            'lesson_count' => fake()->randomFloat(1, 4, 20),
             'lesson_price' => fake()->randomFloat(2, 10, 100),
             'plan_price' => fake()->randomFloat(2, 100, 1000),
             'teacher_monthly_amount' => fake()->randomFloat(2, 50, 500),

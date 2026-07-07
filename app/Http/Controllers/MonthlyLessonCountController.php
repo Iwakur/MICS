@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS source: app Http Controllers MonthlyLessonCountController. See docs/file-reference.md for its full responsibility.
+ * MICS HUB source: app Http Controllers MonthlyLessonCountController. See docs/file-reference.md for its full responsibility.
  */
 
 namespace App\Http\Controllers;
@@ -43,7 +43,7 @@ class MonthlyLessonCountController extends Controller
         $prefix = $request->user()->isAdmin() ? 'admin' : 'teacher';
 
         return to_route($prefix.'.lesson-counts.index', ['month' => $request->string('month')->toString()])
-            ->with('status', 'Lesson counts saved successfully.');
+            ->with('status', __('messages.lesson_counts_saved'));
     }
 
     private function saveCounts(SaveMonthlyLessonCountsRequest $request): void
@@ -51,7 +51,7 @@ class MonthlyLessonCountController extends Controller
         DB::transaction(function () use ($request): void {
             $billingMonth = BillingMonth::query()->firstOrCreate(['month_date' => $request->monthDate()]);
             $billingMonth = BillingMonth::query()->lockForUpdate()->findOrFail($billingMonth->id);
-            abort_if($billingMonth->status === BillingMonthStatus::Closed, 422, 'This month is closed.');
+            abort_if($billingMonth->status === BillingMonthStatus::Closed, 422, __('messages.month_closed'));
 
             foreach ($request->lessonCounts() as $studentId => $count) {
                 StudentMonth::query()->updateOrCreate(
@@ -100,6 +100,6 @@ class MonthlyLessonCountController extends Controller
         }
 
         $staff = $request->user()->staffMember;
-        abort_if(! $staff?->is_active || ! $staff->role?->can_teach, 403, 'An active teaching staff profile is required.');
+        abort_if(! $staff?->is_active || ! $staff->role?->can_teach, 403, __('messages.teaching_profile_required'));
     }
 }

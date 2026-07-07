@@ -49,7 +49,7 @@ class SaveMonthlyLessonCountsRequest extends FormRequest
             }
 
             if (BillingMonth::query()->whereDate('month_date', $this->monthDate())->where('status', BillingMonthStatus::Closed)->exists()) {
-                $validator->errors()->add('month', 'Lesson counts cannot be changed after the month is closed.');
+                $validator->errors()->add('month', __('messages.counts_after_close'));
 
                 return;
             }
@@ -70,7 +70,7 @@ class SaveMonthlyLessonCountsRequest extends FormRequest
                 })->count();
 
             if ($eligibleCount !== count($studentIds)) {
-                $validator->errors()->add('counts', 'One or more students are not available for lesson entry.');
+                $validator->errors()->add('counts', __('messages.students_unavailable'));
             }
         }];
     }

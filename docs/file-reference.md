@@ -1,14 +1,14 @@
-# MICS Maintained File Reference
+# MICS HUB Maintained File Reference
 
 ## How to Use This Reference
 
-Each entry describes one maintained source file or one intentionally grouped generated area. `vendor/`, `node_modules/`, `public/build/`, `bootstrap/cache/`, `storage/`, and DDEV-generated files are outputs or third-party implementation details; they should be understood by role but not edited as MICS source. Historical files under `legacy(self-created)/` are excluded because they are not part of the running Laravel application.
+Each entry describes one maintained source file or one intentionally grouped generated area. `vendor/`, `node_modules/`, `public/build/`, `bootstrap/cache/`, `storage/`, and DDEV-generated files are outputs or third-party implementation details; they should be understood by role but not edited as MICS HUB source. Historical files under `legacy(self-created)/` are excluded because they are not part of the running Laravel application.
 
 ## Folder Map
 
 - `.agents/`: project-local coding-agent skills and repository workflow guidance; not runtime application code.
 - `.ddev/`: reproducible local PHP, nginx, PostgreSQL, mail, and tooling environment.
-- `app/`: all MICS runtime PHP classes.
+- `app/`: all MICS HUB runtime PHP classes.
 - `app/Console/Commands/`: custom Artisan commands.
 - `app/Enums/`: finite backed-string domain states persisted by Eloquent.
 - `app/Http/Controllers/`: browser request coordinators, split into shared, authentication, admin, and teacher areas.
@@ -22,12 +22,12 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `bootstrap/`: Laravel application construction, provider list, and generated optimization cache.
 - `config/`: environment-backed runtime configuration; `env()` calls belong here rather than application classes.
 - `database/factories/`: valid randomized model builders for tests.
-- `database/migrations/`: five ordered first-release schema files: three Laravel infrastructure and two MICS domain baselines.
-- `database/seeders/`: idempotent reference and non-production demo data.
-- `docs/`: architecture, deployment, and exhaustive file responsibility documentation.
+- `database/migrations/`: five ordered first-release schema files: three Laravel infrastructure and two MICS HUB domain baselines.
+- `database/seeders/`: idempotent reviewed reference and local school data.
+- `docs/`: architecture and exhaustive file responsibility documentation.
 - `legacy(self-created)/`: historical product research only; never loaded by the Laravel application.
-- `public/`: web-server document root and generated production frontend output.
-- `resources/css/`: Tailwind CSS source and MICS design tokens/components.
+- `public/`: web-server document root and generated frontend output.
+- `resources/css/`: Tailwind CSS source and MICS HUB design tokens/components.
 - `resources/js/`: browser JavaScript source entrypoint.
 - `resources/views/`: Blade templates grouped by admin, teacher, authentication, layouts, and shared partials.
 - `routes/`: browser and console route registration.
@@ -39,14 +39,13 @@ Each entry describes one maintained source file or one intentionally grouped gen
 
 ## Root Project Files
 
-- `.env.example`: safe local environment template; includes application, database, session, queue, cache, mail, and optional trusted-proxy variables.
-- `.env.production.example`: secret-free production template with secure defaults and placeholders that must be supplied by the hosting secret manager.
+- `.env.example`: safe local environment template; includes application, database, session, queue, cache, and mail variables.
 - `.editorconfig`: line endings, indentation, encoding, and final-newline rules shared by editors.
 - `.gitattributes`: Git text normalization and export behavior.
 - `.gitignore`: excludes secrets, dependencies, runtime state, and compiled assets.
 - `AGENTS.md`: repository collaboration, Laravel learning, testing, and documentation rules.
 - `README.md`: durable product direction, implemented model, business rules, and local entrypoints.
-- `PLAN.md`: active work, confirmed constraints, deployment checklist, demo walkthrough, and final blockers.
+- `PLAN.md`: active work, confirmed constraints, quality checklist, demo walkthrough, and final blockers.
 - `composer.json`: PHP dependency manifest, PSR-4 autoloading, and setup/dev/test scripts.
 - `composer.lock`: exact PHP dependency versions used for reproducible installation.
 - `package.json`: frontend dependency and Vite command manifest.
@@ -57,19 +56,18 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `phpstan-baseline.neon`: reviewed existing Laravel inference findings; new findings still fail CI.
 - `vite.config.js`: Tailwind/Vite build inputs and development-server integration.
 - `boost.json`: Laravel Boost tooling configuration.
-- `.github/workflows/ci.yml`: push/pull-request quality gate for formatting, static analysis, PHPUnit, and production assets.
+- `.github/workflows/ci.yml`: push/pull-request quality gate for formatting, static analysis, PHPUnit, and assets.
 - `artisan`: Laravel console entrypoint that boots the application and dispatches commands.
 
 ## Documentation
 
-- `docs/codebase-guide.md`: framework and MICS architecture guide, including request lifecycle and accounting design.
+- `docs/codebase-guide.md`: framework and MICS HUB architecture guide, including request lifecycle and accounting design.
 - `docs/file-reference.md`: this path-by-path maintained-source inventory.
-- `docs/deployment.md`: production environment, release sequence, rollback, health checks, and PostgreSQL backup/restore runbook.
-- `docs/development-conventions.md`: safe change workflow, code placement, money, locking, authorization, migrations, testing, and production maintenance rules.
+- `docs/development-conventions.md`: safe change workflow, code placement, money, locking, authorization, migrations, and testing rules.
 - `docs/commands.md`: supported local, database, quality, diagnostic, Git, and release commands with safety notes.
 - `docs/testing.md`: PHPUnit, PostgreSQL, Playwright, static-analysis, audit, and CI learning guide.
 - `docs/product-workflows.md`: initial setup, monthly operations, corrections, reconciliation, and three-month example.
-- `docs/troubleshooting.md`: local, CI, finance, database, deployment, restore, and incident recovery guide.
+- `docs/troubleshooting.md`: local, CI, finance, database, and incident recovery guide.
 
 ## Bootstrap and Public Entry
 
@@ -77,14 +75,13 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `public/.htaccess`: Apache rewrite rules for forwarding application URLs to `index.php`.
 - `public/favicon.ico`: browser icon asset.
 - `public/robots.txt`: crawler policy.
-- `bootstrap/app.php`: Laravel 13 application builder; registers routes, health endpoint, proxy middleware replacement, aliases, and exception behavior.
+- `bootstrap/app.php`: Laravel 13 application builder; registers routes, aliases, and exception behavior.
 - `bootstrap/providers.php`: provider list loaded during application boot.
 - `bootstrap/cache/.gitignore`: keeps generated framework cache files out of Git.
 
 ## Console
 
-- `app/Console/Commands/CheckProductionReadiness.php`: validates production environment, HTTPS, key, database, secure sessions, encryption, trusted proxies, and live DB connectivity.
-- `app/Console/Commands/BootstrapAdministrator.php`: one-time interactive, validated, atomic creation of the first linked production administrator.
+- `app/Console/Commands/BootstrapAdministrator.php`: one-time interactive, validated, atomic creation of the first linked administrator.
 - `routes/console.php`: closure-command and scheduler registration; currently contains only Laravel’s example quote command and no scheduled business task.
 
 ## Enums
@@ -132,10 +129,9 @@ Each entry describes one maintained source file or one intentionally grouped gen
 
 ## Base and Shared Controllers
 
-- `app/Http/Controllers/Controller.php`: framework base controller inherited by MICS controllers.
+- `app/Http/Controllers/Controller.php`: framework base controller inherited by MICS HUB controllers.
 - `app/Http/Controllers/DashboardController.php`: authenticated role dispatcher for `/dashboard`.
 - `app/Http/Controllers/MonthlyLessonCountController.php`: shared admin/teacher lesson-count screen, scoped student query, month locking, and transactional count updates.
-- `app/Http/Controllers/ReadinessController.php`: public database readiness probe returning 200 or 503 JSON.
 
 ## Authentication Controller
 
@@ -203,7 +199,7 @@ Each entry describes one maintained source file or one intentionally grouped gen
 
 ## Route Files
 
-- `routes/web.php`: all guest, authenticated, admin, teacher, finance-transition, health, and logout browser routes.
+- `routes/web.php`: all guest, authenticated, admin, teacher, finance-transition, and logout browser routes.
 - `routes/console.php`: console closure commands and future schedule definitions.
 
 ## Configuration
@@ -211,12 +207,11 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `config/app.php`: application name, environment, debug mode, URL, locale, encryption key/cipher, and maintenance settings.
 - `config/auth.php`: session guard, Eloquent user provider, and password reset behavior.
 - `config/cache.php`: database/file/Redis/etc. cache stores and cache-key prefix.
-- `config/database.php`: SQLite, MySQL, MariaDB, PostgreSQL, SQL Server, and Redis connections; MICS production target is PostgreSQL.
-- `config/deployment.php`: environment-backed trusted proxy setting used by MICS proxy middleware and readiness checks.
+- `config/database.php`: SQLite, MySQL, MariaDB, PostgreSQL, SQL Server, and Redis connections.
 - `config/filesystems.php`: local/public/cloud filesystem disks and public storage link.
 - `config/logging.php`: stack, file, stderr, syslog, Slack, and emergency log channels.
-- `config/mail.php`: mail transports and global sender; current MICS release has no email workflow.
-- `config/queue.php`: queue connections, batching, and failed-job storage; current MICS release defines no queued job.
+- `config/mail.php`: mail transports and global sender; current MICS HUB release has no email workflow.
+- `config/queue.php`: queue connections, batching, and failed-job storage; current MICS HUB release defines no queued job.
 - `config/services.php`: credentials/configuration placeholders for external service integrations.
 - `config/session.php`: database session storage, lifetime, encryption, cookie security, domain, and SameSite behavior.
 
@@ -251,9 +246,9 @@ Each entry describes one maintained source file or one intentionally grouped gen
 
 ## Seeders
 
-- `database/seeders/DatabaseSeeder.php`: runs reference data always and demo data outside production.
-- `database/seeders/ReferenceDataSeeder.php`: idempotent Teacher/Manager roles, lesson types, plans, and expense categories.
-- `database/seeders/DemoDataSeeder.php`: idempotent linked accounts, staff, students, monthly records, payments, expenses, and bank snapshots for demonstration.
+- `database/seeders/DatabaseSeeder.php`: runs reference data always and reviewed school data in local/testing environments.
+- `database/seeders/ReferenceDataSeeder.php`: idempotent Ukrainian teaching role, lesson rates, plans, and expense categories reviewed from the local customer source.
+- `database/seeders/SchoolDataSeeder.php`: local/testing-only administrator, Максим teacher account, and twelve source-derived pupils without financial history or private payment data.
 
 ## Frontend Assets
 
@@ -333,25 +328,16 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `tests/Feature/Admin/FinanceSummaryTest.php`: separation of drafts/validated values, positive debt, student credit, expense classes, rendering, and authorization.
 - `tests/Feature/DatabaseSeederTest.php`: connected idempotent reference/demo seeds.
 - `tests/Feature/Domain/DatabaseSchemaTest.php`: relationships, constraints, balance semantics, cascades, preservation, and unique keys.
-- `tests/Feature/DeploymentReadinessTest.php`: database readiness route and safe/unsafe production command configuration.
 - `tests/Feature/Admin/BankReconciliationTest.php`: expected/actual totals, attribution, variance requirements, audit reopen, and authorization.
 - `tests/Feature/Admin/ExpenseCategoryManagementTest.php`: category CRUD, archive/delete behavior, and authorization.
 - `tests/Feature/LongitudinalWorkflowTest.php`: deterministic three-month effective-rate, debt, refund, salary, reconciliation, and reopen regression.
 - `tests/Browser/core-workflows.spec.js`: real Chromium admin, teacher, finance navigation, and mobile smoke checks.
 
-## Operational Scripts
-
-- `scripts/deploy.sh`: guarded immutable release creation, migration, atomic switch, and verification.
-- `scripts/backup-database.sh`: permission-restricted PostgreSQL custom-format backup plus archive verification.
-- `scripts/restore-database.sh`: explicitly confirmed PostgreSQL restore command.
-- `scripts/verify-release.sh`: production configuration and HTTP health verification.
-- `scripts/rollback.sh`: atomic application-code rollback without blind migration reversal.
-
 ## Generated and Third-Party Areas
 
 - `vendor/`: Composer-installed Laravel and PHP package source. Read framework internals only for debugging; never modify them because reinstall/update replaces changes.
 - `node_modules/`: npm-installed Tailwind/Vite dependencies; never edit directly.
-- `public/build/`: Vite production output generated by `npm run build`.
+- `public/build/`: Vite output generated by `npm run build`.
 - `storage/`: logs, sessions, caches, compiled views, and other writable runtime data.
 - `bootstrap/cache/`: optimized package, service, route, event, and configuration caches generated by Artisan.
 - `.ddev/`: local container/web/database orchestration. Maintain deliberate project overrides; treat generated compose files as DDEV output.

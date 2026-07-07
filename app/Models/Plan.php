@@ -23,6 +23,7 @@ class Plan extends Model
     protected function casts(): array
     {
         return [
+            'lesson_count' => 'decimal:1',
             'lesson_price' => 'decimal:2',
             'plan_price' => 'decimal:2',
             'teacher_monthly_amount' => 'decimal:2',

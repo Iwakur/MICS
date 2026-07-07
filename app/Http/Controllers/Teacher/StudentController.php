@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS source: app Http Controllers Teacher StudentController. See docs/file-reference.md for its full responsibility.
+ * MICS HUB source: app Http Controllers Teacher StudentController. See docs/file-reference.md for its full responsibility.
  */
 
 namespace App\Http\Controllers\Teacher;
@@ -40,7 +40,7 @@ class StudentController extends Controller
     {
         Student::query()->create($request->studentData($this->staffId($request)));
 
-        return to_route('teacher.students.index')->with('status', 'Student created successfully.');
+        return to_route('teacher.students.index')->with('status', __('messages.student_created'));
     }
 
     public function edit(Request $request, Student $student): View
@@ -55,7 +55,7 @@ class StudentController extends Controller
         Gate::authorize('update', $student);
         $student->update($request->studentData($this->staffId($request)));
 
-        return to_route('teacher.students.index')->with('status', 'Student updated successfully.');
+        return to_route('teacher.students.index')->with('status', __('messages.student_updated'));
     }
 
     private function ownedStudents(Request $request): Builder
@@ -67,7 +67,7 @@ class StudentController extends Controller
     {
         $staffId = $request->user()->staff_id;
         $staff = $request->user()->staffMember;
-        abort_if(! $staffId || ! $staff?->is_active || ! $staff->role?->can_teach, 403, 'An active teaching staff profile is required.');
+        abort_if(! $staffId || ! $staff?->is_active || ! $staff->role?->can_teach, 403, __('messages.teaching_profile_required'));
 
         return $staffId;
     }

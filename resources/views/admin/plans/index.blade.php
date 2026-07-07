@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin plans index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin plans index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Plans | MICS')
+@section('title', 'Plans | MICS HUB')
 @section('eyebrow', 'Administrator · Catalog')
 @section('page-title', 'Plans')
 @section('page-description', 'Configure recurring monthly student charges and dynamic teacher earnings for plan-based students.')

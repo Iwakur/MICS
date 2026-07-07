@@ -1,10 +1,10 @@
-{{-- MICS Blade view: auth login. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: auth login. Full responsibility is documented in docs/file-reference.md. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Login | {{ config('app.name', 'MICS') }}</title>
+        <title>Login | {{ config('app.name', 'MICS HUB') }}</title>
 
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -15,10 +15,10 @@
             {{-- The login card stays intentionally simple because auth should feel clear, not busy. --}}
             <div class="app-surface w-full max-w-md p-8">
                 <div class="space-y-3">
-                    <p class="text-sm font-medium uppercase tracking-[0.3em] text-brand-300">MICS</p>
+                    <p class="text-sm font-medium uppercase tracking-[0.3em] text-brand-300">MICS HUB</p>
                     <h1 class="text-3xl font-semibold text-shell-text">Sign in</h1>
                     <p class="text-sm text-shell-muted">
-                        Use your username and password. Email stays on the account for later communication, not for login.
+                        Use your username and password. <br> Email stays on the account for later communication.
                     </p>
                 </div>
 
@@ -74,8 +74,7 @@
                 </form>
 
                 <p class="mt-5 text-xs text-shell-muted">
-                    Local demo account: <strong>admin</strong> / <strong>password</strong>. Demo credentials are never seeded in production.
-                </p>
+                    We recommend to use <strong>serious password</strong> as calculation in this app may affect your salary.</p>
             </div>
         </main>
     </body>

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MICS source: app Enums StudentBillingType. See docs/file-reference.md for its full responsibility.
+ * MICS HUB source: app Enums StudentBillingType. See docs/file-reference.md for its full responsibility.
  */
 
 namespace App\Enums;

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Bank Reconciliation | MICS')
+@section('title', 'Bank Reconciliation | MICS HUB')
 @section('eyebrow', 'Administrator · Finance')
 @section('page-title', 'Bank Reconciliation')
 @section('page-description', 'Compare expected cash movement with the actual bank balance and preserve an attributed variance explanation.')

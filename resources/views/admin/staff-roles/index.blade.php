@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin staff-roles index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff-roles index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Staff Roles | MICS')
+@section('title', 'Staff Roles | MICS HUB')
 @section('eyebrow', 'Administrator · Staff')
 @section('page-title', 'Staff Roles')
 @section('page-description', 'Business roles describe staff responsibilities. Login permissions remain separate in User Management.')

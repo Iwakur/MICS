@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin plans create. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin plans create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Create Plan | MICS')
+@section('title', 'Create Plan | MICS HUB')
 @section('eyebrow', 'Administrator · Catalog')
 @section('page-title', 'Create Plan')
 @section('page-description', 'Define recurring monthly amounts for the school and dynamic teacher.')

@@ -1,20 +1,20 @@
-# MICS Laravel Architecture Guide
+# MICS HUB Laravel Architecture Guide
 
 ## Purpose and Scope
 
-This guide explains how Laravel works in this repository and how MICS uses it. It covers maintained application code and the framework concepts needed to understand it. Generated dependencies in `vendor/`, compiled files in `public/build/`, runtime files in `storage/`, and historical code in `legacy(self-created)/` are not maintained application source and are not documented line by line.
+This guide explains how Laravel works in this repository and how MICS HUB uses it. It covers maintained application code and the framework concepts needed to understand it. Generated dependencies in `vendor/`, compiled files in `public/build/`, runtime files in `storage/`, and historical code in `legacy(self-created)/` are not maintained application source and are not documented line by line.
 
-For a path-by-path inventory, see `docs/file-reference.md`. For production operations, see `docs/deployment.md`. Product rules live in `README.md`; current work and release gates live in `PLAN.md`.
+For a path-by-path inventory, see `docs/file-reference.md`. Product rules live in `README.md`; current work and quality gates live in `PLAN.md`.
 
 ## Laravel in One Request
 
-Laravel is the application framework. It supplies the HTTP kernel, service container, router, middleware pipeline, authentication, validation, database ORM, views, console commands, and testing integration. MICS adds school-specific rules on top.
+Laravel is the application framework. It supplies the HTTP kernel, service container, router, middleware pipeline, authentication, validation, database ORM, views, console commands, and testing integration. MICS HUB adds school-specific rules on top.
 
 A browser request follows this sequence:
 
 1. The web server sends the request to `public/index.php`.
-2. `bootstrap/app.php` creates the Laravel `Application`, registers route files, replaces trusted-proxy handling, aliases MICS middleware, and defines exception rendering.
-3. Laravel loads providers from `bootstrap/providers.php`; `AppServiceProvider` is the MICS extension point for application-wide boot logic.
+2. `bootstrap/app.php` creates the Laravel `Application`, registers route files, replaces trusted-proxy handling, aliases MICS HUB middleware, and defines exception rendering.
+3. Laravel loads providers from `bootstrap/providers.php`; `AppServiceProvider` is the MICS HUB extension point for application-wide boot logic.
 4. The router matches a declaration in `routes/web.php`.
 5. Global and route middleware run. Authentication resolves the current `User`; `EnsureUserIsActive` revokes inactive sessions; `EnsureUserIsAdmin` protects the admin area.
 6. Route model binding converts identifiers such as `{payment}` into Eloquent models such as `Payment`.
@@ -29,7 +29,7 @@ A browser request follows this sequence:
 
 Laravel’s container creates classes from controller method signatures. For example, `FinanceSummaryController` requests `FinanceSummaryService`; no manual `new` call is required because the service has resolvable dependencies. This keeps controllers focused on HTTP concerns and makes domain behavior independently testable.
 
-MICS currently uses convention-based automatic injection. No custom binding is needed in `AppServiceProvider` because services are concrete classes without interfaces.
+MICS HUB currently uses convention-based automatic injection. No custom binding is needed in `AppServiceProvider` because services are concrete classes without interfaces.
 
 ## Routing and Middleware
 
@@ -40,7 +40,6 @@ MICS currently uses convention-based automatic injection. No custom binding is n
 - the `/dashboard` dispatcher selects the role-specific home;
 - `/admin/*` additionally uses `admin`;
 - `/teacher/*` relies on controller-level ownership checks for assigned students;
-- `/up` is Laravel’s liveness route and `/ready` checks database connectivity.
 
 Resource routes generate conventional CRUD names and URLs. Explicit routes handle non-CRUD transitions such as payment validation/refund, month closing/reopening, and bank reconciliation/reopening.
 
@@ -57,7 +56,7 @@ System access roles and staff business roles are separate. `User.role` controls 
 
 Laravel’s session guard authenticates `User` records. `LoginRequest` validates credentials, blocks inactive accounts, calls `Auth::attempt`, and rate-limits repeated failures through the login route middleware. Successful login regenerates the session identifier to prevent session fixation. Logout invalidates the session and regenerates the CSRF token.
 
-Production uses secure, encrypted, HTTP-only cookies and database-backed sessions. The readiness command verifies the security-sensitive settings.
+Sessions use the configured Laravel session driver and cookie settings.
 
 ## Controllers
 
@@ -65,7 +64,7 @@ Controllers translate HTTP requests into application actions:
 
 - CRUD controllers load form options, call validated model operations, and redirect with flash messages;
 - role-specific student controllers enforce teacher ownership;
-- invokable dashboard, readiness, and finance controllers each handle one GET endpoint;
+- invokable dashboard and finance controllers each handle one GET endpoint;
 - financial transitions delegate calculations to services and use database transactions where several rows must change atomically.
 
 Controllers should not contain reusable accounting calculations. Those belong in `app/Services`.
@@ -83,7 +82,7 @@ Controllers consume `$request->validated()` or safe helper methods, never unrest
 
 ## Eloquent Models and Relationships
 
-Eloquent maps database tables to PHP classes. MICS models use:
+Eloquent maps database tables to PHP classes. MICS HUB models use:
 
 - `#[Fillable]` to define mass-assignable fields;
 - `casts()` for enums, booleans, dates, datetimes, and fixed-decimal strings;
@@ -103,7 +102,7 @@ Views never perform database queries. Controllers and services eager-load relati
 
 ## Enums
 
-Backed enums constrain persisted string states while remaining portable between PostgreSQL and SQLite tests. MICS uses enums for user role, student status, billing type, staff compensation mode, financial review status, and billing-month status. Database columns stay strings so migrations remain portable; model casts expose enum instances in PHP.
+Backed enums constrain persisted string states while remaining portable between PostgreSQL and SQLite tests. MICS HUB uses enums for user role, student status, billing type, staff compensation mode, financial review status, and billing-month status. Database columns stay strings so migrations remain portable; model casts expose enum instances in PHP.
 
 ## Database Transactions and Locks
 
@@ -118,7 +117,7 @@ Unique constraints provide a second line of defense for one student row per mont
 
 ## Monthly Accounting Model
 
-MICS is operational accounting, not a general ledger.
+MICS HUB is operational accounting, not a general ledger.
 
 Student balance formula:
 
@@ -147,9 +146,9 @@ These classes are domain services: they contain behavior shared by multiple HTTP
 
 ## Migrations and Schema History
 
-Migrations are ordered schema changes. Laravel records applied filenames in the `migrations` table. Existing migrations are historical records and should not be edited after production deployment; future changes require new forward migrations.
+Migrations are ordered schema changes. Laravel records applied filenames in the `migrations` table. Applied migrations are historical records and should not be edited; future changes require new forward migrations.
 
-Before the first production deployment, MICS consolidated its domain history into two commented baseline migrations: school structure and monthly finance structure. Together with Laravel's three framework migrations, a fresh installation runs five migrations. After the first production deployment these baseline files become immutable history; all later changes must use new migrations.
+MICS HUB consolidated its domain history into two commented baseline migrations: school structure and monthly finance structure. Together with Laravel's three framework migrations, a fresh installation runs five migrations. After they are applied these baseline files become immutable history; all later changes must use new migrations.
 
 Foreign-key deletion behavior is intentional:
 
@@ -164,7 +163,7 @@ Indexes cover foreign keys, statuses, dates, unique business keys, and common co
 
 Factories create valid isolated records for tests and development. Factory states such as `admin()`, `teacher()`, and `validated()` make intent explicit.
 
-`DatabaseSeeder` always creates reference catalogs. Outside production it also creates connected demo people and finance records through `DemoDataSeeder`. Demo users are `admin` / `password` and `teacher` / `password`; production never receives those credentials.
+`DatabaseSeeder` always creates the reviewed Ukrainian reference catalogs. In local and testing environments it also creates exactly one administrator, one teacher, and twelve pupils through `SchoolDataSeeder`. Local users are `admin` / `password` and `teacher` / `password`; no financial history or private source values are seeded.
 
 Seeders are idempotent: repeated runs update or reuse known records rather than duplicating them.
 
@@ -172,29 +171,26 @@ Seeders are idempotent: repeated runs update or reuse known records rather than 
 
 Blade templates define server-rendered pages. `layouts/app.blade.php` owns the authenticated shell, grouped navigation, flash messages, and validation summaries. Feature views provide page-specific tables and forms. Shared form partials reduce repeated field markup.
 
-`resources/css/app.css` imports Tailwind CSS 4 and defines MICS theme tokens plus reusable component classes such as surfaces, inputs, buttons, badges, and navigation links. `resources/js/app.js` is the Vite JavaScript entrypoint and is intentionally minimal.
+`resources/css/app.css` imports Tailwind CSS 4 and defines MICS HUB theme tokens plus reusable component classes such as surfaces, inputs, buttons, badges, and navigation links. `resources/js/app.js` is the Vite JavaScript entrypoint and is intentionally minimal.
 
 Vite compiles assets into ignored `public/build/` output. Blade uses `@vite`; there is intentionally no fallback CSS when assets are missing.
 
 ## Testing
 
-PHPUnit feature tests boot Laravel and exercise routes, middleware, validation, Eloquent persistence, transactions, and rendered views. Unit tests are reserved for framework-independent logic. The suite uses SQLite in memory for speed; PostgreSQL migration status and production-like checks are separate deployment gates.
+PHPUnit feature tests boot Laravel and exercise routes, middleware, validation, Eloquent persistence, transactions, and rendered views. Unit tests are reserved for framework-independent logic. The suite uses SQLite in memory for speed.
 
-`LazilyRefreshDatabase` resets schema state only when a test touches the database. Tests cover authentication, role boundaries, CRUD, teacher scoping, effective dating, three-month calculations, refunds, lifecycle audits, reconciliation, seeds, schema constraints, readiness, and production configuration.
+`LazilyRefreshDatabase` resets schema state only when a test touches the database. Tests cover authentication, role boundaries, CRUD, teacher scoping, effective dating, three-month calculations, refunds, lifecycle audits, reconciliation, seeds, and schema constraints.
 
-## Console and Deployment
+## Console
 
 Artisan is Laravel’s CLI. Important commands are:
 
 ```bash
 php artisan migrate --force
-php artisan app:check-production-readiness
 php artisan optimize
 php artisan route:list
 php artisan schedule:list
 ```
-
-The custom readiness command rejects unsafe production environment, URL, key, database, session-cookie, encryption, and proxy configuration. It also tests the live database unless explicitly skipped.
 
 The current release has no scheduled task and no queued business job. Do not run infrastructure merely for appearance; add supervised queue/scheduler processes when features actually use them.
 

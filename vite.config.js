@@ -25,9 +25,9 @@ export default defineConfig({
         strictPort: true,
         cors: true,
         // Use the secure project origin so hot mode does not mix http and https.
-        origin: 'https://mics.ddev.site:5173',
+        origin: 'https://mics-hub.ddev.site:5173',
         hmr: {
-            host: 'mics.ddev.site',
+            host: 'mics-hub.ddev.site',
             protocol: 'wss',
         },
         watch: {

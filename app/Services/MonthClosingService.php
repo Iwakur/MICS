@@ -253,7 +253,7 @@ class MonthClosingService
     private function persistSalaryDrafts(CarbonImmutable $month, Collection $salaries): void
     {
         $salaryCategory = ExpenseCategory::query()->firstOrCreate(
-            ['name' => 'Salary'],
+            ['name' => 'Зарплата'],
             ['note' => 'Generated staff salary drafts.'],
         );
 

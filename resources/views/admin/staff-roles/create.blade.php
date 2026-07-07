@@ -1,6 +1,6 @@
-{{-- MICS Blade view: admin staff-roles create. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff-roles create. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
-@section('title', 'Create Staff Role | MICS')
+@section('title', 'Create Staff Role | MICS HUB')
 @section('eyebrow', 'Administrator · Staff')
 @section('page-title', 'Create Staff Role')
 @section('page-description', 'Add a reusable business role and explicitly choose whether it can receive students.')

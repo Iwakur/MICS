@@ -1,7 +1,7 @@
-{{-- MICS Blade view: admin staff index. Full responsibility is documented in docs/file-reference.md. --}}
+{{-- MICS HUB Blade view: admin staff index. Full responsibility is documented in docs/file-reference.md. --}}
 @extends('layouts.app')
 
-@section('title', 'Staff | MICS')
+@section('title', 'Staff | MICS HUB')
 @section('eyebrow', 'Administrator')
 @section('page-title', 'Staff')
 @section('page-description', 'Manage staff identity, active state, and linked login accounts. Staff records stay separate from access accounts.')

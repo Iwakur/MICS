@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "iwakur/mics-hub",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "MICS HUB school operations application.",
+    "keywords": ["mics-hub", "school-operations", "laravel"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
@@ -56,7 +56,6 @@
             "composer audit --locked --no-interaction",
             "npm audit --omit=dev"
         ],
-        "check:production": "@php artisan app:check-production-readiness",
         "check": [
             "@php vendor/bin/pint --test",
             "@analyse",
