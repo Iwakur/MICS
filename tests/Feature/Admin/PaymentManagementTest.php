@@ -7,6 +7,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\ReviewStatus;
+use App\Models\BankMonth;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentMonth;
@@ -161,5 +162,17 @@ class PaymentManagementTest extends TestCase
 
         $july = StudentMonth::query()->whereBelongsTo($student)->whereDate('month_date', '2026-07-01')->firstOrFail();
         $this->assertSame('120.00', $july->opening_balance);
+    }
+
+    public function test_payment_cannot_be_validated_after_its_bank_month_is_reconciled(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $payment = Payment::factory()->create(['paid_at' => '2026-07-15 10:00:00']);
+        BankMonth::factory()->create(['month_date' => '2026-07-01', 'status' => 'reconciled']);
+
+        $this->actingAs($admin)->post(route('admin.payments.validate', $payment))
+            ->assertInvalid('paid_at');
+
+        $this->assertSame(ReviewStatus::Draft, $payment->refresh()->status);
     }
 }

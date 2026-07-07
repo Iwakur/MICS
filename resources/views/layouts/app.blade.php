@@ -10,7 +10,7 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
     </head>
-    <body class="app-page">
+    <body class="app-page" data-confirm-delete="{{ __('messages.confirm_delete_action') }}">
         <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 app-button-primary">{{ __('messages.skip_to_content') }}</a>
         @php($user = auth()->user())
 
@@ -22,9 +22,12 @@
                         <p class="text-xs font-semibold uppercase tracking-[0.3em] text-brand-300">MICS HUB</p>
                         <h1 class="mt-3 text-xl font-semibold text-shell-text">{{ __('messages.school_operations') }}</h1>
                         <p class="mt-2 text-sm text-shell-muted">{{ __('messages.workspace_summary') }}</p>
+                        <button id="mobile-navigation-toggle" type="button" class="app-button-secondary mt-4 w-full lg:hidden" aria-controls="primary-navigation" aria-expanded="false" data-open-label="{{ __('messages.open_menu') }}" data-close-label="{{ __('messages.close_menu') }}">
+                            {{ __('messages.open_menu') }}
+                        </button>
                     </div>
 
-                    <nav class="flex-1 space-y-2 px-4 py-6 text-sm">
+                    <nav id="primary-navigation" class="hidden flex-1 space-y-2 px-4 py-6 text-sm lg:block">
                         @if ($user->isAdmin())
                             <a
                                 href="{{ route('admin.dashboard') }}"

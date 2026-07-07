@@ -7,6 +7,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\ReviewStatus;
+use App\Models\BankMonth;
 use App\Models\Expense;
 use App\Support\Money;
 use Illuminate\Foundation\Http\FormRequest;
@@ -39,6 +40,15 @@ class SaveExpenseRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
+                if ($validator->errors()->isNotEmpty()) {
+                    return;
+                }
+
+                if ($this->input('status') === ReviewStatus::Validated->value
+                    && BankMonth::query()->whereDate('month_date', $this->date('month_date')?->startOfMonth())->where('status', 'reconciled')->exists()) {
+                    $validator->errors()->add('status', __('messages.reopen_bank_before_cash_change'));
+                }
+
                 $expense = $this->route('expense');
 
                 if (! $expense instanceof Expense || ! $expense->is_auto_generated) {

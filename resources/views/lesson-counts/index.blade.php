@@ -26,7 +26,7 @@
                     <h3 class="text-lg font-semibold text-shell-text">{{ \App\Support\LocalizedFormat::month($month) }}</h3>
                     <p class="mt-1 text-sm text-shell-muted">{{ trans_choice('messages.eligible_students_count', $students->count(), ['count' => $students->count()]) }}</p>
                 </div>
-                <span class="{{ $isClosed ? 'app-badge-inactive' : 'app-badge-active' }}">{{ __('messages.'.($isClosed ? 'closed' : 'open')) }}</span>
+                <span class="{{ $isClosed ? 'app-badge-inactive' : 'app-badge-active' }}">{{ __('messages.'.($isClosed ? 'inputs_locked' : 'inputs_editable')) }}</span>
             </div>
 
             @if ($students->isEmpty())

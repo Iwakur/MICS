@@ -155,7 +155,7 @@ class MonthClosingTest extends TestCase
             'joined_at' => '2026-06-01',
         ]);
         StudentMonth::factory()->for($student)->create([
-            'month_date' => '2026-07-01',
+            'month_date' => '2026-06-01',
             'opening_balance' => 70,
             'charge_amount' => 0,
             'manual_adjustment' => 0,
@@ -166,8 +166,93 @@ class MonthClosingTest extends TestCase
 
         $august = StudentMonth::query()->whereBelongsTo($student)
             ->whereDate('month_date', '2026-08-01')->firstOrFail();
+        $july = StudentMonth::query()->whereBelongsTo($student)
+            ->whereDate('month_date', '2026-07-01')->firstOrFail();
 
+        $this->assertSame('70.00', $july->opening_balance);
+        $this->assertSame('0.00', $july->charge_amount);
         $this->assertSame('70.00', $august->opening_balance);
         $this->assertSame('0.00', $august->charge_amount);
+    }
+
+    public function test_generating_selected_month_also_generates_earlier_editable_months_in_order(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Staff::factory()->create(['salary_amount' => 900]);
+        BillingMonth::factory()->create(['month_date' => '2026-06-01', 'status' => BillingMonthStatus::Open]);
+        BillingMonth::factory()->create(['month_date' => '2026-07-01', 'status' => BillingMonthStatus::Open]);
+
+        $this->actingAs($admin)->get(route('admin.month-closing.index', ['month' => '2026-08']))
+            ->assertOk()
+            ->assertSee('This action generates and locks 3 months:')
+            ->assertSeeInOrder(['June 2026', 'July 2026', 'August 2026']);
+
+        $this->actingAs($admin)->post(route('admin.month-closing.store'), [
+            'month' => '2026-08',
+        ])->assertRedirect();
+
+        $this->assertSame(
+            ['2026-06-01', '2026-07-01', '2026-08-01'],
+            BillingMonth::query()->where('status', BillingMonthStatus::Closed)->orderBy('month_date')->pluck('month_date')->map->format('Y-m-d')->all(),
+        );
+        $this->assertSame(3, BillingMonthEvent::query()->where('action', 'closed')->count());
+        $this->assertSame(3, Expense::query()->where('is_auto_generated', true)->count());
+    }
+
+    public function test_only_latest_locked_month_can_be_unlocked(): void
+    {
+        $admin = User::factory()->admin()->create();
+        BillingMonth::factory()->create(['month_date' => '2026-07-01', 'status' => BillingMonthStatus::Closed]);
+        BillingMonth::factory()->create(['month_date' => '2026-08-01', 'status' => BillingMonthStatus::Closed]);
+
+        $this->actingAs($admin)
+            ->from(route('admin.month-closing.index', ['month' => '2026-07']))
+            ->post(route('admin.month-closing.reopen'), [
+                'month' => '2026-07',
+                'reason' => 'Correcting an older month after later processing.',
+            ])
+            ->assertRedirect(route('admin.month-closing.index', ['month' => '2026-07']))
+            ->assertSessionHasErrors('month');
+
+        $this->assertSame(2, BillingMonth::query()->where('status', BillingMonthStatus::Closed)->count());
+    }
+
+    public function test_older_month_cannot_be_generated_beneath_a_locked_later_month(): void
+    {
+        $admin = User::factory()->admin()->create();
+        BillingMonth::factory()->create(['month_date' => '2026-07-01', 'status' => BillingMonthStatus::Open]);
+        BillingMonth::factory()->create(['month_date' => '2026-08-01', 'status' => BillingMonthStatus::Closed]);
+
+        $this->actingAs($admin)
+            ->from(route('admin.month-closing.index', ['month' => '2026-09']))
+            ->post(route('admin.month-closing.store'), ['month' => '2026-09'])
+            ->assertRedirect(route('admin.month-closing.index', ['month' => '2026-09']))
+            ->assertSessionHasErrors('month');
+
+        $this->assertSame(BillingMonthStatus::Open, BillingMonth::query()->whereDate('month_date', '2026-07-01')->firstOrFail()->status);
+        $this->assertDatabaseMissing('billing_months', ['month_date' => '2026-09-01', 'status' => BillingMonthStatus::Closed->value]);
+    }
+
+    public function test_regeneration_removes_obsolete_unvalidated_charge_and_salary_drafts(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $teacher = Staff::factory()->create(['compensation_mode' => StaffCompensationMode::Dynamic, 'salary_amount' => null]);
+        $lessonType = LessonType::factory()->create(['lesson_price' => 100, 'teacher_share_per_lesson' => 40]);
+        $student = Student::factory()->for($teacher, 'teacher')->for($lessonType)->create(['joined_at' => '2026-07-01']);
+        $studentMonth = StudentMonth::factory()->for($student)->create(['month_date' => '2026-07-01', 'lesson_count' => 2]);
+
+        $this->actingAs($admin)->post(route('admin.month-closing.store'), ['month' => '2026-07'])->assertRedirect();
+        $this->assertSame('200.00', $studentMonth->refresh()->charge_amount);
+        $this->assertSame(1, Expense::query()->where('is_auto_generated', true)->count());
+
+        $this->actingAs($admin)->post(route('admin.month-closing.reopen'), [
+            'month' => '2026-07',
+            'reason' => 'Removing activity entered for the wrong student.',
+        ])->assertRedirect();
+        $studentMonth->update(['lesson_count' => 0]);
+        $this->actingAs($admin)->post(route('admin.month-closing.store'), ['month' => '2026-07'])->assertRedirect();
+
+        $this->assertSame('0.00', $studentMonth->refresh()->charge_amount);
+        $this->assertSame(0, Expense::query()->where('is_auto_generated', true)->count());
     }
 }

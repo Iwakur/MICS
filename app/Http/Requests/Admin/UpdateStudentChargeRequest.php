@@ -6,10 +6,14 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\BillingMonthStatus;
 use App\Enums\ReviewStatus;
+use App\Models\BillingMonth;
 use App\Models\StudentMonth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Validator;
 
 class UpdateStudentChargeRequest extends FormRequest
 {
@@ -26,9 +30,28 @@ class UpdateStudentChargeRequest extends FormRequest
     {
         return [
             'manual_adjustment' => ['required', 'numeric'],
-            'adjustment_reason' => ['required', 'string', 'max:2000'],
+            'adjustment_reason' => [
+                Rule::requiredIf(fn (): bool => (float) $this->input('manual_adjustment', 0) !== 0.0),
+                'nullable',
+                'string',
+                'max:2000',
+            ],
             'status' => ['required', new Enum(ReviewStatus::class)],
             'note' => ['nullable', 'string', 'max:2000'],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            $studentMonth = $this->route('studentMonth');
+
+            if ($studentMonth instanceof StudentMonth && ! BillingMonth::query()
+                ->whereDate('month_date', $studentMonth->month_date)
+                ->where('status', BillingMonthStatus::Closed)
+                ->exists()) {
+                $validator->errors()->add('status', __('messages.generate_before_charge_review'));
+            }
+        }];
     }
 }

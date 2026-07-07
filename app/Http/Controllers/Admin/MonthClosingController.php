@@ -26,6 +26,7 @@ class MonthClosingController extends Controller
             'month' => $month,
             'billingMonth' => BillingMonth::query()->whereDate('month_date', $month)->with(['closedBy', 'events.user'])->first(),
             'preview' => $closing->preview($month),
+            'affectedMonths' => $closing->pendingMonthsThrough($month),
         ]);
     }
 
@@ -38,7 +39,7 @@ class MonthClosingController extends Controller
         );
 
         return to_route('admin.month-closing.index', ['month' => $request->string('month')->toString()])
-            ->with('status', 'Month reopened. Validated financial records remain unchanged.');
+            ->with('status', __('messages.inputs_unlocked_success'));
     }
 
     public function store(CloseBillingMonthRequest $request, MonthClosingService $closing): RedirectResponse
@@ -46,7 +47,7 @@ class MonthClosingController extends Controller
         $closing->close($request->monthDate(), $request->user());
 
         return to_route('admin.month-closing.index', ['month' => $request->string('month')->toString()])
-            ->with('status', 'Month closed and drafts generated successfully.');
+            ->with('status', __('messages.draft_generation_success'));
     }
 
     private function selectedMonth(Request $request): CarbonImmutable

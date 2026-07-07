@@ -27,16 +27,19 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('admin.expenses.create', $this->formOptions());
+        $month = $request->string('month', now()->format('Y-m'))->toString();
+        abort_unless(preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month) === 1, 404);
+
+        return view('admin.expenses.create', $this->formOptions() + ['selectedMonth' => $month]);
     }
 
     public function store(SaveExpenseRequest $request): RedirectResponse
     {
         Expense::query()->create($this->auditedData($request) + ['is_auto_generated' => false]);
 
-        return to_route('admin.expenses.index')->with('status', 'Expense created successfully.');
+        return to_route('admin.expenses.index', ['month' => $request->date('month_date')?->format('Y-m')])->with('status', __('finance.expense_created'));
     }
 
     public function edit(Expense $expense): View
@@ -50,7 +53,7 @@ class ExpenseController extends Controller
     {
         $expense->update($this->auditedData($request));
 
-        return to_route('admin.expenses.index')->with('status', 'Expense updated successfully.');
+        return to_route('admin.expenses.index', ['month' => $expense->month_date?->format('Y-m')])->with('status', __('finance.expense_updated'));
     }
 
     public function destroy(Expense $expense): RedirectResponse
@@ -58,7 +61,7 @@ class ExpenseController extends Controller
         abort_if($expense->is_auto_generated || $expense->status === ReviewStatus::Validated, 403);
         $expense->delete();
 
-        return to_route('admin.expenses.index')->with('status', 'Expense deleted successfully.');
+        return to_route('admin.expenses.index', ['month' => $expense->month_date?->format('Y-m')])->with('status', __('finance.expense_deleted'));
     }
 
     private function formOptions(): array

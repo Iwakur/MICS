@@ -48,9 +48,33 @@ class BankReconciliationTest extends TestCase
         $admin = User::factory()->admin()->create();
         $teacher = User::factory()->teacher()->create();
 
-        $this->actingAs($admin)->post(route('admin.bank-months.store'), [
-            'month' => '2026-07', 'closing_balance' => 10,
-        ])->assertUnprocessable();
+        $this->actingAs($admin)
+            ->from(route('admin.bank-months.index', ['month' => '2026-07']))
+            ->post(route('admin.bank-months.store'), [
+                'month' => '2026-07', 'closing_balance' => 10,
+            ])
+            ->assertRedirect(route('admin.bank-months.index', ['month' => '2026-07']))
+            ->assertSessionHasErrors('variance_reason')
+            ->assertSessionHasInput('closing_balance', 10);
+
+        $this->assertDatabaseEmpty('bank_months');
         $this->actingAs($teacher)->get(route('admin.bank-months.index'))->assertForbidden();
+    }
+
+    public function test_older_bank_month_cannot_be_reconciled_or_reopened_beneath_a_later_reconciliation(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $july = BankMonth::factory()->create(['month_date' => '2026-07-01', 'status' => 'reconciled']);
+        BankMonth::factory()->create(['month_date' => '2026-08-01', 'status' => 'reconciled']);
+
+        $this->actingAs($admin)->post(route('admin.bank-months.reopen', $july), [
+            'reason' => 'Correcting the earlier bank statement balance.',
+        ])->assertInvalid('month');
+
+        $july->update(['status' => 'draft']);
+        $this->actingAs($admin)->post(route('admin.bank-months.store'), [
+            'month' => '2026-07',
+            'closing_balance' => 0,
+        ])->assertInvalid('month');
     }
 }

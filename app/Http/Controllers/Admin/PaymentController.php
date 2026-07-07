@@ -10,6 +10,7 @@ use App\Enums\ReviewStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ReversePaymentRequest;
 use App\Http\Requests\Admin\SavePaymentRequest;
+use App\Models\BankMonth;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Services\StudentBalanceService;
@@ -18,6 +19,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class PaymentController extends Controller
@@ -88,6 +90,7 @@ class PaymentController extends Controller
             Student::query()->whereKey($payment->studentMonth->student_id)->lockForUpdate()->firstOrFail();
             $lockedPayment = Payment::query()->lockForUpdate()->findOrFail($payment->id);
             abort_unless($lockedPayment->status === ReviewStatus::Draft, 422, 'This payment is already validated.');
+            $this->ensureBankMonthIsEditable($lockedPayment->paid_at);
 
             $lockedPayment->update([
                 'status' => ReviewStatus::Validated,
@@ -114,6 +117,7 @@ class PaymentController extends Controller
         $reversal = DB::transaction(function () use ($request, $payment, $balances): Payment {
             Student::query()->whereKey($payment->studentMonth->student_id)->lockForUpdate()->firstOrFail();
             $original = Payment::query()->lockForUpdate()->findOrFail($payment->id);
+            $this->ensureBankMonthIsEditable(now());
             $refundCents = Money::cents($request->input('amount'));
             abort_if($refundCents > $original->refundableCents(), 422, 'The refund exceeds the remaining refundable amount.');
 
@@ -145,5 +149,14 @@ class PaymentController extends Controller
     private function paymentData(array $data): array
     {
         return collect($data)->only(['paid_at', 'amount', 'payment_method', 'note'])->all();
+    }
+
+    private function ensureBankMonthIsEditable(mixed $date): void
+    {
+        if (BankMonth::query()->whereDate('month_date', CarbonImmutable::parse($date)->startOfMonth())->where('status', 'reconciled')->exists()) {
+            throw ValidationException::withMessages([
+                'paid_at' => __('messages.reopen_bank_before_cash_change'),
+            ]);
+        }
     }
 }

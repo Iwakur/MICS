@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class BankReconciliationService
@@ -48,11 +49,18 @@ class BankReconciliationService
             if ($bankMonth->status === 'reconciled') {
                 throw new UnprocessableEntityHttpException('This bank month is already reconciled.');
             }
+            if (BankMonth::query()->whereDate('month_date', '>', $month)->where('status', 'reconciled')->exists()) {
+                throw ValidationException::withMessages([
+                    'month' => __('messages.later_bank_month_reconciled'),
+                ]);
+            }
 
             $totals = $this->totals($month);
             $variance = Money::cents($actual) - Money::cents($totals['expected']);
             if ($variance !== 0 && blank($reason)) {
-                throw new UnprocessableEntityHttpException('A variance reason is required when actual and expected balances differ.');
+                throw ValidationException::withMessages([
+                    'variance_reason' => 'A variance reason is required when actual and expected balances differ.',
+                ]);
             }
 
             $bankMonth->update([
@@ -77,6 +85,11 @@ class BankReconciliationService
             $locked = BankMonth::query()->lockForUpdate()->findOrFail($bankMonth->id);
             if ($locked->status !== 'reconciled') {
                 throw new UnprocessableEntityHttpException('Only a reconciled bank month can be reopened.');
+            }
+            if (BankMonth::query()->whereDate('month_date', '>', $locked->month_date)->where('status', 'reconciled')->exists()) {
+                throw ValidationException::withMessages([
+                    'month' => __('messages.reopen_latest_bank_month_first'),
+                ]);
             }
             $locked->update(['status' => 'draft', 'reconciled_by_user_id' => null, 'reconciled_at' => null]);
             $locked->events()->create(['user_id' => $admin->id, 'action' => 'reopened', 'reason' => $reason, 'occurred_at' => now()]);

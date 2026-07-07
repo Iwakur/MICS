@@ -23,13 +23,15 @@ use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * Converts mutable monthly activity into reviewable financial snapshots.
  *
- * Closing is deliberately manual and transactional. Reclosing after an
- * audited reopen refreshes drafts but never overwrites validated records.
+ * Draft generation is deliberately manual, chronological, and transactional.
+ * Regeneration after an audited unlock refreshes drafts but never overwrites
+ * validated records.
  */
 class MonthClosingService
 {
@@ -47,39 +49,108 @@ class MonthClosingService
         ];
     }
 
+    /** @return Collection<int, CarbonImmutable> */
+    public function pendingMonthsThrough(CarbonImmutable $month): Collection
+    {
+        $selected = BillingMonth::query()->whereDate('month_date', $month)->first();
+        if ($selected?->status === BillingMonthStatus::Closed) {
+            return collect();
+        }
+
+        return BillingMonth::query()
+            ->whereDate('month_date', '<', $month)
+            ->where('status', BillingMonthStatus::Open)
+            ->orderBy('month_date')
+            ->pluck('month_date')
+            ->map(fn (string $date): CarbonImmutable => CarbonImmutable::parse($date)->startOfMonth())
+            ->push($month->startOfMonth());
+    }
+
     public function close(CarbonImmutable $month, User $admin): BillingMonth
     {
         return DB::transaction(function () use ($month, $admin): BillingMonth {
-            $billingMonth = BillingMonth::query()->firstOrCreate(['month_date' => $month]);
-            $billingMonth = BillingMonth::query()->lockForUpdate()->findOrFail($billingMonth->id);
+            $selectedMonth = BillingMonth::query()->firstOrCreate(['month_date' => $month]);
+            $selectedMonth = BillingMonth::query()->lockForUpdate()->findOrFail($selectedMonth->id);
 
-            if ($billingMonth->status === BillingMonthStatus::Closed) {
+            if ($selectedMonth->status === BillingMonthStatus::Closed) {
                 throw new UnprocessableEntityHttpException('This billing month is already closed.');
             }
 
-            $preview = $this->preview($month);
-            Student::query()
-                ->whereKey($preview['students']->pluck('student.id')->sort()->values())
-                ->orderBy('id')
+            $earliestOpenMonth = BillingMonth::query()
+                ->whereDate('month_date', '<=', $month)
+                ->where('status', BillingMonthStatus::Open)
+                ->min('month_date');
+
+            if ($earliestOpenMonth && BillingMonth::query()->whereDate('month_date', '>', $earliestOpenMonth)->where('status', BillingMonthStatus::Closed)->exists()) {
+                throw ValidationException::withMessages([
+                    'month' => __('messages.later_month_already_locked'),
+                ]);
+            }
+
+            $monthsToClose = BillingMonth::query()
+                ->whereDate('month_date', '<=', $month)
+                ->where('status', BillingMonthStatus::Open)
+                ->orderBy('month_date')
                 ->lockForUpdate()
                 ->get();
-            $this->persistStudentMonths($month, $preview['students']);
-            $this->persistOpeningBalances($month);
-            $this->persistSalaryDrafts($month, $preview['salaries']);
 
-            $billingMonth->update([
-                'status' => BillingMonthStatus::Closed,
-                'closed_by_user_id' => $admin->id,
-                'closed_at' => now(),
-            ]);
-            $billingMonth->events()->create([
-                'user_id' => $admin->id,
-                'action' => 'closed',
-                'occurred_at' => now(),
-            ]);
+            foreach ($monthsToClose as $billingMonth) {
+                $this->closeMonth($billingMonth, $admin);
+            }
 
-            return $billingMonth->refresh();
+            return $selectedMonth->refresh();
         }, 3);
+    }
+
+    private function closeMonth(BillingMonth $billingMonth, User $admin): void
+    {
+        $month = CarbonImmutable::parse($billingMonth->month_date)->startOfMonth();
+        $preview = $this->preview($month);
+        $students = Student::query()
+            ->whereDate('joined_at', '<=', $month->endOfMonth())
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+        $this->ensureStudentMonths($month, $students);
+        StudentMonth::query()
+            ->whereDate('month_date', $month)
+            ->where('status', ReviewStatus::Draft)
+            ->update(['charge_amount' => 0]);
+        $this->persistStudentMonths($month, $preview['students']);
+        $this->persistOpeningBalances($month);
+        $this->persistSalaryDrafts($month, $preview['salaries']);
+
+        $billingMonth->update([
+            'status' => BillingMonthStatus::Closed,
+            'closed_by_user_id' => $admin->id,
+            'closed_at' => now(),
+        ]);
+        $billingMonth->events()->create([
+            'user_id' => $admin->id,
+            'action' => 'closed',
+            'occurred_at' => now(),
+        ]);
+    }
+
+    private function ensureStudentMonths(CarbonImmutable $month, Collection $students): void
+    {
+        foreach ($students as $student) {
+            $previous = StudentMonth::query()
+                ->with('validatedPayments')
+                ->whereBelongsTo($student)
+                ->whereDate('month_date', '<', $month)
+                ->latest('month_date')
+                ->first();
+
+            $studentMonth = StudentMonth::query()->firstOrCreate([
+                'student_id' => $student->id,
+                'month_date' => $month,
+            ]);
+
+            if ($previous) {
+                $studentMonth->update(['opening_balance' => $previous->closingBalanceAmount()]);
+            }
+        }
     }
 
     public function reopen(CarbonImmutable $month, User $admin, string $reason): BillingMonth
@@ -89,6 +160,12 @@ class MonthClosingService
 
             if (! $billingMonth || $billingMonth->status !== BillingMonthStatus::Closed) {
                 throw new UnprocessableEntityHttpException('Only a closed billing month can be reopened.');
+            }
+
+            if (BillingMonth::query()->whereDate('month_date', '>', $month)->where('status', BillingMonthStatus::Closed)->exists()) {
+                throw ValidationException::withMessages([
+                    'month' => __('messages.unlock_latest_month_first'),
+                ]);
             }
 
             $billingMonth->update(['status' => BillingMonthStatus::Open]);
@@ -256,6 +333,17 @@ class MonthClosingService
             ['name' => 'Зарплата'],
             ['note' => 'Generated staff salary drafts.'],
         );
+
+        $generationKeys = $salaries
+            ->map(fn (array $salary): string => "salary:{$month->format('Y-m')}:staff:{$salary['staff']->id}");
+        $obsoleteDrafts = Expense::query()
+            ->whereDate('month_date', $month)
+            ->where('is_auto_generated', true)
+            ->where('status', ReviewStatus::Draft);
+        if ($generationKeys->isNotEmpty()) {
+            $obsoleteDrafts->whereNotIn('generation_key', $generationKeys);
+        }
+        $obsoleteDrafts->delete();
 
         foreach ($salaries as $salary) {
             $expense = Expense::query()->firstOrCreate(

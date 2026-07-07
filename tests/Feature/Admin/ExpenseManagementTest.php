@@ -7,6 +7,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\ReviewStatus;
+use App\Models\BankMonth;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Staff;
@@ -26,7 +27,7 @@ class ExpenseManagementTest extends TestCase
         $this->actingAs($admin)->post(route('admin.expenses.store'), [
             'expense_category_id' => $category->id, 'staff_id' => null, 'month_date' => '2026-07-01',
             'amount' => 125, 'status' => 'draft', 'note' => 'Printer repair',
-        ])->assertRedirect(route('admin.expenses.index'));
+        ])->assertRedirect(route('admin.expenses.index', ['month' => '2026-07']));
 
         $expense = Expense::query()->firstOrFail();
         $this->assertFalse($expense->is_auto_generated);
@@ -34,7 +35,7 @@ class ExpenseManagementTest extends TestCase
         $this->actingAs($admin)->put(route('admin.expenses.update', $expense), [
             'expense_category_id' => $category->id, 'staff_id' => null, 'month_date' => '2026-07-01',
             'amount' => 135, 'status' => 'validated', 'note' => 'Final invoice',
-        ])->assertRedirect(route('admin.expenses.index'));
+        ])->assertRedirect(route('admin.expenses.index', ['month' => '2026-07']));
 
         $this->assertSame(ReviewStatus::Validated, $expense->refresh()->status);
         $this->assertSame('135.00', $expense->amount);
@@ -56,7 +57,7 @@ class ExpenseManagementTest extends TestCase
         $this->actingAs($admin)->put(route('admin.expenses.update', $salary), [
             'expense_category_id' => $category->id, 'staff_id' => $staff->id, 'month_date' => '2026-07-01',
             'amount' => 925, 'status' => 'validated', 'note' => 'Approved correction',
-        ])->assertRedirect(route('admin.expenses.index'));
+        ])->assertRedirect(route('admin.expenses.index', ['month' => '2026-07']));
 
         $this->assertSame('925.00', $salary->refresh()->amount);
         $this->assertSame(ReviewStatus::Validated, $salary->status);
@@ -92,5 +93,27 @@ class ExpenseManagementTest extends TestCase
         ])->assertInvalid('note');
 
         $this->assertSame('900.00', $salary->fresh()->amount);
+    }
+
+    public function test_expense_cannot_be_validated_after_its_bank_month_is_reconciled(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $category = ExpenseCategory::factory()->create();
+        $expense = Expense::factory()->for($category, 'category')->create([
+            'month_date' => '2026-07-01',
+            'status' => ReviewStatus::Draft,
+        ]);
+        BankMonth::factory()->create(['month_date' => '2026-07-01', 'status' => 'reconciled']);
+
+        $this->actingAs($admin)->put(route('admin.expenses.update', $expense), [
+            'expense_category_id' => $category->id,
+            'staff_id' => null,
+            'month_date' => '2026-07-01',
+            'amount' => $expense->amount,
+            'status' => 'validated',
+            'note' => 'Final invoice',
+        ])->assertInvalid('status');
+
+        $this->assertSame(ReviewStatus::Draft, $expense->refresh()->status);
     }
 }

@@ -7,7 +7,7 @@
 @section('page-description', __('messages.teacher_dashboard_description'))
 
 @section('content')
-    <section class="grid gap-4 lg:grid-cols-[2fr_1fr]">
+    <section>
         <article class="app-surface p-6">
             <h3 class="text-xl font-semibold text-shell-text">{{ __('messages.welcome_back') }}</h3>
             <p class="mt-3 max-w-2xl text-sm text-shell-muted">
@@ -35,15 +35,6 @@
                 <a href="{{ route('teacher.lesson-counts.index') }}" class="app-button-primary">{{ __('messages.enter_lesson_counts') }}</a>
                 <a href="{{ route('teacher.students.index') }}" class="app-button-secondary">{{ __('messages.open_my_students') }}</a>
             </div>
-        </article>
-
-        <article class="app-surface p-6">
-            <h3 class="text-xl font-semibold text-shell-text">{{ __('messages.current_scope') }}</h3>
-            <ul class="mt-4 space-y-3 text-sm text-shell-muted">
-                <li>{{ __('messages.scope_assigned_students') }}</li>
-                <li>{{ __('messages.scope_create_students') }}</li>
-                <li>{{ __('messages.scope_enter_counts') }}</li>
-            </ul>
         </article>
     </section>
 @endsection

@@ -50,6 +50,6 @@ class StudentChargeController extends Controller
         });
 
         return to_route('admin.student-charges.index', ['month' => $studentMonth->month_date->format('Y-m')])
-            ->with('status', 'Student charge updated successfully.');
+            ->with('status', __('finance.charge_updated'));
     }
 }

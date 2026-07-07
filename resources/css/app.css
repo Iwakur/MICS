@@ -67,6 +67,14 @@
         @apply rounded-2xl border border-shell-border bg-shell-panel-strong/95;
     }
 
+    .app-action-card {
+        @apply cursor-pointer transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-900/60 hover:shadow-lg hover:shadow-black/20 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:outline-none motion-reduce:transform-none;
+    }
+
+    .app-action-card-label {
+        @apply mt-4 inline-flex items-center text-xs font-semibold uppercase tracking-[0.16em] text-brand-300 transition group-hover:translate-x-0.5 group-hover:text-brand-100 motion-reduce:transform-none;
+    }
+
     .app-nav-link {
         @apply block rounded-2xl px-4 py-3 text-sm text-shell-muted transition hover:bg-brand-900/70 hover:text-shell-text;
     }
@@ -84,15 +92,15 @@
     }
 
     .app-button-primary {
-        @apply inline-flex items-center justify-center rounded-2xl bg-shell-accent px-5 py-3 text-sm font-semibold text-brand-950 transition hover:bg-shell-accent-strong focus-visible:ring-2 focus-visible:ring-brand-200 focus-visible:ring-offset-2 focus-visible:ring-offset-shell-bg focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
+        @apply inline-flex cursor-pointer items-center justify-center rounded-2xl bg-shell-accent px-5 py-3 text-sm font-semibold text-brand-950 shadow-md shadow-black/20 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:bg-shell-accent-strong hover:shadow-lg hover:shadow-black/25 active:translate-y-0 active:shadow-sm focus-visible:ring-2 focus-visible:ring-brand-200 focus-visible:ring-offset-2 focus-visible:ring-offset-shell-bg focus-visible:outline-none motion-reduce:transform-none disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md;
     }
 
     .app-button-secondary {
-        @apply inline-flex items-center justify-center rounded-2xl border border-shell-border px-5 py-3 text-sm font-semibold text-shell-text transition hover:border-brand-500 hover:text-brand-50 focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
+        @apply inline-flex cursor-pointer items-center justify-center rounded-2xl border border-shell-border bg-shell-panel/60 px-5 py-3 text-sm font-semibold text-shell-text shadow-sm shadow-black/15 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-900/60 hover:text-brand-50 hover:shadow-md hover:shadow-black/20 active:translate-y-0 active:shadow-sm focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:outline-none motion-reduce:transform-none disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm;
     }
 
     .app-button-danger {
-        @apply inline-flex items-center justify-center rounded-xl border border-red-400/35 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 transition hover:border-red-300 hover:text-red-50 focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
+        @apply inline-flex cursor-pointer items-center justify-center rounded-xl border border-red-400/35 bg-red-950/20 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 shadow-sm shadow-black/15 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-950/45 hover:text-red-50 hover:shadow-md hover:shadow-red-950/25 active:translate-y-0 active:shadow-sm focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:outline-none motion-reduce:transform-none disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm;
     }
 
     .app-badge-admin {

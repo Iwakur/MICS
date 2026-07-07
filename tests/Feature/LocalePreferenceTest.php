@@ -103,4 +103,22 @@ class LocalePreferenceTest extends TestCase
             ->assertSeeText('Поле «ім’я» обов’язкове.')
             ->assertSeeText('Поле «дата приєднання» обов’язкове.');
     }
+
+    public function test_core_admin_finance_pages_render_in_ukrainian(): void
+    {
+        $admin = User::factory()->admin()->create(['locale' => 'uk']);
+
+        $this->actingAs($admin)->get(route('admin.finance-summary', ['month' => '2026-07']))
+            ->assertOk()->assertSee('Місячний фінансовий звіт');
+        $this->actingAs($admin)->get(route('admin.month-closing.index', ['month' => '2026-07']))
+            ->assertOk()->assertSee('Формування місячних чернеток');
+        $this->actingAs($admin)->get(route('admin.bank-months.index', ['month' => '2026-07']))
+            ->assertOk()->assertSee('Фактичний кінцевий баланс');
+        $this->actingAs($admin)->get(route('admin.student-charges.index', ['month' => '2026-07']))
+            ->assertOk()->assertSee('Перевірка нарахувань учням');
+        $this->actingAs($admin)->get(route('admin.payments.index', ['month' => '2026-07']))
+            ->assertOk()->assertSee('Записати оплату');
+        $this->actingAs($admin)->get(route('admin.expenses.index', ['month' => '2026-07']))
+            ->assertOk()->assertSee('Витрати та чернетки зарплат');
+    }
 }

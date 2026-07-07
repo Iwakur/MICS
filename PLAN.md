@@ -12,7 +12,50 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Provide a reviewed, idempotent fresh-install seed derived from private school source documents while preserving Ukrainian names and excluding sensitive or ambiguous financial data.
+Keep the teacher workflow concise while preserving its assignment and authorization boundaries.
+
+### Teacher Dashboard
+
+- Removed the explanatory "Current Scope" card from the teacher dashboard.
+- The dashboard now uses one full-width operational card; teacher access rules and assigned-student scoping are unchanged.
+
+### Student Charge Review
+
+- An unchanged generated charge can be validated without an adjustment reason.
+- A non-zero manual adjustment still requires an attributed reason, and validated charges remain immutable.
+
+### Shared Button Feedback
+
+- Primary, secondary, and danger actions now share restrained hover lift, shadow, pressed, pointer, keyboard-focus, reduced-motion, and disabled states through the central Tailwind component classes.
+- Monthly Finance dashboard cards now show a persistent action label and card-level hover, press, pointer, and keyboard-focus feedback.
+
+### Bank Reconciliation Validation
+
+- A missing reason for a non-zero bank variance now returns to the reconciliation form with a field validation message and preserved input instead of rendering an unhandled 422 exception page.
+
+### Monthly Draft Naming
+
+- User-facing English and Ukrainian copy now calls the existing close operation "Draft Generation": it generates financial drafts and locks operational inputs; reopening is presented as unlocking inputs for correction.
+- Internal database states and service method names remain `open`/`closed` because behavior and persistence have not changed.
+
+### Chronological Month Integrity
+
+- Generating a selected month now also generates every earlier existing editable billing month, oldest first, in the same transaction.
+- Months with no saved billing activity are not invented automatically.
+- Only the latest locked month can be unlocked, preventing later debt openings and financial snapshots from resting on mutable earlier inputs.
+- An inconsistent older editable month beneath a locked later month returns a normal validation error instead of silently rewriting the balance chain.
+- Every joined student receives a derived monthly ledger row during generation, so paused or inactive students keep carrying prior debt even without lesson activity.
+- Regeneration clears obsolete unvalidated charges and salary drafts while preserving validated financial records.
+- Student charges cannot be reviewed or validated until that month’s drafts have been generated.
+- Bank reconciliation is chronological: older reconciliations cannot be created or reopened beneath later reconciled months.
+- A reconciled bank month blocks later validation of receipts, expenses, and refunds in that period; administrators must reopen it first so expected cash can be recalculated.
+
+### Finance UX Review
+
+- Draft generation now lists every existing editable month affected before confirmation.
+- Dashboard finance cards preserve the selected month and include summary, lesson counts, draft generation, charges, payments, expenses, and bank reconciliation.
+- Core finance screens use shared English/Ukrainian translations and locale-aware dates and numbers; bank reconciliation displays expected, actual, and variance values.
+- Mobile navigation is collapsed behind an accessible toggle, and critical/destructive forms use centralized confirmation behavior.
 
 ### Language and Regional Presentation
 

@@ -7,6 +7,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\ReviewStatus;
+use App\Models\BillingMonth;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentMonth;
@@ -26,6 +27,7 @@ class StudentChargeReviewTest extends TestCase
             'month_date' => '2026-07-01', 'opening_balance' => 20, 'charge_amount' => 100,
             'manual_adjustment' => 0, 'status' => ReviewStatus::Draft,
         ]);
+        BillingMonth::factory()->create(['month_date' => '2026-07-01', 'status' => 'closed']);
         Payment::factory()->validated()->for($month)->create(['amount' => 40]);
 
         $this->actingAs($admin)->put(route('admin.student-charges.update', $month), [
@@ -47,9 +49,41 @@ class StudentChargeReviewTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $month = StudentMonth::factory()->create(['status' => ReviewStatus::Draft]);
+        BillingMonth::factory()->create(['month_date' => $month->month_date, 'status' => 'closed']);
 
         $this->actingAs($admin)->put(route('admin.student-charges.update', $month), [
             'manual_adjustment' => 5, 'adjustment_reason' => '', 'status' => 'draft',
         ])->assertInvalid('adjustment_reason');
+    }
+
+    public function test_admin_validates_unchanged_charge_without_a_reason(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $month = StudentMonth::factory()->create([
+            'manual_adjustment' => 0,
+            'status' => ReviewStatus::Draft,
+        ]);
+        BillingMonth::factory()->create(['month_date' => $month->month_date, 'status' => 'closed']);
+
+        $this->actingAs($admin)->put(route('admin.student-charges.update', $month), [
+            'manual_adjustment' => 0,
+            'status' => 'validated',
+        ])->assertRedirect();
+
+        $this->assertSame(ReviewStatus::Validated, $month->refresh()->status);
+        $this->assertNull($month->adjustment_reason);
+    }
+
+    public function test_charge_cannot_be_reviewed_before_monthly_drafts_are_generated(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $month = StudentMonth::factory()->create(['status' => ReviewStatus::Draft]);
+
+        $this->actingAs($admin)->put(route('admin.student-charges.update', $month), [
+            'manual_adjustment' => 0,
+            'status' => 'validated',
+        ])->assertInvalid('status');
+
+        $this->assertSame(ReviewStatus::Draft, $month->refresh()->status);
     }
 }
