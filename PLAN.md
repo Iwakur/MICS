@@ -12,7 +12,13 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Keep the teacher workflow concise while preserving its assignment and authorization boundaries.
+Strengthen automated test coverage around deployment-facing bootstrap, authentication, and cached-route/config behavior so containerized releases fail earlier in CI instead of at startup.
+
+### Current Testing Push
+
+- Add feature coverage for cached configuration and cached route boot paths, root/login entry redirects, and login throttling.
+- Add console coverage for the one-time administrator bootstrap command, including successful creation and safe refusal when an administrator already exists.
+- Re-run targeted and full PHPUnit coverage after each change so new tests prove existing behavior instead of redefining it.
 
 ### Teacher Dashboard
 
