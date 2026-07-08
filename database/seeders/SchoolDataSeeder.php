@@ -100,7 +100,6 @@ class SchoolDataSeeder extends Seeder
                     'status' => StudentStatus::Active,
                     'billing_type' => $isPlan ? StudentBillingType::PlanBased : StudentBillingType::PerLesson,
                     'lesson_type_id' => $row['lesson_type_id'] ?? null,
-                    'lesson_amount' => null,
                     'plan_id' => $row['plan_id'] ?? null,
                     'plan_start_at' => $isPlan ? self::SEED_DATE : null,
                     'discount_amount' => $row['discount_amount'] ?? 0,

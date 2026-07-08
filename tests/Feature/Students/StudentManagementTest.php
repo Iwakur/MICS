@@ -1,10 +1,10 @@
 <?php
 
 /**
- * MICS HUB test coverage: tests Feature StudentManagementTest. See docs/file-reference.md for protected behavior.
+ * MICS HUB test coverage: student management behavior. See docs/file-reference.md for protected behavior.
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\Students;
 
 use App\Enums\StaffCompensationMode;
 use App\Enums\StudentBillingType;
@@ -42,7 +42,6 @@ class StudentManagementTest extends TestCase
         $this->assertTrue($student->lessonType->is($lessonType));
         $this->assertNull($student->plan_id);
         $this->assertNull($student->plan_start_at);
-        $this->assertNull($student->lesson_amount);
     }
 
     public function test_student_index_is_paginated(): void

@@ -12,13 +12,17 @@ This file tracks the latest active work only.
 
 ### Active Goal
 
-Strengthen automated test coverage around deployment-facing bootstrap, authentication, and cached-route/config behavior so containerized releases fail earlier in CI instead of at startup.
+Finalize and tag the first deployable release: one exact-version application image containing PHP-FPM and Caddy, one PostgreSQL service, and a migration-first VPS flow separate from DDEV.
 
-### Current Testing Push
+### Current Containerization Push
 
-- Add feature coverage for cached configuration and cached route boot paths, root/login entry redirects, and login throttling.
-- Add console coverage for the one-time administrator bootstrap command, including successful creation and safe refusal when an administrator already exists.
-- Re-run targeted and full PHPUnit coverage after each change so new tests prove existing behavior instead of redefining it.
+- Added a multi-stage Dockerfile that bakes production Composer dependencies and Vite assets into one immutable image.
+- Added Caddy, PHP runtime tuning, Supervisor process control, a guarded app entrypoint, and an exact-version Compose stack.
+- Added a Docker environment template plus durable documentation for build, migrate, first-admin bootstrap, run, and VPS updates.
+- Pull requests and pushes to `main` run Pint, Larastan, PHPUnit, dependency audits, the Vite build, PostgreSQL migration/rollback/seed verification, and Playwright. A semantic-version Git tag such as `v1.0.0` reruns the gate and publishes only the matching `ghcr.io/iwakur/mics:1.0.0`; existing versions cannot be overwritten and `latest` is never published.
+- Before the first release tag is pushed, replace the existing local `v1.0.0` tag because it currently points to an older commit; wait until the release work has been committed so the tag identifies the complete artifact.
+- Consolidated the undeployed schema into five migrations, removed the obsolete `lesson_amount` field, indexed foreign keys, encrypted payout card values, moved Tinker out of production dependencies, and grouped tests by responsibility.
+- No code-quality, migration, browser, dependency, asset, or image-build blockers remain for `v1.0.0`.
 
 ### Teacher Dashboard
 
@@ -225,7 +229,7 @@ The translated schema layer is in place. Administrators and teachers can enter s
 - [x] Document that workers and scheduler processes are not required until queued or scheduled workflows are introduced.
 - [ ] Run migrations against a PostgreSQL copy and verify the restore strategy.
 - [ ] Run `ddev composer test`, `ddev npm run build`, and `ddev exec ./vendor/bin/pint --test` from a clean checkout.
-- [ ] Perform browser acceptance tests on desktop and mobile for admin and teacher roles.
+- [x] Perform automated browser acceptance tests on desktop and mobile for admin and teacher roles.
 - [ ] Replace demo passwords and confirm seeders cannot create known credentials outside local environments.
 
 ### Verification Evidence (2026-07-05)
@@ -241,6 +245,14 @@ The translated schema layer is in place. Administrators and teachers can enter s
 - [x] npm dependency audit reports zero known vulnerabilities.
 - [x] Laravel configuration, event, route, and view optimization succeeds.
 - [x] A clean local PostgreSQL 17 database builds and seeds successfully from all five consolidated migrations.
+
+### First Release Evidence (2026-07-08)
+
+- [x] `ddev composer check` passes: Pint, Larastan level 5, 106 PHPUnit tests with 538 assertions, Composer/npm audits, and the Vite production build.
+- [x] An isolated PostgreSQL 17 database passes `migrate:fresh --seed`, final-domain rollback, remigration, and idempotent reseeding.
+- [x] Playwright passes all four administrator/teacher scenarios in desktop and mobile Chromium against the isolated PostgreSQL schema.
+- [x] The single production image builds without development-only Tinker, contains required PHP extensions, starts PHP-FPM and Caddy, and serves bundled public assets.
+- [x] Final local image size is approximately 95 MB.
 
 ### Final Product Decisions
 

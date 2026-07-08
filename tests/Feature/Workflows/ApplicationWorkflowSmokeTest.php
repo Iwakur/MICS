@@ -1,10 +1,10 @@
 <?php
 
 /**
- * MICS HUB test coverage: tests Feature ApplicationWorkflowSmokeTest. See docs/file-reference.md for protected behavior.
+ * MICS HUB test coverage: application workflow rendering. See docs/file-reference.md for protected behavior.
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\Workflows;
 
 use App\Models\LessonType;
 use App\Models\Plan;

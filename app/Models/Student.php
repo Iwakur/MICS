@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'staff_id', 'first_name', 'family_name', 'father_name', 'email', 'phone',
     'birthday', 'city', 'joined_at', 'status', 'billing_type', 'lesson_type_id',
-    'lesson_amount', 'plan_id', 'plan_start_at', 'discount_amount', 'note',
+    'plan_id', 'plan_start_at', 'discount_amount', 'note',
 ])]
 class Student extends Model
 {
@@ -78,7 +78,7 @@ class Student extends Model
     {
         static::saved(function (self $student): void {
             $tracked = [
-                'staff_id', 'status', 'billing_type', 'lesson_type_id', 'lesson_amount',
+                'staff_id', 'status', 'billing_type', 'lesson_type_id',
                 'plan_id', 'plan_start_at', 'discount_amount',
             ];
 

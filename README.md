@@ -38,6 +38,10 @@ The first command runs the application, logs, and Vite watcher. The second runs 
 
 Use `ddev composer test:workflow` for the three-month finance regression and `ddev npm run test:e2e` for browser smoke tests after installing Chromium with `ddev npm run playwright:install`.
 
+## Release Model
+
+Pull requests and pushes to `main` run the complete quality, PostgreSQL migration, and browser gate. Pushing an annotated semantic-version tag such as `v1.0.0` reruns that gate and, only after success, publishes the matching immutable image `ghcr.io/iwakur/mics:1.0.0`. Releases do not publish a `latest` tag.
+
 ## Source of Truth
 
 1. Migrations, models, services, policies, and tests define implemented behavior.
@@ -52,6 +56,7 @@ Students are business records, not login accounts. Every active login links to a
 - [Architecture guide](docs/codebase-guide.md): Laravel request flow, domain services, database history, and source boundaries.
 - [Product workflows](docs/product-workflows.md): operational steps for setup and a complete monthly cycle.
 - [Command reference](docs/commands.md): what every supported command does and when to use it.
+- [Docker deployment guide](docs/docker.md): exact-version single-image production build and migration-first VPS release flow.
 - [Testing guide](docs/testing.md): PHPUnit, PostgreSQL, Playwright, static analysis, audits, and CI.
 - [Development guide](docs/development-conventions.md): safe feature and bug-fix workflow.
 - [Troubleshooting](docs/troubleshooting.md): common local, CI, database, asset, and finance failures.

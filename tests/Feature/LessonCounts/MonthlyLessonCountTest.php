@@ -1,10 +1,10 @@
 <?php
 
 /**
- * MICS HUB test coverage: tests Feature MonthlyLessonCountTest. See docs/file-reference.md for protected behavior.
+ * MICS HUB test coverage: monthly lesson-count behavior. See docs/file-reference.md for protected behavior.
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\LessonCounts;
 
 use App\Enums\BillingMonthStatus;
 use App\Models\BillingMonth;

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * MICS HUB test coverage: tests Feature DatabaseSeederTest. See docs/file-reference.md for protected behavior.
+ * MICS HUB test coverage: database seeding behavior. See docs/file-reference.md for protected behavior.
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\Infrastructure;
 
 use App\Models\ExpenseCategory;
 use App\Models\LessonType;

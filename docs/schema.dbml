@@ -15,6 +15,7 @@ Table users {
   password varchar [not null]
   role varchar [not null, default: 'teacher']
   is_active boolean [not null, default: true]
+  locale varchar(5) [not null, default: 'en']
   remember_token varchar
   staff_id bigint [unique]
   last_login_at timestamp
@@ -42,7 +43,7 @@ Table staff {
   phone varchar(32)
   birthday date
   city varchar(100)
-  payout_card_number varchar(64)
+  payout_card_number text [note: 'Application-encrypted']
   compensation_mode varchar(20) [not null, default: 'fixed']
   salary_amount decimal(10,2)
   is_active boolean [not null, default: true]
@@ -91,7 +92,6 @@ Table students {
   status varchar(20) [not null, default: 'active']
   billing_type varchar(20) [not null]
   lesson_type_id bigint
-  lesson_amount integer
   plan_id bigint
   plan_start_at date
   discount_amount decimal(10,2) [not null, default: 0]
@@ -135,7 +135,6 @@ Table student_configurations {
   status varchar(20) [not null, default: 'active']
   billing_type varchar(20) [not null]
   lesson_type_id bigint
-  lesson_amount integer
   plan_id bigint
   plan_start_at date
   discount_amount decimal(10,2) [not null, default: 0]

@@ -12,6 +12,7 @@ use App\Http\Requests\Admin\SaveExpenseRequest;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Staff;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -39,7 +40,7 @@ class ExpenseController extends Controller
     {
         Expense::query()->create($this->auditedData($request) + ['is_auto_generated' => false]);
 
-        return to_route('admin.expenses.index', ['month' => $request->date('month_date')?->format('Y-m')])->with('status', __('finance.expense_created'));
+        return to_route('admin.expenses.index', ['month' => $this->requestMonth($request)])->with('status', __('finance.expense_created'));
     }
 
     public function edit(Expense $expense): View
@@ -53,7 +54,7 @@ class ExpenseController extends Controller
     {
         $expense->update($this->auditedData($request));
 
-        return to_route('admin.expenses.index', ['month' => $expense->month_date?->format('Y-m')])->with('status', __('finance.expense_updated'));
+        return to_route('admin.expenses.index', ['month' => $this->requestMonth($request)])->with('status', __('finance.expense_updated'));
     }
 
     public function destroy(Expense $expense): RedirectResponse
@@ -61,7 +62,9 @@ class ExpenseController extends Controller
         abort_if($expense->is_auto_generated || $expense->status === ReviewStatus::Validated, 403);
         $expense->delete();
 
-        return to_route('admin.expenses.index', ['month' => $expense->month_date?->format('Y-m')])->with('status', __('finance.expense_deleted'));
+        $month = CarbonImmutable::parse((string) $expense->month_date)->format('Y-m');
+
+        return to_route('admin.expenses.index', ['month' => $month])->with('status', __('finance.expense_deleted'));
     }
 
     private function formOptions(): array
@@ -82,5 +85,10 @@ class ExpenseController extends Controller
         }
 
         return $data;
+    }
+
+    private function requestMonth(SaveExpenseRequest $request): string
+    {
+        return CarbonImmutable::parse((string) $request->validated('month_date'))->format('Y-m');
     }
 }

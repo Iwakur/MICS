@@ -69,7 +69,6 @@ class DatabaseSchemaTest extends TestCase
         $this->assertSame(StudentBillingType::PlanBased, $student->billing_type);
         $this->assertTrue($student->plan->is($plan));
         $this->assertNull($student->lessonType);
-        $this->assertNull($student->lesson_amount);
     }
 
     public function test_one_student_can_have_only_one_row_for_a_month(): void

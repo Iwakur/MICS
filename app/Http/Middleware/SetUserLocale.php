@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -11,7 +12,8 @@ class SetUserLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $request->user()?->locale ?? config('app.locale');
+        $user = $request->user();
+        $locale = $user instanceof User ? $user->locale : config('app.locale');
 
         if (array_key_exists($locale, (array) config('app.supported_locales'))) {
             App::setLocale($locale);

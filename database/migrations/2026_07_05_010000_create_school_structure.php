@@ -25,7 +25,7 @@ return new class extends Migration
 
         Schema::create('staff', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('staff_role_id')->constrained()->restrictOnDelete();
+            $table->foreignId('staff_role_id')->index()->constrained()->restrictOnDelete();
             $table->string('first_name', 100);
             $table->string('family_name', 100)->nullable();
             $table->string('father_name', 100)->nullable();
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('phone', 32)->nullable()->index();
             $table->date('birthday')->nullable();
             $table->string('city', 100)->nullable();
-            $table->string('payout_card_number', 64)->nullable();
+            $table->text('payout_card_number')->nullable();
             $table->string('compensation_mode', 20)->default('fixed')->index();
             $table->decimal('salary_amount', 10, 2)->nullable();
             $table->boolean('is_active')->default(true)->index();
@@ -62,7 +62,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 100)->unique();
             $table->unsignedInteger('duration_minutes');
-            $table->unsignedInteger('lesson_count');
+            $table->decimal('lesson_count', 5, 1);
             $table->decimal('lesson_price', 10, 2);
             $table->decimal('plan_price', 10, 2);
             $table->decimal('teacher_monthly_amount', 10, 2)->default(0);
@@ -84,9 +84,8 @@ return new class extends Migration
             $table->date('joined_at')->index();
             $table->string('status', 20)->default('active')->index();
             $table->string('billing_type', 20)->index();
-            $table->foreignId('lesson_type_id')->nullable()->constrained()->restrictOnDelete();
-            $table->unsignedInteger('lesson_amount')->nullable();
-            $table->foreignId('plan_id')->nullable()->constrained()->restrictOnDelete();
+            $table->foreignId('lesson_type_id')->nullable()->index()->constrained()->restrictOnDelete();
+            $table->foreignId('plan_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->date('plan_start_at')->nullable();
             $table->decimal('discount_amount', 10, 2)->default(0);
             $table->text('note')->nullable();
@@ -124,12 +123,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
             $table->date('effective_from');
-            $table->foreignId('staff_id')->constrained()->restrictOnDelete();
+            $table->foreignId('staff_id')->index()->constrained()->restrictOnDelete();
             $table->string('status', 20)->default('active')->index();
             $table->string('billing_type', 20)->index();
-            $table->foreignId('lesson_type_id')->nullable()->constrained()->restrictOnDelete();
-            $table->unsignedInteger('lesson_amount')->nullable();
-            $table->foreignId('plan_id')->nullable()->constrained()->restrictOnDelete();
+            $table->foreignId('lesson_type_id')->nullable()->index()->constrained()->restrictOnDelete();
+            $table->foreignId('plan_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->date('plan_start_at')->nullable();
             $table->decimal('discount_amount', 10, 2)->default(0);
             $table->timestamps();

@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-mics_hub}
+      POSTGRES_USER: ${DB_USERNAME:-mics_hub}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-mics_hub} -d ${DB_DATABASE:-mics_hub}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  app:
+    image: ghcr.io/iwakur/mics:1.0.0
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
+  migrate:
+    image: ghcr.io/iwakur/mics:1.0.0
+    env_file:
+      - .env.docker
+    environment:
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: []
+    command: ["php", "artisan", "migrate", "--force"]
+    profiles: ["tools"]
+
+volumes:
+  postgres-data:

@@ -35,7 +35,6 @@ class StudentFactory extends Factory
             'status' => StudentStatus::Active,
             'billing_type' => StudentBillingType::PerLesson,
             'lesson_type_id' => LessonType::factory(),
-            'lesson_amount' => null,
             'plan_id' => null,
             'plan_start_at' => null,
             'discount_amount' => 0,
@@ -48,7 +47,6 @@ class StudentFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'billing_type' => StudentBillingType::PlanBased,
             'lesson_type_id' => null,
-            'lesson_amount' => null,
             'plan_id' => Plan::factory(),
             'plan_start_at' => now()->startOfMonth(),
         ]);

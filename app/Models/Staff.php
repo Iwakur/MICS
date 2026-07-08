@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\StaffCompensationMode;
 use Database\Factories\StaffFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'birthday', 'city', 'payout_card_number', 'compensation_mode', 'salary_amount',
     'is_active', 'note',
 ])]
+#[Hidden(['payout_card_number'])]
 class Staff extends Model
 {
     /** @use HasFactory<StaffFactory> */
@@ -27,6 +29,7 @@ class Staff extends Model
     {
         return [
             'birthday' => 'date',
+            'payout_card_number' => 'encrypted',
             'compensation_mode' => StaffCompensationMode::class,
             'salary_amount' => 'decimal:2',
             'is_active' => 'boolean',

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'student_id', 'effective_from', 'staff_id', 'status', 'billing_type', 'lesson_type_id',
-    'lesson_amount', 'plan_id', 'plan_start_at', 'discount_amount',
+    'plan_id', 'plan_start_at', 'discount_amount',
 ])]
 class StudentConfiguration extends Model
 {

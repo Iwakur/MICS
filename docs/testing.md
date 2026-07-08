@@ -4,7 +4,7 @@
 
 - PHPUnit unit tests verify framework-independent money behavior.
 - PHPUnit feature tests boot Laravel and verify routes, validation, authorization, persistence, transactions, and finance rules using isolated databases.
-- `LongitudinalWorkflowTest` simulates July through September, including effective rates, debt carry, partial refund, bank reconciliation, reopen, and validated-record preservation.
+- `tests/Feature/Workflows/LongitudinalWorkflowTest.php` simulates July through September, including effective rates, debt carry, partial refund, bank reconciliation, reopen, and validated-record preservation.
 - Playwright uses real Chromium against seeded PostgreSQL to verify login, role navigation, finance entry points, and mobile rendering.
 - Larastan detects invalid types and relationship assumptions. Pint enforces consistent PHP style.
 - Composer/npm audits compare locked dependencies with known security advisories.
@@ -20,7 +20,7 @@ ddev exec ./vendor/bin/pint --test
 ddev npm run build
 ```
 
-The test environment uses in-memory SQLite for speed. CI additionally migrates and seeds PostgreSQL 17 for browser tests, catching database-specific schema problems. Concurrency-sensitive balance logic uses transactions and deterministic PostgreSQL lock ordering; SQLite cannot reproduce lock contention.
+The PHPUnit environment uses in-memory SQLite for speed. CI then migrates, rolls back the final domain migration, remigrates, and seeds PostgreSQL 17 before running Playwright against that database. This catches database-specific schema and browser-bootstrap problems. Concurrency-sensitive balance logic uses transactions and deterministic PostgreSQL lock ordering; SQLite cannot reproduce lock contention.
 
 ## Writing Tests
 

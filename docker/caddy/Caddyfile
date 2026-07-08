@@ -1,0 +1,19 @@
+{
+	admin off
+	auto_https off
+}
+
+:8080 {
+	root * /var/www/html/public
+	encode zstd gzip
+
+	@forbidden path /.env* /storage/* /bootstrap/* /vendor/*
+	respond @forbidden 404
+
+	php_fastcgi 127.0.0.1:9000 {
+		root /var/www/html/public
+		try_files {path} /index.php
+	}
+
+	file_server
+}

@@ -48,6 +48,9 @@ class StaffManagementTest extends TestCase
         $this->assertNotNull($staff);
         $this->assertTrue($staff->user->is($teacherAccount));
         $this->assertSame(UserRole::Teacher, $staff->user->role);
+        $this->assertSame('1234567890123456', $staff->payout_card_number);
+        $this->assertNotSame('1234567890123456', $staff->getRawOriginal('payout_card_number'));
+        $this->assertArrayNotHasKey('payout_card_number', $staff->toArray());
     }
 
     public function test_admin_can_replace_a_staff_members_linked_user(): void

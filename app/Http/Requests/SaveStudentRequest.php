@@ -64,7 +64,6 @@ class SaveStudentRequest extends FormRequest
     {
         $data = $this->safe()->except(['staff_id']);
         $data['staff_id'] = $forcedStaffId ?? $this->integer('staff_id');
-        $data['lesson_amount'] = null;
 
         if ($this->input('billing_type') === StudentBillingType::PerLesson->value) {
             $data['plan_id'] = null;

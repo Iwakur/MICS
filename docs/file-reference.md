@@ -8,6 +8,7 @@ Each entry describes one maintained source file or one intentionally grouped gen
 
 - `.agents/`: project-local coding-agent skills and repository workflow guidance; not runtime application code.
 - `.ddev/`: reproducible local PHP, nginx, PostgreSQL, mail, and tooling environment.
+- `docker/`: production container runtime files for Caddy, PHP, Supervisor, and entrypoint behavior.
 - `app/`: all MICS HUB runtime PHP classes.
 - `app/Console/Commands/`: custom Artisan commands.
 - `app/Enums/`: finite backed-string domain states persisted by Eloquent.
@@ -40,7 +41,9 @@ Each entry describes one maintained source file or one intentionally grouped gen
 ## Root Project Files
 
 - `.env.example`: safe local environment template; includes application, database, session, queue, cache, and mail variables.
+- `.env.docker.example`: production-oriented container environment template for Compose or VPS deployment.
 - `.editorconfig`: line endings, indentation, encoding, and final-newline rules shared by editors.
+- `.dockerignore`: keeps non-runtime files and local state out of Docker build contexts.
 - `.gitattributes`: Git text normalization and export behavior.
 - `.gitignore`: excludes secrets, dependencies, runtime state, and compiled assets.
 - `AGENTS.md`: repository collaboration, Laravel learning, testing, and documentation rules.
@@ -48,6 +51,9 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `PLAN.md`: active work, confirmed constraints, quality checklist, demo walkthrough, and final blockers.
 - `composer.json`: PHP dependency manifest, PSR-4 autoloading, and setup/dev/test scripts.
 - `composer.lock`: exact PHP dependency versions used for reproducible installation.
+- `compose.prod.yml`: exact-image orchestration for the application, PostgreSQL, and the one-off migration task.
+- `Dockerfile`: multi-stage immutable build for one PHP-FPM, Caddy, and application image.
+- `.github/workflows/release.yml`: tests pull requests and pushes to `main`; semantic-version Git tags rerun the gate and publish the matching exact GHCR image after success.
 - `package.json`: frontend dependency and Vite command manifest.
 - `package-lock.json`: exact npm dependency graph.
 - `phpunit.xml`: PHPUnit environment; uses in-memory SQLite and testing-specific services.
@@ -56,12 +62,12 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `phpstan-baseline.neon`: reviewed existing Laravel inference findings; new findings still fail CI.
 - `vite.config.js`: Tailwind/Vite build inputs and development-server integration.
 - `boost.json`: Laravel Boost tooling configuration.
-- `.github/workflows/ci.yml`: push/pull-request quality gate for formatting, static analysis, PHPUnit, and assets.
 - `artisan`: Laravel console entrypoint that boots the application and dispatches commands.
 
 ## Documentation
 
 - `docs/codebase-guide.md`: framework and MICS HUB architecture guide, including request lifecycle and accounting design.
+- `docs/docker.md`: immutable Docker deployment design, build steps, migration flow, and VPS constraints.
 - `docs/file-reference.md`: this path-by-path maintained-source inventory.
 - `docs/development-conventions.md`: safe change workflow, code placement, money, locking, authorization, migrations, and testing rules.
 - `docs/commands.md`: supported local, database, quality, diagnostic, Git, and release commands with safety notes.
@@ -78,6 +84,13 @@ Each entry describes one maintained source file or one intentionally grouped gen
 - `bootstrap/app.php`: Laravel 13 application builder; registers routes, aliases, and exception behavior.
 - `bootstrap/providers.php`: provider list loaded during application boot.
 - `bootstrap/cache/.gitignore`: keeps generated framework cache files out of Git.
+
+## Docker Runtime Files
+
+- `docker/entrypoint.sh`: app-container startup guard that checks `APP_KEY`, prepares writable directories, and optionally builds Laravel caches.
+- `docker/php/php.ini`: production-leaning PHP and opcache settings for the PHP-FPM container.
+- `docker/caddy/Caddyfile`: Caddy static-file serving and local PHP-FPM proxy configuration.
+- `docker/supervisor/supervisord.conf`: keeps PHP-FPM and Caddy running in the single application container.
 
 ## Console
 
@@ -312,25 +325,28 @@ Each entry describes one maintained source file or one intentionally grouped gen
 
 - `tests/TestCase.php`: shared Laravel application test base.
 - `tests/Unit/MoneyTest.php`: exact decimal-to-cent conversion, database formatting, negative values, and invalid-precision coverage.
-- `tests/Feature/ApplicationWorkflowSmokeTest.php`: renders every maintained admin and teacher workflow page against connected seeded data to catch route/controller/Blade contract failures.
+- `tests/Feature/Workflows/ApplicationWorkflowSmokeTest.php`: renders every maintained admin and teacher workflow page against connected seeded data to catch route/controller/Blade contract failures.
 - `tests/Feature/Auth/AuthenticationTest.php`: login page, guest redirect, success, bad password, inactivity, and logout.
-- `tests/Feature/DashboardAccessTest.php`: role dispatch, admin denial, and immediate deactivated-session revocation.
+- `tests/Feature/Auth/DashboardAccessTest.php`: role dispatch, admin denial, and immediate deactivated-session revocation.
 - `tests/Feature/Admin/UserManagementTest.php`: account CRUD and last-admin/self-delete safety.
 - `tests/Feature/Admin/StaffManagementTest.php`: staff/account linking, replacement, conflict, archive, compensation validation, authorization, and inactive-option retention.
 - `tests/Feature/Admin/StaffRoleManagementTest.php`: seeded teacher role, CRUD, archive preservation, and teacher denial.
-- `tests/Feature/StudentManagementTest.php`: admin/teacher student CRUD, billing validation, assignment capability, archive, ownership, and archived-option retention.
+- `tests/Feature/Students/StudentManagementTest.php`: admin/teacher student CRUD, billing validation, assignment capability, archive, ownership, and archived-option retention.
 - `tests/Feature/Admin/CatalogManagementTest.php`: lesson/plan CRUD, archive, non-negative rates, and authorization.
-- `tests/Feature/MonthlyLessonCountTest.php`: admin/teacher scope, eligibility, persistence, and closed-month locking.
+- `tests/Feature/LessonCounts/MonthlyLessonCountTest.php`: admin/teacher scope, eligibility, persistence, and closed-month locking.
 - `tests/Feature/Admin/MonthClosingTest.php`: generated charges/salaries/balances, idempotency, authorization, lifecycle audit, reopen/reclose, and validated-record protection.
 - `tests/Feature/Admin/StudentChargeReviewTest.php`: attributed adjustments, validation, reason requirement, immutability, and carry-forward.
 - `tests/Feature/Admin/PaymentManagementTest.php`: draft CRUD, validation, immutability, authorization, multiple refunds, over-refund protection, propagation, and prior-balance carry.
 - `tests/Feature/Admin/ExpenseManagementTest.php`: manual expense and generated salary review, validation, correction, and delete protection.
 - `tests/Feature/Admin/FinanceSummaryTest.php`: separation of drafts/validated values, positive debt, student credit, expense classes, rendering, and authorization.
-- `tests/Feature/DatabaseSeederTest.php`: connected idempotent reference/demo seeds.
+- `tests/Feature/Infrastructure/DatabaseSeederTest.php`: connected idempotent reference/demo seeds.
+- `tests/Feature/Infrastructure/DeploymentReadinessTest.php`: cached bootstrap, guest entrypoints, and login throttling used by container deployments.
+- `tests/Feature/Localization/LocalePreferenceTest.php`: persisted locale selection and English/Ukrainian rendering and formatting.
+- `tests/Feature/Admin/AdminDashboardStatisticsTest.php`: effective-month dashboard student statistics.
 - `tests/Feature/Domain/DatabaseSchemaTest.php`: relationships, constraints, balance semantics, cascades, preservation, and unique keys.
 - `tests/Feature/Admin/BankReconciliationTest.php`: expected/actual totals, attribution, variance requirements, audit reopen, and authorization.
 - `tests/Feature/Admin/ExpenseCategoryManagementTest.php`: category CRUD, archive/delete behavior, and authorization.
-- `tests/Feature/LongitudinalWorkflowTest.php`: deterministic three-month effective-rate, debt, refund, salary, reconciliation, and reopen regression.
+- `tests/Feature/Workflows/LongitudinalWorkflowTest.php`: deterministic three-month effective-rate, debt, refund, salary, reconciliation, and reopen regression.
 - `tests/Browser/core-workflows.spec.js`: real Chromium admin, teacher, finance navigation, and mobile smoke checks.
 
 ## Generated and Third-Party Areas

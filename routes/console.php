@@ -1,12 +1,7 @@
 <?php
 
 /**
- * Console closure commands and the future scheduling entrypoint for MICS HUB.
+ * Console scheduling entrypoint for MICS HUB.
+ *
+ * No scheduled business tasks are required for the current application.
  */
-
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');

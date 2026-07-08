@@ -23,10 +23,10 @@ return new class extends Migration
             $table->decimal('charge_amount', 10, 2)->default(0);
             $table->decimal('manual_adjustment', 10, 2)->default(0);
             $table->string('status', 20)->default('draft')->index();
-            $table->foreignId('validated_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('validated_by_user_id')->nullable()->index()->constrained('users')->nullOnDelete();
             $table->timestamp('validated_at')->nullable();
             $table->text('adjustment_reason')->nullable();
-            $table->foreignId('adjusted_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('adjusted_by_user_id')->nullable()->index()->constrained('users')->nullOnDelete();
             $table->text('note')->nullable();
             $table->timestamps();
 
@@ -44,7 +44,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->string('payment_method', 50);
             $table->string('status', 20)->default('draft')->index();
-            $table->foreignId('validated_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('validated_by_user_id')->nullable()->index()->constrained('users')->nullOnDelete();
             $table->timestamp('validated_at')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
@@ -63,12 +63,12 @@ return new class extends Migration
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             // Staff deletion never removes financial history.
-            $table->foreignId('staff_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('staff_id')->nullable()->index()->constrained()->nullOnDelete();
             $table->foreignId('expense_category_id')->constrained()->restrictOnDelete();
             $table->date('month_date')->nullable()->index();
             $table->decimal('amount', 10, 2);
             $table->string('status', 20)->default('draft')->index();
-            $table->foreignId('validated_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('validated_by_user_id')->nullable()->index()->constrained('users')->nullOnDelete();
             $table->timestamp('validated_at')->nullable();
             $table->boolean('is_auto_generated')->default(false)->index();
             $table->string('generation_key')->nullable()->unique();
@@ -81,7 +81,7 @@ return new class extends Migration
         Schema::create('salary_draft_sources', function (Blueprint $table) {
             $table->id();
             $table->foreignId('expense_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('student_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('student_id')->nullable()->index()->constrained()->nullOnDelete();
             $table->string('source_type', 30)->index();
             $table->string('description');
             $table->decimal('units', 10, 2)->default(1);
@@ -96,7 +96,7 @@ return new class extends Migration
             $table->id();
             $table->date('month_date')->unique();
             $table->string('status', 20)->default('open')->index();
-            $table->foreignId('closed_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('closed_by_user_id')->nullable()->index()->constrained('users')->nullOnDelete();
             $table->timestamp('closed_at')->nullable();
             $table->timestamps();
         });
@@ -104,7 +104,7 @@ return new class extends Migration
         Schema::create('billing_month_events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('billing_month_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->index()->constrained()->nullOnDelete();
             $table->string('action', 20);
             $table->text('reason')->nullable();
             $table->timestamp('occurred_at');
@@ -121,7 +121,7 @@ return new class extends Migration
             $table->decimal('expected_closing_balance', 10, 2)->default(0);
             $table->string('status', 20)->default('draft')->index();
             $table->text('variance_reason')->nullable();
-            $table->foreignId('reconciled_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('reconciled_by_user_id')->nullable()->index()->constrained('users')->nullOnDelete();
             $table->timestamp('reconciled_at')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
@@ -130,7 +130,7 @@ return new class extends Migration
         Schema::create('bank_month_events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bank_month_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->index()->constrained()->nullOnDelete();
             $table->string('action', 20);
             $table->text('reason')->nullable();
             $table->timestamp('occurred_at');

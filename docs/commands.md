@@ -14,6 +14,19 @@ Run local commands from the repository root. DDEV commands execute in the projec
 | `ddev npm ci` | Restores exact JavaScript dependencies from `package-lock.json`; preferred in CI. |
 | `ddev composer dev` | Runs the local server processes, logs, and Vite watcher until interrupted. |
 
+## Docker Production Path
+
+| Command | Why and expected result |
+|---|---|
+| `cp .env.docker.example .env.docker` | Creates the runtime template for immutable Docker deployment. Fill in `APP_KEY` and real secrets before use. |
+| `docker build -t ghcr.io/iwakur/mics:1.0.0 .` | Builds the exact single-container release locally. CI publishes it after the quality gate passes. |
+| `docker compose --env-file .env.docker -f compose.prod.yml pull app migrate` | Pulls the exact image version configured for the VPS. |
+| `docker compose --env-file .env.docker -f compose.prod.yml up -d db` | Starts PostgreSQL before migrations or app boot. |
+| `docker compose --env-file .env.docker -f compose.prod.yml --profile tools run --rm migrate` | Runs the release migration step explicitly. Use once per deploy. |
+| `docker compose --env-file .env.docker -f compose.prod.yml run --rm app php artisan app:bootstrap-administrator` | Creates the first linked administrator interactively after the first migration; it refuses once an active administrator exists. |
+| `docker compose --env-file .env.docker -f compose.prod.yml up -d app` | Starts the application container after the database is ready and migrations have run. |
+| `docker compose --env-file .env.docker -f compose.prod.yml logs -f app db` | Streams container logs for startup and deploy diagnosis. |
+
 ## Database
 
 | Command | Why and expected result |
@@ -66,3 +79,12 @@ git push origin feature
 ```
 
 Open a pull request from `feature` to `main`. For a bug use `fix` and include a regression test. Never force-push `main`.
+
+After the intended release commit is on `main` and its quality workflow passes, create and push an annotated release tag:
+
+```bash
+git tag -a v1.0.0 -m "MICS HUB 1.0.0"
+git push origin v1.0.0
+```
+
+The tag workflow reruns the complete gate and publishes only `ghcr.io/iwakur/mics:1.0.0`. Never reuse a published release tag or Docker version.
